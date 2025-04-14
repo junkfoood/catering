@@ -2,181 +2,234 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Catering Period Contract FINVITETT23000011</title>
+  <title>Catering Comparison</title>
   <style>
-    /* Basic layout and spacing */
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    label, select, pre { display: block; margin: 15px 0; }
-    .section-title { font-weight: bold; margin-top: 1em; }
-    ul { margin: 0 0 1em 20px; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    /* Container for all the selection blocks */
+    #selections-container {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 10px 0;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+
+    /* Each selection block takes 50% of the screen */
+    .selection-block {
+      flex: 0 0 50%;
+      max-width: 50%;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      padding: 15px;
+      background: #fafafa;
+    }
+
+    label, select, pre {
+      display: block;
+      margin: 10px 0;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-top: 1em;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    td, th {
+      border: 1px solid #aaa;
+      padding: 6px;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 6px;
+    }
   </style>
 
-  <!-- Supabase client library -->
+  <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <h2>Select Vendor and Catering Category</h2>
+  <h2>Compare Catering Options</h2>
 
-  <!-- Vendor dropdown -->
-  <label for="vendor-select">Vendor:</label>
-  <select id="vendor-select">
-    <option value="">-- Select Vendor --</option>
-    <option value="Chilli Api">Chilli Api Catering</option>
-    <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
-  </select>
-
-  <!-- Main category dropdown -->
-  <label for="main-category-select">Category Information:</label>
-  <select id="main-category-select" disabled>
-    <option value="">-- Select Category --</option>
-    <option value="1">1 – Small Quantity (SQ) Refreshment</option>
-    <option value="2">2 – Small Quantity (SQ) Buffet</option>
-    <option value="3">3 – Packed Meals</option>
-    <option value="4">4 – Tea Reception</option>
-    <option value="5">5 – Buffet 1</option>
-    <option value="6">6 – Buffet 2</option>
-    <option value="7">7 – BBQ Buffet</option>
-    <option value="8">8 – Theme Buffet</option>
-    <option value="9A">9A – Ethnic Food (Malay Cuisine)</option>
-    <option value="9B">9B – Ethnic Food (Indian Cuisine)</option>
-  </select>
-
-  <!-- Menu variant dropdown -->
-  <label for="category-select">Menu Option:</label>
-  <select id="category-select" disabled>
-    <option value="">-- Select Menu --</option>
-  </select>
-
-  <!-- Summary and menu display -->
-  <pre id="summary-output"></pre>
-  <div id="menu-output"></div>
+  <!-- Scrollable row of button + comparison blocks + button at top -->
+  <div id="comparison-wrapper">
+    <button onclick="addSelectionBlock()">➕ Add Comparison</button>
+    <div id="selections-container"></div>
+  </div>
 
   <script>
-    // Initialise Supabase client
     const { createClient } = supabase;
-    const supabaseClient = createClient('https://xkrmzydahhshvurpvkkb.supabase.co',
+    const supabaseClient = createClient(
+      'https://xkrmzydahhshvurpvkkb.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrcm16eWRhaGhzaHZ1cnB2a2tiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1OTU4NjgsImV4cCI6MjA2MDE3MTg2OH0.H8Am9qa-aexipyEUGgkHlzSxCCq01xZt6hs7lK31ojw'
     );
 
-    // DOM references
-    const vendorSelect = document.getElementById('vendor-select');
-    const mainCategorySelect = document.getElementById('main-category-select');
-    const categorySelect = document.getElementById('category-select');
-    const summaryOutput = document.getElementById('summary-output');
-    const menuOutput = document.getElementById('menu-output');
+    let blockCount = 0;
+    window.onload = () => addSelectionBlock();
 
-    // When vendor is selected
-    vendorSelect.addEventListener('change', function () {
-      const vendor = this.value;
-      console.log('Vendor selected:', vendor); // log to check if its picking up the vendor
+    function addSelectionBlock() {
+      const blockId = blockCount++;
+      const container = document.getElementById('selections-container');
 
-      // Enable main category only if vendor is selected
-      mainCategorySelect.disabled = !vendor;
-      console.log('mainCategorySelect.disabled =', mainCategorySelect.disabled); // log to check if its picking up the categories
+      const block = document.createElement('div');
+      block.className = 'selection-block';
+      block.innerHTML = `
+        <label>Vendor:
+          <select id="vendor-${blockId}">
+            <option value="">-- Select Vendor --</option>
+            <option value="Chilli Api">Chilli Api Catering</option>
+            <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
+          </select>
+        </label>
 
-      // Reset menu options and display
-      categorySelect.innerHTML = '<option value="">-- Select Menu --</option>';
-      categorySelect.disabled = true;
-      summaryOutput.textContent = '';
-      menuOutput.innerHTML = '';
-    });
+        <label>Category:
+          <select id="category-${blockId}" disabled>
+            <option value="">-- Select Category --</option>
+            <option value="1">1 – Small Quantity (SQ) Refreshment</option>
+            <option value="2">2 – Small Quantity (SQ) Buffet</option>
+            <option value="3">3 – Packed Meals</option>
+            <option value="4">4 – Tea Reception</option>
+            <option value="5">5 – Buffet 1</option>
+            <option value="6">6 – Buffet 2</option>
+            <option value="7">7 – BBQ Buffet</option>
+            <option value="8">8 – Theme Buffet</option>
+            <option value="9A">9A – Ethnic Food (Malay Cuisine)</option>
+            <option value="9B">9B – Ethnic Food (Indian Cuisine)</option>
+          </select>
+        </label>
 
-    // When category is selected
-    mainCategorySelect.addEventListener('change', function () {
-      const vendor = vendorSelect.value;
-      const selectedMainCategory = this.value;
+        <label>Menu Option:
+          <select id="menu-${blockId}" disabled>
+            <option value="">-- Select Menu --</option>
+          </select>
+        </label>
 
-      // List of categories where menu is not applicable
-      const disableMenus = ['2', '3', '4', '5', '6', '7', '8', '9A', '9B'];
+        <pre id="summary-${blockId}"></pre>
+        <div id="menu-output-${blockId}"></div>
+      `;
 
-      // Reset menu dropdown
-      categorySelect.innerHTML = '<option value="">-- Select Menu --</option>';
-      categorySelect.disabled = disableMenus.includes(selectedMainCategory);
+      container.appendChild(block);
+      setupBlockHandlers(blockId);
+    }
 
-      // Only enable menu options if category is 1 and vendor is Chilli Api
-      if (selectedMainCategory === '1' && vendor === 'Chilli Api') {
-        categorySelect.innerHTML += `
-          <option value="C101">[Catering 101] SQ Refreshment 1</option>
-          <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
-        categorySelect.disabled = false;
-      }
-    });
+    function setupBlockHandlers(id) {
+      const vendor = document.getElementById(`vendor-${id}`);
+      const category = document.getElementById(`category-${id}`);
+      const menu = document.getElementById(`menu-${id}`);
+      const summary = document.getElementById(`summary-${id}`);
+      const output = document.getElementById(`menu-output-${id}`);
 
-    // When a specific menu variant is selected
-    categorySelect.addEventListener('change', async function () {
-      const selectedCategory = this.value;
-      console.log('Fetching package with code:', selectedCategory); // log for fetching category
+      vendor.addEventListener('change', () => {
+        category.disabled = !vendor.value;
+        menu.innerHTML = '<option value="">-- Select Menu --</option>';
+        menu.disabled = true;
+        summary.textContent = '';
+        output.innerHTML = '';
+      });
 
-      // Fetch package info (summary details)
-      const { data: pkg, error } = await supabaseClient
-        .from('menu_packages')
-        .select('id, code, title, price_per_pax, moqfd, delivery_fee, general_note')
-        .eq('code', selectedCategory)
-        .single();
+      category.addEventListener('change', () => {
+        const disableMenus = ['2', '3', '4', '5', '6', '7', '8', '9A', '9B'];
+        menu.innerHTML = '<option value="">-- Select Menu --</option>';
+        menu.disabled = disableMenus.includes(category.value);
 
-        console.log('pkg:', pkg);
-        console.log('error:', error); // logs for return
+        if (vendor.value === 'Chilli Api' && category.value === '1') {
+          menu.innerHTML += `
+            <option value="C101">[Catering 101] SQ Refreshment 1</option>
+            <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
+          menu.disabled = false;
+        }
+      });
 
-      if (error) return;
+      menu.addEventListener('change', async () => {
+        const selected = menu.value;
 
-      // Show basic info summary
-      summaryOutput.textContent = `Price per pax: $${pkg.price_per_pax}
+        const { data: pkg } = await supabaseClient
+          .from('menu_packages')
+          .select('id, price_per_pax, moqfd, delivery_fee, general_note')
+          .eq('code', selected)
+          .single();
+
+        if (!pkg) return;
+
+        summary.textContent = `Price per pax: $${pkg.price_per_pax}
 MOQFD: ${pkg.moqfd} pax
 Delivery Fee: $${pkg.delivery_fee} if MOQFD not met
 
 ${pkg.general_note}`;
 
-      // Fetch sections tied to the selected package
-      const { data: sections, error: sectionsError } = await supabaseClient
-        .from('menu_sections')
-        .select('id, package_id, title, note, selection_limit')
-        .eq('package_id', pkg.id)
-        .order('display_order');
+        const { data: sections } = await supabaseClient
+          .from('menu_sections')
+          .select('id, title, note, selection_limit')
+          .eq('package_id', pkg.id)
+          .order('display_order');
 
-        console.log('sections:', sections);
-        console.log('sectionsError:', sectionsError);// log for sections
+        const sectionIds = sections.map(s => s.id);
 
-      const sectionIds = sections.map(s => s.id);
+        const { data: items } = await supabaseClient
+          .from('menu_items')
+          .select('section_id, name, is_vegetarian, is_deep_fried, row_order, col_order')
+          .in('section_id', sectionIds);
 
-      // Fetch menu items under those sections
-      const { data: items, error3 } = await supabaseClient
-        .from('menu_items')
-        .select('section_id, name, is_vegetarian, is_deep_fried')
-        .in('section_id', sectionIds);
+        output.innerHTML = sections.map((section, secIndex) => {
+          const sectionItems = items
+            .filter(i => i.section_id === section.id)
+            .sort((a, b) => (a.row_order - b.row_order) || (a.col_order - b.col_order));
 
-        console.log('items:', items);
-        console.log('error:', error3); // log for items
+          const rows = [];
 
-      // Render each section and its items
-      menuOutput.innerHTML = sections.map(section => {
-  const sectionItems = items
-    .filter(i => i.section_id === section.id)
-    .sort((a, b) => (a.row_order - b.row_order) || (a.col_order - b.col_order));
+          sectionItems.forEach((item, idx) => {
+            const rowIndex = item.row_order || 1;
+            if (!rows[rowIndex]) rows[rowIndex] = [];
 
-  // group items by row_order
-  const rows = [];
-  sectionItems.forEach(item => {
-    const rowIndex = item.row_order || 1;
-    if (!rows[rowIndex]) rows[rowIndex] = [];
-    let label = item.name;
-    if (item.is_deep_fried) label += ' *DF';
-    if (item.is_vegetarian) label += ' (v)';
-    rows[rowIndex].push(`<td>${label}</td>`);
-  });
+            let label = item.name;
+            if (item.is_deep_fried) label += ' *DF';
+            if (item.is_vegetarian) label += ' (v)';
 
-  const tableRows = rows
-    .filter(Boolean)
-    .map(rowCells => `<tr>${rowCells.join('')}</tr>`)
-    .join('');
+            const checkboxId = `b${id}_s${secIndex}_i${idx}`;
+            rows[rowIndex].push(`
+              <td>
+                <label>
+                  <input type="checkbox"
+                         class="menu-checkbox"
+                         data-section="${id}_${secIndex}"
+                         onchange="handleCheckboxChange('${id}_${secIndex}', ${section.selection_limit})"
+                         id="${checkboxId}" />
+                  ${label}
+                </label>
+              </td>`);
+          });
 
-  return `
-    <div class="section-title">${section.title}</div>
-    <div><em>${section.note} (Pick ${section.selection_limit})</em></div>
-    <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; margin-bottom: 2em;">
-      ${tableRows}
-    </table>`;
-}).join('');
-    });
+          const tableRows = rows
+            .filter(Boolean)
+            .map(row => `<tr>${row.join('')}</tr>`)
+            .join('');
+
+          return `
+            <div class="section-title">${section.title}</div>
+            <div><em>${section.note} (Pick ${section.selection_limit})</em></div>
+            <table>${tableRows}</table>`;
+        }).join('');
+      });
+    }
+
+    function handleCheckboxChange(key, limit) {
+      const boxes = document.querySelectorAll(`input[data-section="${key}"]`);
+      const checked = Array.from(boxes).filter(cb => cb.checked).length;
+      boxes.forEach(cb => {
+        if (!cb.checked) cb.disabled = checked >= limit;
+        else cb.disabled = false;
+      });
+    }
   </script>
 </body>
 </html>
