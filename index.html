@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Catering Comparison</title>
+  <title>Catering Options</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -59,15 +59,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <h2>Compare Catering Options</h2>
+  <h2>FINVITETT23000011 Catering Options</h2>
 
-  <!-- Scrollable row of button + comparison blocks + button at top -->
+  <!-- Button to add comparison blocks -->
   <div id="comparison-wrapper">
     <button onclick="addSelectionBlock()">➕ Add Comparison</button>
     <div id="selections-container"></div>
   </div>
 
   <script>
+    // Initialise Supabase client
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://xkrmzydahhshvurpvkkb.supabase.co',
@@ -77,10 +78,12 @@
     let blockCount = 0;
     window.onload = () => addSelectionBlock();
 
+    // Add a new comparison block
     function addSelectionBlock() {
       const blockId = blockCount++;
       const container = document.getElementById('selections-container');
 
+      // Create HTML for selection block
       const block = document.createElement('div');
       block.className = 'selection-block';
       block.innerHTML = `
@@ -114,6 +117,24 @@
           </select>
         </label>
 
+        <label>No. of Pax:
+          <input type="number" id="pax-${blockId}" value="20" min="1" />
+        </label>
+
+        <!-- Table for showing breakdown cost estimates -->
+        <table id="cost-summary-${blockId}">
+          <thead>
+            <tr><th>No.</th><th>Description</th><th>Amount ($)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td id="row1desc-${blockId}">-</td><td id="row1amt-${blockId}">-</td></tr>
+            <tr><td>2</td><td id="row2desc-${blockId}">-</td><td id="row2amt-${blockId}">-</td></tr>
+            <tr><td>3</td><td>1.5% Admin Fee</td><td id="row3amt-${blockId}">-</td></tr>
+            <tr><td></td><td><strong>Total</strong></td><td id="rowTotal-${blockId}">-</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Section for summary and menu items -->
         <pre id="summary-${blockId}"></pre>
         <div id="menu-output-${blockId}"></div>
       `;
@@ -122,14 +143,17 @@
       setupBlockHandlers(blockId);
     }
 
+    // Handle dropdown changes and fetch Supabase data
     function setupBlockHandlers(id) {
       const vendor = document.getElementById(`vendor-${id}`);
       const category = document.getElementById(`category-${id}`);
       const menu = document.getElementById(`menu-${id}`);
       const summary = document.getElementById(`summary-${id}`);
       const output = document.getElementById(`menu-output-${id}`);
+      const paxInput = document.getElementById(`pax-${id}`);
 
       vendor.addEventListener('change', () => {
+        category.value = "";
         category.disabled = !vendor.value;
         menu.innerHTML = '<option value="">-- Select Menu --</option>';
         menu.disabled = true;
@@ -148,25 +172,48 @@
             <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
           menu.disabled = false;
         }
+
+        if (vendor.value === 'Continental Delight' && category.value === '1') {
+          menu.innerHTML += `
+            <option value="C101">[Catering 101] SQ Refreshment 1</option>
+            <option value="C102">[Catering 102] SQ Refreshment 2</option>
+            <option value="C103">[Catering 103] SQ Refreshment 3</option>
+            <option value="C104">[Catering 104] SQ Refreshment 4</option>`;
+          menu.disabled = false;
+        }
       });
 
       menu.addEventListener('change', async () => {
         const selected = menu.value;
+        const pax = parseInt(paxInput.value) || 0;
 
         const { data: pkg } = await supabaseClient
           .from('menu_packages')
-          .select('id, price_per_pax, moqfd, delivery_fee, general_note')
+          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried')
           .eq('code', selected)
+          .eq('vendor', vendor.value)
           .single();
 
         if (!pkg) return;
 
         summary.textContent = `Price per pax: $${pkg.price_per_pax}
 MOQFD: ${pkg.moqfd} pax
-Delivery Fee: $${pkg.delivery_fee} if MOQFD not met
+Delivery Fee: $${pkg.delivery_fee} if MOQFD not met\n\n${pkg.general_note}`;
 
-${pkg.general_note}`;
+        // Cost breakdown logic
+        const subtotal = pkg.price_per_pax * pax;
+        const delivery = pax < pkg.moqfd ? pkg.delivery_fee : 0;
+        const admin = (subtotal + delivery) * 0.015;
+        const total = subtotal + delivery + admin;
 
+        document.getElementById(`row1desc-${id}`).textContent = `Vendor: ${vendor.value}, Category: ${category.value}, Menu: ${selected}, No. of Pax: ${pax}`;
+        document.getElementById(`row1amt-${id}`).textContent = subtotal.toFixed(2);
+        document.getElementById(`row2desc-${id}`).textContent = pax < pkg.moqfd ? 'Delivery Fee' : 'Delivery Waived';
+        document.getElementById(`row2amt-${id}`).textContent = delivery.toFixed(2);
+        document.getElementById(`row3amt-${id}`).textContent = admin.toFixed(2);
+        document.getElementById(`rowTotal-${id}`).textContent = total.toFixed(2);
+
+        // Fetch sections and items
         const { data: sections } = await supabaseClient
           .from('menu_sections')
           .select('id, title, note, selection_limit')
@@ -180,13 +227,13 @@ ${pkg.general_note}`;
           .select('section_id, name, is_vegetarian, is_deep_fried, row_order, col_order')
           .in('section_id', sectionIds);
 
+        // Render the menu
         output.innerHTML = sections.map((section, secIndex) => {
           const sectionItems = items
             .filter(i => i.section_id === section.id)
             .sort((a, b) => (a.row_order - b.row_order) || (a.col_order - b.col_order));
 
           const rows = [];
-
           sectionItems.forEach((item, idx) => {
             const rowIndex = item.row_order || 1;
             if (!rows[rowIndex]) rows[rowIndex] = [];
@@ -202,7 +249,8 @@ ${pkg.general_note}`;
                   <input type="checkbox"
                          class="menu-checkbox"
                          data-section="${id}_${secIndex}"
-                         onchange="handleCheckboxChange('${id}_${secIndex}', ${section.selection_limit})"
+                         data-deep-fried="${item.is_deep_fried}"
+                         onchange="handleCheckboxChange('${id}_${secIndex}', ${section.selection_limit}, ${pkg.max_deep_fried})"
                          id="${checkboxId}" />
                   ${label}
                 </label>
@@ -220,14 +268,35 @@ ${pkg.general_note}`;
             <table>${tableRows}</table>`;
         }).join('');
       });
+
+      // Recalculate cost when pax input is changed
+      paxInput.addEventListener('input', () => {
+        menu.dispatchEvent(new Event('change'));
+      });
     }
 
-    function handleCheckboxChange(key, limit) {
+    // Checkbox selection logic with limit and deep-fried restrictions
+    function handleCheckboxChange(key, limit, maxDeepFried) {
       const boxes = document.querySelectorAll(`input[data-section="${key}"]`);
-      const checked = Array.from(boxes).filter(cb => cb.checked).length;
+      let checkedCount = 0;
+      let deepFriedCount = 0;
+
       boxes.forEach(cb => {
-        if (!cb.checked) cb.disabled = checked >= limit;
-        else cb.disabled = false;
+        if (cb.checked) {
+          checkedCount++;
+          if (cb.dataset.deepFried === "true") {
+            deepFriedCount++;
+          }
+        }
+      });
+
+      boxes.forEach(cb => {
+        const isDeepFried = cb.dataset.deepFried === "true";
+        if (!cb.checked) {
+          cb.disabled = checkedCount >= limit || (isDeepFried && deepFriedCount >= maxDeepFried);
+        } else {
+          cb.disabled = false;
+        }
       });
     }
   </script>
