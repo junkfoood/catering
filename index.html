@@ -2,309 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Catering Options</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-
-    /* Container for all the selection blocks */
-    #selections-container {
-      display: flex;
-      gap: 20px;
-      overflow-x: auto;
-      padding: 10px 0;
-      border-top: 1px solid #ccc;
-      border-bottom: 1px solid #ccc;
-    }
-
-    /* Each selection block takes 50% of the screen */
-    .selection-block {
-      flex: 0 0 50%;
-      max-width: 50%;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      padding: 15px;
-      background: #fafafa;
-    }
-
-    .selection-block .section-title,
-    .selection-block table,
-    .selection-block label {
-      font-size: 14px;
-    }
-
-    label, select, pre {
-      display: block;
-      margin: 10px 0;
-    }
-
-    .section-title {
-      font-weight: bold;
-      margin-top: 1em;
-    }
-
-    table {
-      border-collapse: collapse;
-      margin-top: 10px;
-      width: 100%;
-    }
-
-    td, th {
-      border: 1px solid #aaa;
-      padding: 6px;
-    }
-
-    input[type="checkbox"] {
-      margin-right: 6px;
-    }
-  </style>
-
-  <!-- Supabase client -->
+  <title>CaterCompare</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
-<body>
-  <h2>FINVITETT23000011 Catering Options</h2>
+<body class="bg-gray-50 text-gray-800">
 
-  <!-- Button to add comparison blocks -->
-  <div id="comparison-wrapper">
-    <button onclick="addSelectionBlock()">➕ Add Comparison</button>
-    <div id="selections-container"></div>
+<!-- Navigation Bar -->
+<nav class="bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+
+      <!-- Left: Logo and Title -->
+      <div class="flex items-center flex-shrink-0">
+        <img src="index images/logo.png" alt="Logo" class="h-8 w-8 mr-2">
+        <span class="text-xl font-bold">FINVITETT23000011 Catering</span>
+      </div>
+
+      <!-- Center: Comparison Link -->
+      <div class="absolute left-1/2 transform -translate-x-1/2">
+        <a href="comparison.html" class="text-gray-700 hover:text-orange-500 text-lg">Comparison</a>
+      </div>
+
+      <!-- Right: Empty div to maintain spacing -->
+      <div class="w-32"></div>
+
+    </div>
   </div>
+</nav>
 
+  <!-- Hero Section -->
+  <section class="text-black justify-center">
+    <div class="p-6 rounded text-center bg-cover bg-center" style="background-image: url('index images/Catering.jpg');">
+      <h1 class="text-3xl md:text-5xl font-bold mb-4">Find the Perfect Caterer for Your Event</h1>
+      <p class="mb-6 text-lg">Compare prices from catering vendors all in one place.</p>
+      <div class="flex justify-center">
+        <input type="text" id="vendor-search" placeholder="Search vendors..." class="w-80 px-4 py-2 rounded-l border border-gray-300">
+        <button class="bg-orange-500 text-white px-5 py-2 rounded-r hover:bg-orange-600">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vendor List -->
+  <section class="p-6 max-w-4xl mx-auto">
+    <h2 class="text-xl font-bold mb-4">Available Vendors</h2>
+    <ul id="vendor-list" class="space-y-2"></ul>
+  </section>
+
+  <!-- Supabase Vendor Script -->
   <script>
-    // Initialise Supabase client
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://xkrmzydahhshvurpvkkb.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrcm16eWRhaGhzaHZ1cnB2a2tiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1OTU4NjgsImV4cCI6MjA2MDE3MTg2OH0.H8Am9qa-aexipyEUGgkHlzSxCCq01xZt6hs7lK31ojw'
     );
 
-    let blockCount = 0;
-    window.onload = () => addSelectionBlock();
+    async function loadVendors() {
+      const { data, error } = await supabaseClient
+        .from('menu_packages')
+        .select('vendor')
+        .neq('vendor', null);
 
-    // Add a new comparison block
-    function addSelectionBlock() {
-      const blockId = blockCount++;
-      const container = document.getElementById('selections-container');
+      if (error) {
+        console.error('Error fetching vendors:', error);
+        return;
+      }
 
-      // Create HTML for selection block
-      const block = document.createElement('div');
-      block.className = 'selection-block';
-      block.innerHTML = `
-        <label>Vendor:
-          <select id="vendor-${blockId}">
-            <option value="">-- Select Vendor --</option>
-            <option value="Chilli Api">Chilli Api Catering</option>
-            <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
-          </select>
-        </label>
+      const vendors = [...new Set(data.map(pkg => pkg.vendor))]; // deduplicate
+      const list = document.getElementById('vendor-list');
+      list.innerHTML = vendors.map(v => `<li class="bg-white p-3 rounded shadow">${v}</li>`).join('');
 
-        <label>Category:
-          <select id="category-${blockId}" disabled>
-            <option value="">-- Select Category --</option>
-            <option value="1">1 – Small Quantity (SQ) Refreshment</option>
-            <option value="2">2 – Small Quantity (SQ) Buffet</option>
-            <option value="3">3 – Packed Meals</option>
-            <option value="4">4 – Tea Reception</option>
-            <option value="5">5 – Buffet 1</option>
-            <option value="6">6 – Buffet 2</option>
-            <option value="7">7 – BBQ Buffet</option>
-            <option value="8">8 – Theme Buffet</option>
-            <option value="9A">9A – Ethnic Food (Malay Cuisine)</option>
-            <option value="9B">9B – Ethnic Food (Indian Cuisine)</option>
-          </select>
-        </label>
-
-        <label>Menu Option:
-          <select id="menu-${blockId}" disabled>
-            <option value="">-- Select Menu --</option>
-          </select>
-        </label>
-
-        <label>No. of Pax:
-          <input type="number" id="pax-${blockId}" value="20" min="1" />
-        </label>
-
-        <!-- Table for showing breakdown cost estimates -->
-        <table id="cost-summary-${blockId}">
-          <thead>
-            <tr><th>No.</th><th>Description</th><th>Amount ($)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>1</td><td id="row1desc-${blockId}">-</td><td id="row1amt-${blockId}">-</td></tr>
-            <tr><td>2</td><td id="row2desc-${blockId}">-</td><td id="row2amt-${blockId}">-</td></tr>
-            <tr><td>3</td><td>1.5% Admin Fee</td><td id="row3amt-${blockId}">-</td></tr>
-            <tr><td></td><td><strong>Total</strong></td><td id="rowTotal-${blockId}">-</td></tr>
-          </tbody>
-        </table>
-
-        <!-- Section for summary and menu items -->
-        <pre id="summary-${blockId}"></pre>
-        <div id="menu-output-${blockId}"></div>
-      `;
-
-      container.appendChild(block);
-      setupBlockHandlers(blockId);
-    }
-
-    // Handle dropdown changes and fetch Supabase data
-    function setupBlockHandlers(id) {
-      const vendor = document.getElementById(`vendor-${id}`);
-      const category = document.getElementById(`category-${id}`);
-      const menu = document.getElementById(`menu-${id}`);
-      const summary = document.getElementById(`summary-${id}`);
-      const output = document.getElementById(`menu-output-${id}`);
-      const paxInput = document.getElementById(`pax-${id}`);
-
-      vendor.addEventListener('change', () => {
-        category.value = "";
-        category.disabled = !vendor.value;
-        menu.innerHTML = '<option value="">-- Select Menu --</option>';
-        menu.disabled = true;
-        summary.textContent = '';
-        output.innerHTML = '';
-      });
-
-      category.addEventListener('change', () => {
-        const disableMenus = ['2', '3', '4', '5', '6', '7', '8', '9A', '9B'];
-        menu.innerHTML = '<option value="">-- Select Menu --</option>';
-        menu.disabled = disableMenus.includes(category.value);
-
-        if (vendor.value === 'Chilli Api' && category.value === '1') {
-          menu.innerHTML += `
-            <option value="C101">[Catering 101] SQ Refreshment 1</option>
-            <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
-          menu.disabled = false;
-        }
-
-        if (vendor.value === 'Continental Delight' && category.value === '1') {
-          menu.innerHTML += `
-            <option value="C101">[Catering 101] SQ Refreshment 1</option>
-            <option value="C102">[Catering 102] SQ Refreshment 2</option>
-            <option value="C103">[Catering 103] SQ Refreshment 3</option>
-            <option value="C104">[Catering 104] SQ Refreshment 4</option>`;
-          menu.disabled = false;
-        }
-      });
-
-      menu.addEventListener('change', async () => {
-        const selected = menu.value;
-        const pax = parseInt(paxInput.value) || 0;
-
-        const { data: pkg } = await supabaseClient
-          .from('menu_packages')
-          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried')
-          .eq('code', selected)
-          .eq('vendor', vendor.value)
-          .single();
-
-        if (!pkg) return;
-
-        summary.textContent = `Price per pax: $${pkg.price_per_pax}
-MOQFD: ${pkg.moqfd} pax
-Delivery Fee: $${pkg.delivery_fee} if MOQFD not met\n\n${pkg.general_note}`;
-
-        // Cost breakdown logic
-        const subtotal = pkg.price_per_pax * pax;
-        const delivery = pax < pkg.moqfd ? pkg.delivery_fee : 0;
-        const admin = (subtotal + delivery) * 0.015;
-        const total = subtotal + delivery + admin;
-
-        document.getElementById(`row1desc-${id}`).textContent = `Vendor: ${vendor.value}, Category: ${category.value}, Menu: ${selected}, No. of Pax: ${pax}`;
-        document.getElementById(`row1amt-${id}`).textContent = subtotal.toFixed(2);
-        document.getElementById(`row2desc-${id}`).textContent = pax < pkg.moqfd ? 'Delivery Fee' : 'Delivery Waived';
-        document.getElementById(`row2amt-${id}`).textContent = delivery.toFixed(2);
-        document.getElementById(`row3amt-${id}`).textContent = admin.toFixed(2);
-        document.getElementById(`rowTotal-${id}`).textContent = total.toFixed(2);
-
-        // Fetch sections and items
-        const { data: sections } = await supabaseClient
-          .from('menu_sections')
-          .select('id, title, note, selection_limit')
-          .eq('package_id', pkg.id)
-          .order('display_order');
-
-        const sectionIds = sections.map(s => s.id);
-
-        const { data: items } = await supabaseClient
-          .from('menu_items')
-          .select('section_id, name, is_vegetarian, is_deep_fried, row_order, col_order')
-          .in('section_id', sectionIds);
-
-        // Render the menu
-        output.innerHTML = sections.map((section, secIndex) => {
-          const sectionItems = items
-            .filter(i => i.section_id === section.id)
-            .sort((a, b) => (a.row_order - b.row_order) || (a.col_order - b.col_order));
-
-          const rows = [];
-          sectionItems.forEach((item, idx) => {
-            const rowIndex = item.row_order || 1;
-            if (!rows[rowIndex]) rows[rowIndex] = [];
-
-            let label = item.name;
-            if (item.is_deep_fried) label += ' *DF';
-            if (item.is_vegetarian) label += ' (v)';
-
-            const checkboxId = `b${id}_s${secIndex}_i${idx}`;
-            rows[rowIndex].push(`
-              <td>
-                <label>
-                  <input type="checkbox"
-                         class="menu-checkbox"
-                         data-section="${id}_${secIndex}"
-                         data-deep-fried="${item.is_deep_fried}"
-                         onchange="handleCheckboxChange('${id}_${secIndex}', ${section.selection_limit}, ${pkg.max_deep_fried})"
-                         id="${checkboxId}" />
-                  ${label}
-                </label>
-              </td>`);
-          });
-
-          const tableRows = rows
-            .filter(Boolean)
-            .map(row => `<tr>${row.join('')}</tr>`)
-            .join('');
-
-          return `
-            <div class="section-title">${section.title}</div>
-            <div><em>${section.note} (Pick ${section.selection_limit})</em></div>
-            <table>${tableRows}</table>`;
-        }).join('');
-      });
-
-      // Recalculate cost when pax input is changed
-      paxInput.addEventListener('input', () => {
-        menu.dispatchEvent(new Event('change'));
+      // Add search filter
+      const search = document.getElementById('vendor-search');
+      search.addEventListener('input', () => {
+        const term = search.value.toLowerCase();
+        list.querySelectorAll('li').forEach(li => {
+          li.style.display = li.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
       });
     }
 
-    // Checkbox selection logic with limit and deep-fried restrictions
-    function handleCheckboxChange(key, limit, maxDeepFried) {
-      const boxes = document.querySelectorAll(`input[data-section="${key}"]`);
-      let checkedCount = 0;
-      let deepFriedCount = 0;
-
-      boxes.forEach(cb => {
-        if (cb.checked) {
-          checkedCount++;
-          if (cb.dataset.deepFried === "true") {
-            deepFriedCount++;
-          }
-        }
-      });
-
-      boxes.forEach(cb => {
-        const isDeepFried = cb.dataset.deepFried === "true";
-        if (!cb.checked) {
-          cb.disabled = checkedCount >= limit || (isDeepFried && deepFriedCount >= maxDeepFried);
-        } else {
-          cb.disabled = false;
-        }
-      });
-    }
+    document.addEventListener('DOMContentLoaded', loadVendors);
   </script>
 </body>
 </html>

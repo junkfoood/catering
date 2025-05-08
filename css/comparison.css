@@ -1,0 +1,55 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+/* Container for all the selection blocks */
+#selections-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Each selection block takes 50% of the screen */
+.selection-block {
+  flex: 0 0 50%;
+  max-width: 50%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  padding: 15px;
+  background: #fafafa;
+}
+
+.selection-block .section-title,
+.selection-block table,
+.selection-block label {
+  font-size: 14px;
+}
+
+label, select, pre {
+  display: block;
+  margin: 10px 0;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-top: 1em;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 10px;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #aaa;
+  padding: 6px;
+}
+
+input[type="checkbox"] {
+  margin-right: 6px;
+}
