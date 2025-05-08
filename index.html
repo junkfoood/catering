@@ -3,53 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <title>CaterCompare</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="css/index.css">
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="body">
 
-<!-- Navigation Bar -->
-<nav class="bg-white shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-
-      <!-- Left: Logo and Title -->
-      <div class="flex items-center flex-shrink-0">
-        <img src="index images/logo.png" alt="Logo" class="h-8 w-8 mr-2">
-        <span class="text-xl font-bold">FINVITETT23000011 Catering</span>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-left">
+        <img src="index images/logo.png" alt="Logo" class="logo">
+        <a href="index.html" class="text-xl font-bold">FINVITETT23000011 Catering</a>
       </div>
-
-      <!-- Center: Comparison Link -->
-      <div class="absolute left-1/2 transform -translate-x-1/2">
-        <a href="comparison.html" class="text-gray-700 hover:text-orange-500 text-lg">Comparison</a>
+      <div class="nav-center">
+        <a href="comparison.html" class="nav-link">Comparison</a>
       </div>
-
-      <!-- Right: Empty div to maintain spacing -->
-      <div class="w-32"></div>
-
+      <div class="nav-right"></div>
     </div>
-  </div>
-</nav>
+  </nav>
 
   <!-- Hero Section -->
-  <section class="text-black justify-center">
-    <div class="p-6 rounded text-center bg-cover bg-center" style="background-image: url('index images/Catering.jpg');">
-      <h1 class="text-3xl md:text-5xl font-bold mb-4">Find the Perfect Caterer for Your Event</h1>
-      <p class="mb-6 text-lg">Compare prices from catering vendors all in one place.</p>
-      <div class="flex justify-center">
-        <input type="text" id="vendor-search" placeholder="Search vendors..." class="w-80 px-4 py-2 rounded-l border border-gray-300">
-        <button class="bg-orange-500 text-white px-5 py-2 rounded-r hover:bg-orange-600">Search</button>
+  <section class="hero">
+    <div class="hero-banner" style="background-image: url('index images/Catering.jpg');">
+      <h1 class="hero-heading">Find the Perfect Caterer for Your Event</h1>
+      <p class="hero-subtext">Compare prices from catering vendors all in one place.</p>
+      <div class="search-bar">
+        <input type="text" id="vendor-search" placeholder="Search vendors..." class="search-input">
+        <button class="search-button">Search</button>
       </div>
     </div>
   </section>
 
   <!-- Vendor List -->
-  <section class="p-6 max-w-4xl mx-auto">
-    <h2 class="text-xl font-bold mb-4">Available Vendors</h2>
-    <ul id="vendor-list" class="space-y-2"></ul>
+  <section class="vendor-section">
+    <h2 class="vendor-heading">Available Vendors</h2>
+    <ul id="vendor-list" class="vendor-list"></ul>
   </section>
 
-  <!-- Supabase Vendor Script -->
+  <!-- Supabase Script -->
   <script>
     const { createClient } = supabase;
     const supabaseClient = createClient(
@@ -68,14 +59,12 @@
         return;
       }
 
-      const vendors = [...new Set(data.map(pkg => pkg.vendor))]; // deduplicate
+      const vendors = [...new Set(data.map(pkg => pkg.vendor))];
       const list = document.getElementById('vendor-list');
-      list.innerHTML = vendors.map(v => `<li class="bg-white p-3 rounded shadow">${v}</li>`).join('');
+      list.innerHTML = vendors.map(v => `<li class="vendor-item">${v}</li>`).join('');
 
-      // Add search filter
-      const search = document.getElementById('vendor-search');
-      search.addEventListener('input', () => {
-        const term = search.value.toLowerCase();
+      document.getElementById('vendor-search').addEventListener('input', e => {
+        const term = e.target.value.toLowerCase();
         list.querySelectorAll('li').forEach(li => {
           li.style.display = li.textContent.toLowerCase().includes(term) ? '' : 'none';
         });
