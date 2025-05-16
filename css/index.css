@@ -11,7 +11,6 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
   
-<<<<<<< HEAD
 .nav-container {
   display: flex;
   justify-content: space-between;
@@ -21,23 +20,10 @@ body {
   margin: 0 auto;
   padding: 0 16px;
 }
-=======
-  .nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 16px;
-    position: relative;
-  }
->>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
   
   .nav-left {
     display: flex;
     align-items: center;
-<<<<<<< HEAD
     gap: 8px
   }
 
@@ -48,18 +34,12 @@ body {
   
   a.clean-link:visited {
     color: black;
-=======
->>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
   }
   
   .logo {
     height: 32px;
     width: 32px;
-<<<<<<< HEAD
     margin-bottom: 5px
-=======
-    margin-right: 8px;
->>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
   }
   
   .title {
@@ -68,16 +48,10 @@ body {
   }
   
   .nav-center {
-<<<<<<< HEAD
     display: flex;
     justify-content: center;
     gap: 40px;
     flex: 1;
-=======
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
->>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
   }
   
   .nav-link {
@@ -93,12 +67,8 @@ body {
   .hero-banner {
     padding: 24px;
     text-align: center;
-<<<<<<< HEAD
     background-size: contain;
     background-repeat: no-repeat;
-=======
-    background-size: cover;
->>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
     background-position: center;
     color: black;
   }
@@ -139,7 +109,6 @@ body {
   .search-button:hover {
     background-color: #ea580c;
   }
-<<<<<<< HEAD
  
   .filter-panel {
     position: absolute;
@@ -163,9 +132,6 @@ body {
     width: 100%;
   }
 
-=======
-  
->>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
   .vendor-section {
     padding: 24px;
     max-width: 800px;
