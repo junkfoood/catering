@@ -22,6 +22,7 @@ body {
 .nav-left {
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   gap: 8px;
 }
 
@@ -70,6 +71,8 @@ a.clean-link:visited {
   height: 32px;
   width: 32px;
   margin-bottom: 5px
+=======
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
 }
 
 /* Container for all the selection blocks */

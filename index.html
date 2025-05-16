@@ -13,6 +13,7 @@
     <div class="nav-container">
       <div class="nav-left">
         <img src="index images/logo.png" alt="Logo" class="logo">
+<<<<<<< HEAD
         <a href="index.html" class="clean-link text-xl font-bold">FINVITETT23000011 Catering</a>
       </div>
       <div class="nav-center">
@@ -20,12 +21,24 @@
         <a href="comparison.html" class="nav-link">Comparison</a>
       </div>
       <div class="nav-right" style="width: 100px;"></div>
+=======
+        <a href="index.html" class="text-xl font-bold">FINVITETT23000011 Catering</a>
+      </div>
+      <div class="nav-center">
+        <a href="comparison.html" class="nav-link">Comparison</a>
+      </div>
+      <div class="nav-right"></div>
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
     </div>
   </nav>
 
   <!-- Hero Section -->
   <section class="hero">
+<<<<<<< HEAD
     <div class="hero-banner" style="background-color: rgb(215, 39, 212);">
+=======
+    <div class="hero-banner" style="background-image: url('index images/Catering.jpg');">
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
       <h1 class="hero-heading">Find the Perfect Caterer for Your Event</h1>
       <p class="hero-subtext">Compare prices from catering vendors all in one place.</p>
       <div class="search-bar">
@@ -35,6 +48,7 @@
     </div>
   </section>
 
+<<<<<<< HEAD
   <!-- Filter Panel -->
   <div class="filter-panel">
     <label>Price per Pax:
@@ -46,12 +60,20 @@
   <!-- Vendor List -->
   <section class="vendor-section">
     <h2 class="vendor-heading">Available Vendor Packages</h2>
+=======
+  <!-- Vendor List -->
+  <section class="vendor-section">
+    <h2 class="vendor-heading">Available Vendors</h2>
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
     <ul id="vendor-list" class="vendor-list"></ul>
   </section>
 
   <!-- Supabase Script -->
   <script>
+<<<<<<< HEAD
     // Initialise Supabase client for API interaction
+=======
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://xkrmzydahhshvurpvkkb.supabase.co',
@@ -61,7 +83,11 @@
     async function loadVendors() {
       const { data, error } = await supabaseClient
         .from('menu_packages')
+<<<<<<< HEAD
         .select('vendor, code, title, price_per_pax, moqfd')
+=======
+        .select('vendor')
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
         .neq('vendor', null);
 
       if (error) {
@@ -69,6 +95,7 @@
         return;
       }
 
+<<<<<<< HEAD
       const priceValue = document.getElementById('price-value');
       const searchInput = document.getElementById('vendor-search');
       const priceInput = document.getElementById('filter-price');
@@ -105,9 +132,25 @@
 
       searchInput.addEventListener('input', renderList);
       renderList();
+=======
+      const vendors = [...new Set(data.map(pkg => pkg.vendor))];
+      const list = document.getElementById('vendor-list');
+      list.innerHTML = vendors.map(v => `<li class="vendor-item">${v}</li>`).join('');
+
+      document.getElementById('vendor-search').addEventListener('input', e => {
+        const term = e.target.value.toLowerCase();
+        list.querySelectorAll('li').forEach(li => {
+          li.style.display = li.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+      });
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
     }
 
     document.addEventListener('DOMContentLoaded', loadVendors);
   </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 4a5cab4001c7c9e9aeeb1dea86a4604ae2a41997
