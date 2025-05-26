@@ -37,9 +37,9 @@
 
   <!-- Filter Panel -->
   <div class="filter-panel">
-    <label>Price per Pax:
-      <input type="range" id="filter-price" min="0" max="50" step="1">
-      <span id="price-value">$50</span>
+    <label>Budget per Pax:
+      <input type="range" id="filter-price" min="0" max="12" step="1">
+      <span id="price-value">$6</span>
     </label>
   </div>
 
@@ -80,7 +80,7 @@
 
         const filtered = data.filter(pkg => {
           const matchSearch = pkg.vendor.toLowerCase().includes(term);
-          const matchPrice = isNaN(minPrice) || pkg.price_per_pax >= minPrice;
+          const matchPrice = isNaN(minPrice) || pkg.price_per_pax <= minPrice;
           return matchSearch && matchPrice;
         });
 
