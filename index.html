@@ -8,7 +8,7 @@
 </head>
 <body class="body">
 
-  <!-- Navigation Bar -->
+  <!-- NAVIGATION BAR -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-left">
@@ -23,7 +23,7 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- HERO BANNER -->
   <section class="hero">
     <div class="hero-banner" style="background-color: rgb(215, 39, 212);">
       <h1 class="hero-heading">Find the Perfect Caterer for Your Event</h1>
@@ -35,23 +35,25 @@
     </div>
   </section>
 
-  <!-- Filter Panel -->
-  <div class="filter-panel">
-    <label>Budget per Pax:
-      <input type="range" id="filter-price" min="0" max="12" step="1">
-      <span id="price-value">$6</span>
-    </label>
+  <!-- MAIN CONTENT WRAPPER -->
+  <div class="content-wrapper">
+    <!-- FILTER PANEL -->
+    <div class="filter-panel">
+      <label>Budget per Pax:
+        <input type="range" id="filter-price" min="0" max="12" step="1">
+        <span id="price-value">$6</span>
+      </label>
+    </div>
+
+    <!-- VENDOR SECTION -->
+    <section class="vendor-section">
+      <h2 class="vendor-heading">Available Vendor Packages</h2>
+      <ul id="vendor-list" class="vendor-list"></ul>
+    </section>
   </div>
 
-  <!-- Vendor List -->
-  <section class="vendor-section">
-    <h2 class="vendor-heading">Available Vendor Packages</h2>
-    <ul id="vendor-list" class="vendor-list"></ul>
-  </section>
-
-  <!-- Supabase Script -->
+  <!-- SUPABASE SCRIPT -->
   <script>
-    // Initialise Supabase client for API interaction
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://xkrmzydahhshvurpvkkb.supabase.co',
@@ -76,11 +78,11 @@
 
       function renderList() {
         const term = searchInput.value.toLowerCase();
-        const minPrice = parseFloat(priceInput.value);
+        const maxPrice = parseFloat(priceInput.value);
 
         const filtered = data.filter(pkg => {
           const matchSearch = pkg.vendor.toLowerCase().includes(term);
-          const matchPrice = isNaN(minPrice) || pkg.price_per_pax <= minPrice;
+          const matchPrice = isNaN(maxPrice) || pkg.price_per_pax <= maxPrice;
           return matchSearch && matchPrice;
         });
 
@@ -90,12 +92,16 @@
           grouped[pkg.vendor].push(pkg);
         });
 
-        list.innerHTML = Object.entries(grouped).map(([vendor, packages]) => {
-          const packageList = packages.map(p =>
-            `<li style="margin-left: 1em;">${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}</li>`
-          ).join('');
-          return `<li class="vendor-item"><strong>${vendor}</strong><ul>${packageList}</ul></li>`;
-        }).join('');
+        list.innerHTML = Object.entries(grouped)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([vendor, packages]) => {
+            const packageList = packages
+              .sort((a, b) => a.code.localeCompare(b.code))
+              .map(p =>
+                `<li style="margin-left: 1em;">${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}</li>`
+              ).join('');
+            return `<li class="vendor-item"><strong>${vendor}</strong><ul>${packageList}</ul></li>`;
+          }).join('');
       }
 
       priceInput.addEventListener('input', () => {
@@ -104,6 +110,7 @@
       });
 
       searchInput.addEventListener('input', renderList);
+
       renderList();
     }
 
