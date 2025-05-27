@@ -6,9 +6,10 @@ body {
   padding: 0;
 }
 
+/* NAVIGATION */
 .navbar {
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .nav-container {
@@ -27,9 +28,15 @@ body {
   gap: 8px;
 }
 
+.nav-right {
+  width: 100px;
+}
+
 a.clean-link {
   text-decoration: none;
   color: black;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 a.clean-link:visited {
@@ -40,11 +47,6 @@ a.clean-link:visited {
   height: 32px;
   width: 32px;
   margin-bottom: 5px;
-}
-
-.title {
-  font-weight: bold;
-  font-size: 18px;
 }
 
 .nav-center {
@@ -64,6 +66,7 @@ a.clean-link:visited {
   color: #f97316;
 }
 
+/* HERO SECTION */
 .hero-banner {
   padding: 24px;
   text-align: center;
@@ -110,7 +113,7 @@ a.clean-link:visited {
   background-color: #ea580c;
 }
 
-/* Content layout for filter + vendor list */
+/* MAIN CONTENT */
 .content-wrapper {
   display: flex;
   gap: 24px;
@@ -140,6 +143,13 @@ a.clean-link:visited {
   width: 100%;
 }
 
+#price-value {
+  display: inline-block;
+  min-width: 40px;
+  font-size: 14px;
+}
+
+/* VENDOR SECTION */
 .vendor-section {
   flex: 1;
 }
@@ -160,7 +170,7 @@ a.clean-link:visited {
   background: white;
   padding: 12px;
   border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
 }
 
@@ -169,14 +179,16 @@ a.clean-link:visited {
   margin-top: 8px;
 }
 
-.vendor-item li {
+.package-item {
   margin: 4px 0;
   word-break: break-word;
+  font-size: 14px;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .content-wrapper {
-    flex-direction: row;
+    flex-direction: column;
   }
 
   .filter-panel {
@@ -193,7 +205,11 @@ a.clean-link:visited {
     padding-left: 0.5em;
   }
 
-  .vendor-item li {
+  .package-item {
+    font-size: 14px;
+  }
+
+  #price-value {
     font-size: 14px;
   }
 }

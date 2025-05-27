@@ -6,32 +6,30 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="css/index.css">
 </head>
-<body class="body">
+<body>
 
   <!-- NAVIGATION BAR -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-left">
         <img src="index images/logo.png" alt="Logo" class="logo">
-        <a href="index.html" class="clean-link text-xl font-bold">FINVITETT23000011 Catering</a>
+        <a href="index.html" class="clean-link">FINVITETT23000011 Catering</a>
       </div>
       <div class="nav-center">
         <a href="index.html" class="nav-link">Home</a>
         <a href="comparison.html" class="nav-link">Comparison</a>
       </div>
-      <div class="nav-right" style="width: 100px;"></div>
+      <div class="nav-right"></div>
     </div>
   </nav>
 
   <!-- HERO BANNER -->
-  <section class="hero">
-    <div class="hero-banner" style="background-color: rgb(215, 39, 212);">
-      <h1 class="hero-heading">Find the Perfect Caterer for Your Event</h1>
-      <p class="hero-subtext">Compare prices from catering vendors all in one place.</p>
-      <div class="search-bar">
-        <input type="text" id="vendor-search" placeholder="Search vendors..." class="search-input">
-        <button class="search-button">Search</button>
-      </div>
+  <section class="hero-banner" style="background-color: rgba(80, 76, 80, 0.409);>
+    <h1 class="hero-heading">Find the Perfect Caterer for Your Event</h1>
+    <p class="hero-subtext">Compare prices from catering vendors all in one place.</p>
+    <div class="search-bar">
+      <input type="text" id="vendor-search" placeholder="Search vendors..." class="search-input">
+      <button class="search-button">Search</button>
     </div>
   </section>
 
@@ -40,8 +38,8 @@
     <!-- FILTER PANEL -->
     <div class="filter-panel">
       <label>Budget per Pax:
-        <input type="range" id="filter-price" min="0" max="12" step="1">
-        <span id="price-value">$6</span>
+        <input type="range" id="filter-price" min="3" max="12" step="1" value="7">
+        <span id="price-value">$7</span>
       </label>
     </div>
 
@@ -60,7 +58,14 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrcm16eWRhaGhzaHZ1cnB2a2tiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1OTU4NjgsImV4cCI6MjA2MDE3MTg2OH0.H8Am9qa-aexipyEUGgkHlzSxCCq01xZt6hs7lK31ojw'
     );
 
-    async function loadVendors() {
+    document.addEventListener('DOMContentLoaded', async () => {
+      const priceValue = document.getElementById('price-value');
+      const priceInput = document.getElementById('filter-price');
+      const searchInput = document.getElementById('vendor-search');
+      const list = document.getElementById('vendor-list');
+
+      priceValue.textContent = `$${priceInput.value}`;
+
       const { data, error } = await supabaseClient
         .from('menu_packages')
         .select('vendor, code, title, price_per_pax, moqfd')
@@ -70,11 +75,6 @@
         console.error('Error fetching vendors:', error);
         return;
       }
-
-      const priceValue = document.getElementById('price-value');
-      const searchInput = document.getElementById('vendor-search');
-      const priceInput = document.getElementById('filter-price');
-      const list = document.getElementById('vendor-list');
 
       function renderList() {
         const term = searchInput.value.toLowerCase();
@@ -98,7 +98,7 @@
             const packageList = packages
               .sort((a, b) => a.code.localeCompare(b.code))
               .map(p =>
-                `<li style="margin-left: 1em;">${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}</li>`
+                `<li class="package-item">${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}</li>`
               ).join('');
             return `<li class="vendor-item"><strong>${vendor}</strong><ul>${packageList}</ul></li>`;
           }).join('');
@@ -110,11 +110,8 @@
       });
 
       searchInput.addEventListener('input', renderList);
-
       renderList();
-    }
-
-    document.addEventListener('DOMContentLoaded', loadVendors);
+    });
   </script>
 </body>
 </html>
