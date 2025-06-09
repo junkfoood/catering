@@ -100,15 +100,6 @@ a.clean-link:visited {
   border-radius: 4px 0 0 4px;
 }
 
-.search-button {
-  background-color: #f97316;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-}
-
 .search-button:hover {
   background-color: #ea580c;
 }
