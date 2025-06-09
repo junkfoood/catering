@@ -15,7 +15,7 @@ body {
   height: 64px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 0px;
   position: relative;
 }
 
@@ -60,6 +60,8 @@ body {
 a.clean-link {
   text-decoration: none;
   color: black;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 a.clean-link:visited {
