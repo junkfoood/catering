@@ -5,22 +5,9 @@
   <title>Catering Comparison</title>
   <link rel="stylesheet" href="css/comparison.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <style>
-    pre {
-      font-family: Arial, sans-serif;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    table td {
-      padding: 4px;
-    }
-    .menu-table td {
-      width: 33%;
-      vertical-align: top;
-    }
-  </style>
 </head>
 <body>
+  <!-- Top navigation bar linking to home and comparison pages -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-left">
@@ -34,19 +21,25 @@
       <div class="nav-right" style="width: 100px;"></div>
     </div>
   </nav>
+
+  <!-- Container for all comparison blocks -->
   <div id="comparison-wrapper">
     <button onclick="addSelectionBlock()">➕ Add Comparison</button>
     <div id="selections-container"></div>
   </div>
+
   <script>
+    // Initialise Supabase client
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://xkrmzydahhshvurpvkkb.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrcm16eWRhaGhzaHZ1cnB2a2tiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1OTU4NjgsImV4cCI6MjA2MDE3MTg2OH0.H8Am9qa-aexipyEUGgkHlzSxCCq01xZt6hs7lK31ojw'
     );
 
+    // Counter to keep track of number of comparison blocks added
     let blockCount = 0;
 
+    // On page load, parse URL parameters and prefill a block if applicable
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
       const vendor = decodeURIComponent(params.get('vendor') || '');
@@ -59,12 +52,16 @@
       }
     };
 
+    // Function to add a new comparison block with optional prefilled values
     async function addSelectionBlock(defaultVendor = '', defaultCategory = '', defaultMenu = '') {
       const blockId = blockCount++;
       const container = document.getElementById('selections-container');
+
+      // Create block HTML structure
       const block = document.createElement('div');
       block.className = 'selection-block';
       block.innerHTML = `
+        <!-- Dropdowns for vendor, category, and menu -->
         <label>Vendor:
           <select id="vendor-${blockId}">
             <option value="">-- Select Vendor --</option>
@@ -85,6 +82,8 @@
         <label>No. of Pax:
           <input type="number" id="pax-${blockId}" value="20" min="1" />
         </label>
+
+        <!-- Table displaying cost breakdown -->
         <table id="cost-summary-${blockId}">
           <thead>
             <tr><th>No.</th><th>Description</th><th>Amount ($)</th></tr>
@@ -96,12 +95,15 @@
             <tr><td></td><td><strong>Total</strong></td><td id="rowTotal-${blockId}">-</td></tr>
           </tbody>
         </table>
+
+        <!-- Summary and menu selections rendered here -->
         <pre id="summary-${blockId}"></pre>
         <div id="menu-output-${blockId}"></div>
       `;
 
       container.appendChild(block);
 
+      // DOM element references for the new block
       const vendorEl = document.getElementById(`vendor-${blockId}`);
       const categoryEl = document.getElementById(`category-${blockId}`);
       const menuEl = document.getElementById(`menu-${blockId}`);
@@ -109,6 +111,7 @@
       const output = document.getElementById(`menu-output-${blockId}`);
       const paxInput = document.getElementById(`pax-${blockId}`);
 
+      // Load menu options based on selected vendor and category
       function updateMenuOptions() {
         menuEl.innerHTML = '<option value="">-- Select Menu --</option>';
         menuEl.disabled = true;
@@ -133,6 +136,7 @@
         }
       }
 
+      // Fetch menu details and render cost breakdown and food item selection
       async function fetchAndRenderPackage() {
         const code = menuEl.value;
         if (!vendorEl.value || !code) return;
@@ -173,6 +177,7 @@
 
         summary.textContent = `Price per pax: $${pkg.price_per_pax}\nMOQFD: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if MOQFD not met\n\n${pkg.general_note}`;
 
+        // Render item selections in rows of 3
         output.innerHTML = sections.map((section, secIdx) => {
           const sectionItems = items.filter(i => i.section_id === section.id);
           const rows = [];
@@ -194,6 +199,7 @@
         }).join('');
       }
 
+      // Checkbox limit logic for each section and deep-fried constraint
       window.handleCheckboxLimit = function(key, limit, maxDF) {
         const boxes = document.querySelectorAll(`input[data-section="${key}"]`);
         let checked = 0;
@@ -210,6 +216,7 @@
         });
       };
 
+      // Bind change/input events to refresh menu and summary
       vendorEl.addEventListener('change', updateMenuOptions);
       categoryEl.addEventListener('change', updateMenuOptions);
       menuEl.addEventListener('change', fetchAndRenderPackage);
