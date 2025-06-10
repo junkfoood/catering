@@ -37,7 +37,7 @@
     <!-- FILTER PANEL -->
     <div class="filter-panel">
       <label>Budget per Pax:
-        <input type="range" id="filter-price" min="3" max="12" step="1" value="7">
+        <input type="range" id="filter-price" min="3" max="12" step="1" value="12">
         <span id="price-value">$7</span>
       </label>
     </div>
@@ -96,9 +96,13 @@
           .map(([vendor, packages]) => {
             const packageList = packages
               .sort((a, b) => a.code.localeCompare(b.code))
-              .map(p =>
-                `<li class="package-item">${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}</li>`
-              ).join('');
+        .map(p =>
+          `<li class="package-item">
+            <a href="comparison.html?vendor=${encodeURIComponent(p.vendor)}&category=1&menu=${p.code}">
+              ${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}
+            </a>
+          </li>`
+        ).join('');
             return `<li class="vendor-item"><strong>${vendor}</strong><ul>${packageList}</ul></li>`;
           }).join('');
       }
