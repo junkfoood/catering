@@ -124,3 +124,19 @@ td, th {
 input[type="checkbox"] {
   margin-right: 6px;
 }
+
+pre {
+  font-family: Arial, sans-serif;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+table td {
+  padding: 4px;
+}
+.menu-table td {
+  width: 33%;
+  vertical-align: top;
+}
+#selections-container table[id^="cost-summary-"] td:last-child {
+  text-align: right;
+}

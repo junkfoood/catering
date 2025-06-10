@@ -5,9 +5,22 @@
   <title>Catering Comparison</title>
   <link rel="stylesheet" href="css/comparison.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    pre {
+      font-family: Arial, sans-serif;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    table td {
+      padding: 4px;
+    }
+    .menu-table td {
+      width: 33%;
+      vertical-align: top;
+    }
+  </style>
 </head>
 <body>
-  <!-- Navigation bar -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-left">
@@ -21,54 +34,34 @@
       <div class="nav-right" style="width: 100px;"></div>
     </div>
   </nav>
-
-  <!-- Main wrapper for comparison sections -->
   <div id="comparison-wrapper">
     <button onclick="addSelectionBlock()">➕ Add Comparison</button>
     <div id="selections-container"></div>
   </div>
-
   <script>
-    // Initialise Supabase client
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://xkrmzydahhshvurpvkkb.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrcm16eWRhaGhzaHZ1cnB2a2tiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1OTU4NjgsImV4cCI6MjA2MDE3MTg2OH0.H8Am9qa-aexipyEUGgkHlzSxCCq01xZt6hs7lK31ojw'
     );
 
-    // Standardise font for <pre> blocks
-    const style = document.createElement('style');
-    style.innerHTML = `
-      pre {
-        font-family: Arial, sans-serif;
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-    `;
-    document.head.appendChild(style);
-
-    // This keeps track of the number of comparison blocks added, so each has a unique ID.
     let blockCount = 0;
 
-    // On page load, check for URL parameters and add a block with defaults if present
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
-      const vendor = params.get('vendor');
-      const menu = params.get('menu');
-      const category = params.get('category');
-
+      const vendor = decodeURIComponent(params.get('vendor') || '');
+      const menu = decodeURIComponent(params.get('menu') || '');
+      const category = decodeURIComponent(params.get('category') || '');
       if (vendor && menu && category) {
-        addSelectionBlock(vendor, category, menu);
+        setTimeout(() => addSelectionBlock(vendor, category, menu), 0);
       } else {
         addSelectionBlock();
       }
     };
 
-    // Add a new comparison block with optional prefilled values
-    function addSelectionBlock(defaultVendor = '', defaultCategory = '', defaultMenu = '') {
+    async function addSelectionBlock(defaultVendor = '', defaultCategory = '', defaultMenu = '') {
       const blockId = blockCount++;
       const container = document.getElementById('selections-container');
-
       const block = document.createElement('div');
       block.className = 'selection-block';
       block.innerHTML = `
@@ -79,23 +72,19 @@
             <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
           </select>
         </label>
-
         <label>Category:
           <select id="category-${blockId}">
             <option value="1">1 – Small Quantity (SQ) Refreshment</option>
           </select>
         </label>
-
         <label>Menu Option:
           <select id="menu-${blockId}" disabled>
             <option value="">-- Select Menu --</option>
           </select>
         </label>
-
         <label>No. of Pax:
           <input type="number" id="pax-${blockId}" value="20" min="1" />
         </label>
-
         <table id="cost-summary-${blockId}">
           <thead>
             <tr><th>No.</th><th>Description</th><th>Amount ($)</th></tr>
@@ -107,153 +96,128 @@
             <tr><td></td><td><strong>Total</strong></td><td id="rowTotal-${blockId}">-</td></tr>
           </tbody>
         </table>
-
         <pre id="summary-${blockId}"></pre>
         <div id="menu-output-${blockId}"></div>
       `;
 
       container.appendChild(block);
-      setupBlockHandlers(blockId, defaultVendor, defaultCategory, defaultMenu);
-    }
 
-    // Handles user input and triggers fetch for data and UI updates
-    function setupBlockHandlers(id, defaultVendor = '', defaultCategory = '', defaultMenu = '') {
-      const vendor = document.getElementById(`vendor-${id}`);
-      const category = document.getElementById(`category-${id}`);
-      const menu = document.getElementById(`menu-${id}`);
-      const summary = document.getElementById(`summary-${id}`);
-      const output = document.getElementById(`menu-output-${id}`);
-      const paxInput = document.getElementById(`pax-${id}`);
+      const vendorEl = document.getElementById(`vendor-${blockId}`);
+      const categoryEl = document.getElementById(`category-${blockId}`);
+      const menuEl = document.getElementById(`menu-${blockId}`);
+      const summary = document.getElementById(`summary-${blockId}`);
+      const output = document.getElementById(`menu-output-${blockId}`);
+      const paxInput = document.getElementById(`pax-${blockId}`);
 
-      // Fetch package and menu data from Supabase and render output
-      async function fetchAndPopulate() {
-        if (!vendor.value || !menu.value) return;
+      function updateMenuOptions() {
+        menuEl.innerHTML = '<option value="">-- Select Menu --</option>';
+        menuEl.disabled = true;
 
-        const { data: pkg, error } = await supabaseClient
-          .from('menu_packages')
-          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried')
-          .eq('code', menu.value)
-          .eq('vendor', vendor.value)
-          .single();
-
-        if (error || !pkg) {
-          summary.textContent = 'No package found.';
-          return;
+        if (vendorEl.value === 'Chilli Api' && categoryEl.value === '1') {
+          menuEl.innerHTML += `
+            <option value="C101">[Catering 101] SQ Refreshment 1</option>
+            <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
+          menuEl.disabled = false;
+        } else if (vendorEl.value === 'Continental Delight' && categoryEl.value === '1') {
+          menuEl.innerHTML += `
+            <option value="C101">[Catering 101] SQ Refreshment 1</option>
+            <option value="C102">[Catering 102] SQ Refreshment 2</option>
+            <option value="C103">[Catering 103] SQ Refreshment 3</option>
+            <option value="C104">[Catering 104] SQ Refreshment 4</option>`;
+          menuEl.disabled = false;
         }
 
-        // Compute and display cost breakdown
-        const pax = parseInt(paxInput.value) || 0;
-        summary.textContent = `Price per pax: $${pkg.price_per_pax}\nMOQFD: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if MOQFD not met\n\n${pkg.general_note}`;
+        if (defaultMenu) {
+          menuEl.value = defaultMenu;
+          menuEl.dispatchEvent(new Event('change'));
+        }
+      }
 
+      async function fetchAndRenderPackage() {
+        const code = menuEl.value;
+        if (!vendorEl.value || !code) return;
+
+        const { data: pkg } = await supabaseClient
+          .from('menu_packages')
+          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried')
+          .eq('vendor', vendorEl.value)
+          .eq('code', code)
+          .single();
+
+        if (!pkg) return;
+
+        const { data: sections } = await supabaseClient
+          .from('menu_sections')
+          .select('id, title, note, selection_limit, display_order')
+          .eq('package_id', pkg.id)
+          .order('display_order');
+
+        const sectionIds = sections.map(s => s.id);
+        const { data: items } = await supabaseClient
+          .from('menu_items')
+          .select('section_id, name, is_vegetarian, is_deep_fried, row_order')
+          .in('section_id', sectionIds);
+
+        const pax = parseInt(paxInput.value) || 0;
         const subtotal = pkg.price_per_pax * pax;
         const delivery = pax < pkg.moqfd ? pkg.delivery_fee : 0;
         const admin = (subtotal + delivery) * 0.015;
         const total = subtotal + delivery + admin;
 
-        document.getElementById(`row1desc-${id}`).textContent = `Vendor: ${vendor.value}, Menu: ${menu.value}, Pax: ${pax}`;
-        document.getElementById(`row1amt-${id}`).textContent = subtotal.toFixed(2);
-        document.getElementById(`row2desc-${id}`).textContent = pax < pkg.moqfd ? 'Delivery Fee' : 'Delivery Waived';
-        document.getElementById(`row2amt-${id}`).textContent = delivery.toFixed(2);
-        document.getElementById(`row3amt-${id}`).textContent = admin.toFixed(2);
-        document.getElementById(`rowTotal-${id}`).textContent = total.toFixed(2);
+        document.getElementById(`row1desc-${blockId}`).textContent = `Vendor: ${vendorEl.value}, Menu: ${menuEl.value}, Pax: ${pax}`;
+        document.getElementById(`row1amt-${blockId}`).textContent = subtotal.toFixed(2);
+        document.getElementById(`row2desc-${blockId}`).textContent = pax < pkg.moqfd ? 'Delivery Fee' : 'Delivery Waived';
+        document.getElementById(`row2amt-${blockId}`).textContent = delivery.toFixed(2);
+        document.getElementById(`row3amt-${blockId}`).textContent = admin.toFixed(2);
+        document.getElementById(`rowTotal-${blockId}`).textContent = total.toFixed(2);
 
-        // Fetch sections and menu items from Supabase and display
-        const { data: sections } = await supabaseClient
-          .from('menu_sections')
-          .select('id, title, note, selection_limit')
-          .eq('package_id', pkg.id)
-          .order('display_order');
+        summary.textContent = `Price per pax: $${pkg.price_per_pax}\nMOQFD: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if MOQFD not met\n\n${pkg.general_note}`;
 
-        const sectionIds = sections.map(s => s.id);
-
-        const { data: items } = await supabaseClient
-          .from('menu_items')
-          .select('section_id, name, is_vegetarian, is_deep_fried, row_order, col_order')
-          .in('section_id', sectionIds);
-
-        // Render items into structured tables grouped by section
-        output.innerHTML = sections.map((section, secIndex) => {
+        output.innerHTML = sections.map((section, secIdx) => {
           const sectionItems = items.filter(i => i.section_id === section.id);
           const rows = [];
-
-          sectionItems.forEach((item, idx) => {
-            const rowIndex = item.row_order || 1;
-            if (!rows[rowIndex]) rows[rowIndex] = [];
-
-            let label = item.name;
-            if (item.is_deep_fried) label += ' *DF';
-            if (item.is_vegetarian) label += ' (v)';
-
-            const checkboxId = `b${id}_s${secIndex}_i${idx}`;
-            rows[rowIndex].push(`
-              <td>
-                <label>
-                  <input type="checkbox"
-                         class="menu-checkbox"
-                         data-section="${id}_${secIndex}"
-                         data-deep-fried="${item.is_deep_fried}"
-                         id="${checkboxId}" />
-                  ${label}
-                </label>
-              </td>`);
-          });
-
-          const tableRows = rows.filter(Boolean).map(row => `<tr>${row.join('')}</tr>`).join('');
-
+          for (let i = 0; i < sectionItems.length; i += 3) {
+            const row = sectionItems.slice(i, i + 3).map((item, idx) => {
+              let label = item.name;
+              if (item.is_deep_fried) label += ' *DF';
+              if (item.is_vegetarian) label += ' (v)';
+              const cbId = `b${blockId}_s${secIdx}_i${i + idx}`;
+              return `<td><label><input type="checkbox" id="${cbId}" data-section="${blockId}_${secIdx}" data-deep-fried="${item.is_deep_fried}" onchange="handleCheckboxLimit('${blockId}_${secIdx}', ${section.selection_limit}, ${pkg.max_deep_fried})"/> ${label}</label></td>`;
+            });
+            rows.push(`<tr>${row.join('')}</tr>`);
+          }
           return `
             <div class="section-title">${section.title}</div>
             <div><em>${section.note} (Pick ${section.selection_limit})</em></div>
-            <table>${tableRows}</table>`;
+            <table class="menu-table">${rows.join('')}</table>
+          `;
         }).join('');
       }
 
-      // When vendor is changed, reload menu options
-      vendor.addEventListener('change', () => {
-        updateMenuOptions();
-      });
+      window.handleCheckboxLimit = function(key, limit, maxDF) {
+        const boxes = document.querySelectorAll(`input[data-section="${key}"]`);
+        let checked = 0;
+        let dfCount = 0;
+        boxes.forEach(cb => {
+          if (cb.checked) {
+            checked++;
+            if (cb.dataset.deepFried === 'true') dfCount++;
+          }
+        });
+        boxes.forEach(cb => {
+          const isDF = cb.dataset.deepFried === 'true';
+          cb.disabled = !cb.checked && (checked >= limit || (isDF && dfCount >= maxDF));
+        });
+      };
 
-      // When menu changes, fetch pricing and section data
-      menu.addEventListener('change', () => {
-        fetchAndPopulate();
-      });
+      vendorEl.addEventListener('change', updateMenuOptions);
+      categoryEl.addEventListener('change', updateMenuOptions);
+      menuEl.addEventListener('change', fetchAndRenderPackage);
+      paxInput.addEventListener('input', fetchAndRenderPackage);
 
-      // When pax value changes, recalculate prices
-      paxInput.addEventListener('input', () => {
-        fetchAndPopulate();
-      });
-
-      // Show relevant menu options based on selected vendor
-      function updateMenuOptions() {
-        menu.innerHTML = '<option value="">-- Select Menu --</option>';
-        menu.disabled = true;
-
-        if (vendor.value === 'Chilli Api') {
-          menu.innerHTML += `
-            <option value="C101">[Catering 101] SQ Refreshment 1</option>
-            <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
-          menu.disabled = false;
-        }
-
-        if (vendor.value === 'Continental Delight') {
-          menu.innerHTML += `
-            <option value="C101">[Catering 101] SQ Refreshment 1</option>
-            <option value="C102">[Catering 102] SQ Refreshment 2</option>
-            <option value="C103">[Catering 103] SQ Refreshment 3</option>
-            <option value="C104">[Catering 104] SQ Refreshment 4</option>`;
-          menu.disabled = false;
-        }
-
-        // If a menu is prefilled, trigger selection
-        if (defaultMenu) {
-          menu.value = defaultMenu;
-          menu.dispatchEvent(new Event('change'));
-        }
-      }
-
-      // Prefill dropdowns if values are passed from URL
-      if (defaultVendor) vendor.value = defaultVendor;
-      if (defaultCategory) category.value = defaultCategory;
-      if (defaultVendor || defaultCategory) updateMenuOptions();
+      vendorEl.value = defaultVendor;
+      categoryEl.value = defaultCategory;
+      updateMenuOptions();
     }
   </script>
 </body>
