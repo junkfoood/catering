@@ -175,7 +175,7 @@
         document.getElementById(`row3amt-${blockId}`).textContent = admin.toFixed(2);
         document.getElementById(`rowTotal-${blockId}`).textContent = total.toFixed(2);
 
-        summary.textContent = `Price per pax: $${pkg.price_per_pax}\nMOQFD: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if MOQFD not met\n\n${pkg.general_note}`;
+        summary.textContent = `Price per pax: $${pkg.price_per_pax}\nMinimum pax for free delivery: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if minimum pax not met\n\n${pkg.general_note}`;
 
         // Render item selections in rows of 3
         output.innerHTML = sections.map((section, secIdx) => {
@@ -184,8 +184,8 @@
           for (let i = 0; i < sectionItems.length; i += 3) {
             const row = sectionItems.slice(i, i + 3).map((item, idx) => {
               let label = item.name;
-              if (item.is_deep_fried) label += ' *DF';
-              if (item.is_vegetarian) label += ' (v)';
+              if (item.is_deep_fried) label += ' (Deep Fried)';
+              if (item.is_vegetarian) label += ' (Vegetarian)';
               const cbId = `b${blockId}_s${secIdx}_i${i + idx}`;
               return `<td><label><input type="checkbox" id="${cbId}" data-section="${blockId}_${secIdx}" data-deep-fried="${item.is_deep_fried}" onchange="handleCheckboxLimit('${blockId}_${secIdx}', ${section.selection_limit}, ${pkg.max_deep_fried})"/> ${label}</label></td>`;
             });

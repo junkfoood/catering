@@ -99,7 +99,7 @@
         .map(p =>
           `<li class="package-item">
             <a href="comparison.html?vendor=${encodeURIComponent(p.vendor)}&category=1&menu=${p.code}">
-              ${p.code} – ${p.title} – $${p.price_per_pax}/pax, MOQFD: ${p.moqfd}
+              ${p.code} – ${p.title} – $${p.price_per_pax}/pax, Minimum Pax for Free Delivery: ${p.moqfd}
             </a>
           </li>`
         ).join('');
