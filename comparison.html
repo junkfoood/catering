@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Catering Comparison</title>
+  <title>Cater Compare</title>
   <link rel="stylesheet" href="css/comparison.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
@@ -143,7 +143,7 @@
 
         const { data: pkg } = await supabaseClient
           .from('menu_packages')
-          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried')
+          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried, discount_below_500, discount_500_2000, discount_2000_4000, discount_above_4000')
           .eq('vendor', vendorEl.value)
           .eq('code', code)
           .single();
@@ -170,7 +170,7 @@
 
         document.getElementById(`row1desc-${blockId}`).textContent = `Vendor: ${vendorEl.value}, Menu: ${menuEl.value}, Pax: ${pax}`;
         document.getElementById(`row1amt-${blockId}`).textContent = subtotal.toFixed(2);
-        document.getElementById(`row2desc-${blockId}`).textContent = pax < pkg.moqfd ? 'Delivery Fee' : 'Delivery Waived';
+        document.getElementById(`row2desc-${blockId}`).textContent = pax < pkg.moqfd ? 'Delivery fee' : 'Delivery Waived';
         document.getElementById(`row2amt-${blockId}`).textContent = delivery.toFixed(2);
         document.getElementById(`row3amt-${blockId}`).textContent = admin.toFixed(2);
         document.getElementById(`rowTotal-${blockId}`).textContent = total.toFixed(2);
