@@ -69,6 +69,7 @@
             <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
           </select>
         </div>
+        </label>
 
         <div class="field-row">
         <label for="category-${blockId}">Category:</label>
@@ -83,11 +84,29 @@
             <option value="">-- Select Menu --</option>
           </select>
         </div>
-        </label>
 
         <div class="field-row">
         <label for="pax-${blockId}">No. of Pax:</label>
           <input type="number" id="pax-${blockId}" value="20" min="1" style="text-align: center;" />
+        </div>
+
+        <div class="fielddelivery-row"><strong>Other Delivery Charges: </strong></div>
+
+        <div class="fielddelivery-row">
+          <input type="checkbox" id="cbddeliverycharges-${blockId}" name="cbddeliverycharges-${blockId}" value="cbd" />
+          <label for="cbddeliverycharges-${blockId}">CBD areas which will pass through ERPs</label>
+        </div>
+
+        <div class="fielddelivery-row">
+          <input type="checkbox" id="odddeliverycharges-${blockId}" name="odddeliverycharges-${blockId}" value="odd" />
+          <label for="odddeliverycharges-${blockId}">Odd hours (between 12am before 6am)</label>
+        </div>
+
+        <div class="fielddelivery-row">
+          <input type="checkbox" id="liftdeliverycharges-${blockId}" name="liftdeliverycharges-${blockId}" value="lift" />
+          <label for="liftdeliverycharges-${blockId}">No lift access (per floor)</label>
+
+          <input type="number" id="floorcount-${blockId}" placeholder="No. of floors" min="1" style="display: none; width: 120px; margin-left: 12px; text-align: center" />
         </div>
 
         <!-- Table displaying cost breakdown -->
@@ -109,6 +128,15 @@
       `;
 
       container.appendChild(block);
+
+      // Listener for number of floors if no lift access
+      const liftCheckbox = document.getElementById(`liftdeliverycharges-${blockId}`);
+      const floorInput = document.getElementById(`floorcount-${blockId}`);
+
+      liftCheckbox.addEventListener('change', () => {
+        floorInput.style.display = liftCheckbox.checked ? 'inline-block' : 'none';
+      });
+
 
       // DOM element references for the new block
       const vendorEl = document.getElementById(`vendor-${blockId}`);

@@ -79,7 +79,18 @@ a.clean-link:visited {
 }
 
 .field-row label {
-  width: 100px;
+  width: 160px;
+}
+
+.fielddelivery-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fielddelivery-row label {
+  margin: 0;
+  white-space: nowrap; /* prevents text wrap */
 }
 
 /* Container for all the selection blocks */
