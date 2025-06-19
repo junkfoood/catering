@@ -57,31 +57,38 @@
       const blockId = blockCount++;
       const container = document.getElementById('selections-container');
 
-      // Create block HTML structure
+      // Create block HTML structure - Dropdowns for vendor, category, and menu
       const block = document.createElement('div');
       block.className = 'selection-block';
       block.innerHTML = `
-        <!-- Dropdowns for vendor, category, and menu -->
-        <label>Vendor:
+        <div class="field-row">
+        <label for="vendor-${blockId}">Vendor:</label>
           <select id="vendor-${blockId}">
             <option value="">-- Select Vendor --</option>
             <option value="Chilli Api">Chilli Api Catering</option>
             <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
           </select>
-        </label>
-        <label>Category:
+        </div>
+
+        <div class="field-row">
+        <label for="category-${blockId}">Category:</label>
           <select id="category-${blockId}">
             <option value="1">1 – Small Quantity (SQ) Refreshment</option>
           </select>
-        </label>
-        <label>Menu Option:
+        </div>
+
+        <div class="field-row">
+          <label for="menu-${blockId}">Menu Option:</label>
           <select id="menu-${blockId}" disabled>
             <option value="">-- Select Menu --</option>
           </select>
+        </div>
         </label>
-        <label>No. of Pax:
-          <input type="number" id="pax-${blockId}" value="20" min="1" />
-        </label>
+
+        <div class="field-row">
+        <label for="pax-${blockId}">No. of Pax:</label>
+          <input type="number" id="pax-${blockId}" value="20" min="1" style="text-align: center;" />
+        </div>
 
         <!-- Table displaying cost breakdown -->
         <table id="cost-summary-${blockId}">
@@ -166,16 +173,47 @@
         const subtotal = pkg.price_per_pax * pax;
         const delivery = pax < pkg.moqfd ? pkg.delivery_fee : 0;
         const admin = (subtotal + delivery) * 0.015;
-        const total = subtotal + delivery + admin;
+        const totalBeforeadmin = subtotal + delivery;
 
-        document.getElementById(`row1desc-${blockId}`).textContent = `Vendor: ${vendorEl.value}, Menu: ${menuEl.value}, Pax: ${pax}`;
-        document.getElementById(`row1amt-${blockId}`).textContent = subtotal.toFixed(2);
-        document.getElementById(`row2desc-${blockId}`).textContent = pax < pkg.moqfd ? 'Delivery fee' : 'Delivery Waived';
-        document.getElementById(`row2amt-${blockId}`).textContent = delivery.toFixed(2);
-        document.getElementById(`row3amt-${blockId}`).textContent = admin.toFixed(2);
-        document.getElementById(`rowTotal-${blockId}`).textContent = total.toFixed(2);
+        //Adding Discounts Rates
+        let discountRate = 0;
 
-        summary.textContent = `Price per pax: $${pkg.price_per_pax}\nMinimum pax for free delivery: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if minimum pax not met\n\n${pkg.general_note}`;
+        if (totalBeforeadmin < 500) {
+          discountRate = pkg.discount_below_500 || 0;
+        } else if (totalBeforeadmin < 2000) {
+          discountRate = pkg.discount_500_2000 || 0;
+        } else if (totalBeforeadmin < 4000) {
+          discountRate = pkg.discount_2000_4000 || 0;
+        } else {
+          discountRate = pkg.discount_above_4000 || 0;
+        }
+
+        const discountedCost = pkg.price_per_pax * pax * (1 - discountRate / 100);
+        const discountedDelivery = delivery * (1 - discountRate / 100);
+        const total = discountedCost + discountedDelivery + admin;
+
+        //Adding Discount Tier
+        let discountTier = "";
+
+        if (totalBeforeadmin < 500) {
+          discountTier = "A";
+        } else if (totalBeforeadmin < 2000) {
+          discountTier = "B";
+        } else if (totalBeforeadmin < 4000) {
+          discountTier = "C";
+        } else {
+          discountTier = "D";
+        }
+
+        document.getElementById(`row1desc-${blockId}`).innerHTML = `Vendor: ${vendorEl.value}, Menu: ${menuEl.value}<strong>${discountTier}</strong>, Pax: ${pax}`;
+        document.getElementById(`row1amt-${blockId}`).innerHTML = discountedCost.toFixed(2);
+        document.getElementById(`row2desc-${blockId}`).innerHTML = pax < pkg.moqfd ? 'Delivery fee' : 'Delivery Waived';
+        document.getElementById(`row2amt-${blockId}`).innerHTML = discountedDelivery.toFixed(2);
+        document.getElementById(`row3amt-${blockId}`).innerHTML = admin.toFixed(2);
+        document.getElementById(`rowTotal-${blockId}`).innerHTML = total.toFixed(2);
+
+        summary.textContent = 
+        `Price per pax: $${pkg.price_per_pax}\nDiscount: ${discountRate}%\nMinimum pax for free delivery: ${pkg.moqfd} pax\nDelivery Fee: $${pkg.delivery_fee} if minimum pax not met\n\n${pkg.general_note}`;
 
         // Render item selections in rows of 3
         output.innerHTML = sections.map((section, secIdx) => {

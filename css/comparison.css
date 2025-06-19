@@ -73,6 +73,15 @@ a.clean-link:visited {
   margin-bottom: 5px
 }
 
+.field-row {
+  display: flex;
+  align-items: center;
+}
+
+.field-row label {
+  width: 100px;
+}
+
 /* Container for all the selection blocks */
 #selections-container {
   display: flex;
