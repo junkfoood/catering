@@ -137,6 +137,12 @@
         floorInput.style.display = liftCheckbox.checked ? 'inline-block' : 'none';
       });
 
+      // Listener for number of floor for no lift access to prevent 0 selection
+      floorInput.addEventListener('input', () => {
+        if (floorInput.value !== '' && parseInt(floorInput.value) < 1) {
+          floorInput.value = 1;
+        }
+      });
 
       // DOM element references for the new block
       const vendorEl = document.getElementById(`vendor-${blockId}`);
