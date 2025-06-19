@@ -172,7 +172,6 @@
         const pax = parseInt(paxInput.value) || 0;
         const subtotal = pkg.price_per_pax * pax;
         const delivery = pax < pkg.moqfd ? pkg.delivery_fee : 0;
-        const admin = (subtotal + delivery) * 0.015;
         const totalBeforeadmin = subtotal + delivery;
 
         //Adding Discounts Rates
@@ -190,6 +189,7 @@
 
         const discountedCost = pkg.price_per_pax * pax * (1 - discountRate / 100);
         const discountedDelivery = delivery * (1 - discountRate / 100);
+        const admin = (discountedCost + discountedDelivery) * 0.015;
         const total = discountedCost + discountedDelivery + admin;
 
         //Adding Discount Tier
