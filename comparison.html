@@ -63,8 +63,8 @@
           <label for="vendor-${blockId}">Vendor:</label>
           <select id="vendor-${blockId}">
             <option value="">-- Select Vendor --</option>
-            <option value="Chilli Api">Chilli Api Catering</option>
-            <option value="Continental Delight">Continental Delight Catering Services Pte. Ltd.</option>
+            <option value="Chilli Api Catering">Chilli Api Catering</option>
+            <option value="Continental Delight Catering Services">Continental Delight Catering Services</option>
           </select>
         </div>
 
@@ -156,12 +156,12 @@
         menuEl.innerHTML = '<option value="">-- Select Menu --</option>';
         menuEl.disabled = true;
 
-        if (vendorEl.value === 'Chilli Api' && categoryEl.value === '1') {
+        if (vendorEl.value === 'Chilli Api Catering' && categoryEl.value === '1') {
           menuEl.innerHTML += `
             <option value="C101">[Catering 101] SQ Refreshment 1</option>
             <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
           menuEl.disabled = false;
-        } else if (vendorEl.value === 'Continental Delight' && categoryEl.value === '1') {
+        } else if (vendorEl.value === 'Continental Delight Catering Services' && categoryEl.value === '1') {
           menuEl.innerHTML += `
             <option value="C101">[Catering 101] SQ Refreshment 1</option>
             <option value="C102">[Catering 102] SQ Refreshment 2</option>
