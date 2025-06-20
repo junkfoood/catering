@@ -214,12 +214,13 @@
         const liftCheckbox = document.getElementById(`liftdeliverycharges-${blockId}`);
         const floorInput = document.getElementById(`floorcount-${blockId}`);
 
-        if (liftCheckbox?.checked) {
           const floors = parseInt(floorInput.value) || 1;
+
+          if (liftCheckbox?.checked) {
           delivery += floors * 25;
-        } else if (oddCheckbox?.checked) {
+        }  if (oddCheckbox?.checked) {
           delivery += 30;
-        } else if (cbdCheckbox?.checked) {
+        }  if (cbdCheckbox?.checked) {
           delivery += 5;
         }
 
@@ -248,9 +249,24 @@
         else if (totalBeforeadmin < 4000) discountTier = 'C';
         else discountTier = 'D';
 
-        document.getElementById(`row1desc-${blockId}`).innerHTML = `Vendor: ${vendorEl.value}, Menu: ${menuEl.value}, Pax: ${pax}, Tier: <strong>${discountTier}</strong>`;
+        document.getElementById(`row1desc-${blockId}`).innerHTML = `Vendor: ${vendorEl.value}, Menu: ${menuEl.value}<strong>${discountTier}</strong>, Pax: ${pax}`;
         document.getElementById(`row1amt-${blockId}`).innerHTML = discountedCost.toFixed(2);
-        document.getElementById(`row2desc-${blockId}`).innerHTML = pax < pkg.moqfd ? 'Delivery fee' : 'Delivery Waived';
+        
+        //For Delivery
+        let deliveryLabel = pax < pkg.moqfd ? 'Delivery fee' : 'Delivery Waived';
+
+        if (cbdCheckbox?.checked) {
+          deliveryLabel += ' + CBD Surcharge (+$5)';
+        }
+        if (oddCheckbox?.checked) {
+          deliveryLabel += ' + Odd Hours Surcharge (+$30)';
+        }  
+        if (liftCheckbox?.checked) {
+          deliveryLabel += ` + Lift Surcharge (+$25 x ${floors} floor${floors > 1 ? 's' : ''})`;
+        }  
+
+        document.getElementById(`row2desc-${blockId}`).innerHTML = deliveryLabel;
+
         document.getElementById(`row2amt-${blockId}`).innerHTML = discountedDelivery.toFixed(2);
         document.getElementById(`row3amt-${blockId}`).innerHTML = admin.toFixed(2);
         document.getElementById(`rowTotal-${blockId}`).innerHTML = total.toFixed(2);
