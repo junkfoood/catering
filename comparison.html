@@ -269,7 +269,7 @@
 
         document.getElementById(`row2amt-${blockId}`).innerHTML = discountedDelivery.toFixed(2);
         document.getElementById(`row3amt-${blockId}`).innerHTML = admin.toFixed(2);
-        document.getElementById(`rowTotal-${blockId}`).innerHTML = total.toFixed(2);
+        document.getElementById(`rowTotal-${blockId}`).innerHTML = `<strong> ${total.toFixed(2)} </strong>`;
 
         summary.textContent = 
           `Price per pax: $${pkg.price_per_pax}\nDiscount: ${discountRate}%\nMinimum pax for free delivery: ${pkg.moqfd} pax\nDelivery charge if minimum pax not met: $${pkg.delivery_fee}\n\n${pkg.general_note}`;
