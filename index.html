@@ -67,7 +67,7 @@
 
       const { data, error } = await supabaseClient
         .from('menu_packages')
-        .select('vendor, code, title, price_per_pax, moqfd')
+        .select('vendor, category, code, price_per_pax, moqfd')
         .neq('vendor', null);
 
       if (error) {
@@ -75,37 +75,47 @@
         return;
       }
 
-      function renderList() {
-        const term = searchInput.value.toLowerCase();
-        const maxPrice = parseFloat(priceInput.value);
+    function renderList() {
+      const term = searchInput.value.toLowerCase();
+      const maxPrice = parseFloat(priceInput.value);
 
-        const filtered = data.filter(pkg => {
-          const matchSearch = pkg.vendor.toLowerCase().includes(term);
-          const matchPrice = isNaN(maxPrice) || pkg.price_per_pax <= maxPrice;
-          return matchSearch && matchPrice;
-        });
+      const filtered = data.filter(pkg => {
+        const matchSearch = pkg.vendor.toLowerCase().includes(term);
+        const matchPrice = isNaN(maxPrice) || pkg.price_per_pax <= maxPrice;
+        return matchSearch && matchPrice;
+      });
 
-        const grouped = {};
-        filtered.forEach(pkg => {
-          if (!grouped[pkg.vendor]) grouped[pkg.vendor] = [];
-          grouped[pkg.vendor].push(pkg);
-        });
+      const groupedByVendor = {};
+      filtered.forEach(pkg => {
+        if (!groupedByVendor[pkg.vendor]) groupedByVendor[pkg.vendor] = {};
+        if (!groupedByVendor[pkg.vendor][pkg.category]) groupedByVendor[pkg.vendor][pkg.category] = [];
+        groupedByVendor[pkg.vendor][pkg.category].push(pkg);
+      });
 
-        list.innerHTML = Object.entries(grouped)
-          .sort((a, b) => a[0].localeCompare(b[0]))
-          .map(([vendor, packages]) => {
-            const packageList = packages
-              .sort((a, b) => a.code.localeCompare(b.code))
-        .map(p =>
-          `<li class="package-item">
-            <a href="comparison.html?vendor=${encodeURIComponent(p.vendor)}&category=1&menu=${p.code}">
-              ${p.code} – ${p.title} – $${p.price_per_pax}/pax, Minimum Pax for Free Delivery: ${p.moqfd}
-            </a>
-          </li>`
-        ).join('');
-            return `<li class="vendor-item"><strong>${vendor}</strong><ul>${packageList}</ul></li>`;
-          }).join('');
-      }
+      list.innerHTML = Object.entries(groupedByVendor)
+        .sort((a, b) => a[0].localeCompare(b[0])) // vendor sort
+        .map(([vendor, categories]) => {
+          const categoryBlocks = Object.entries(categories)
+            .sort((a, b) => a[0].localeCompare(b[0])) // category sort
+            .map(([category, packages]) => {
+              const packageItems = packages
+                .sort((a, b) => a.code.localeCompare(b.code))
+                .map(p =>
+                  `<li class="package-item">
+                    <a href="comparison.html?vendor=${encodeURIComponent(p.vendor)}&category=${encodeURIComponent(p.category)}&menu=${p.code}">
+                      ${p.code} – $${p.price_per_pax}/pax, Minimum Pax for Free Delivery: ${p.moqfd}
+                    </a>
+                  </li>`
+                ).join('');
+              return `
+                <li class="category-item"><strong>${category}</strong><ul>${packageItems}</ul></li>
+              `;
+            }).join('');
+
+          return `<li class="vendor-item"><strong>${vendor}</strong><ul>${categoryBlocks}</ul></li>`;
+        }).join('');
+    }
+
 
       priceInput.addEventListener('input', () => {
         priceValue.textContent = `$${priceInput.value}`;

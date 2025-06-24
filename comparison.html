@@ -37,14 +37,53 @@
 
     let blockCount = 0;
 
+    // Extract and cache
+    let allMenus = [];
+
+    // When vendor is selected
+    function getCategoriesForVendor(vendor) {
+      const filtered = allMenus.filter(pkg => pkg.vendor === vendor);
+      const categories = [
+        ...new Map(filtered.map(pkg => [pkg.category_id, pkg.category_name])).entries()
+      ];
+      return categories;
+    }
+
+    // Preload all menu data once when the page loads
+    async function preloadMenus() {
+      const { data, error } = await supabaseClient
+        .from('menu_packages')
+        .select('vendor, category, code');
+
+      if (error) {
+        console.error('Error fetching menu packages:', error);
+        return [];
+      }
+
+      return data;
+    }
+
+    // Menu population based on vendor/category
+    function populateVendors(vendorEl) {
+      const vendors = [...new Set(allMenus.map(m => m.vendor))];
+      vendorEl.innerHTML = '<option value="">-- Select Vendor --</option>';
+      vendors.forEach(v => {
+        vendorEl.innerHTML += `<option value="${v}">${v}</option>`;
+      });
+    }
+
     // Auto-prefill comparison block from URL params
-    window.onload = () => {
+    window.onload = async () => {
+      allMenus = await preloadMenus();
+      console.log(allMenus); // ✅ make sure this shows your vendor data
+
       const params = new URLSearchParams(window.location.search);
       const vendor = decodeURIComponent(params.get('vendor') || '');
       const menu = decodeURIComponent(params.get('menu') || '');
       const category = decodeURIComponent(params.get('category') || '');
+
       if (vendor && menu && category) {
-        setTimeout(() => addSelectionBlock(vendor, category, menu), 0);
+        addSelectionBlock(vendor, category, menu);
       } else {
         addSelectionBlock();
       }
@@ -61,25 +100,23 @@
       block.innerHTML = `
         <div class="field-row">
           <label for="vendor-${blockId}">Vendor:</label>
-          <select id="vendor-${blockId}">
-            <option value="">-- Select Vendor --</option>
-            <option value="Chilli Api Catering">Chilli Api Catering</option>
-            <option value="Continental Delight Catering Services">Continental Delight Catering Services</option>
-          </select>
+        <select id="vendor-${blockId}">
+          <option value="">-- Select Vendor --</option>
+        </select>
         </div>
 
         <div class="field-row">
           <label for="category-${blockId}">Category:</label>
-          <select id="category-${blockId}">
-            <option value="1">1 – Small Quantity (SQ) Refreshment</option>
-          </select>
+        <select id="category-${blockId}">
+          <option value="">-- Select Category --</option>
+        </select>
         </div>
 
         <div class="field-row">
-          <label for="menu-${blockId}">Menu Option:</label>
-          <select id="menu-${blockId}" disabled>
-            <option value="">-- Select Menu --</option>
-          </select>
+          <label for="menu-${blockId}">Menu:</label>
+        <select id="menu-${blockId}" disabled>
+        <option value="">-- Select Menu --</option>
+        </select>
         </div>
 
         <div class="field-row">
@@ -151,24 +188,23 @@
         }
       });
 
-      // Menu population based on vendor/category
-      function updateMenuOptions() {
-        menuEl.innerHTML = '<option value="">-- Select Menu --</option>';
-        menuEl.disabled = true;
+      // Options for Vendor, Category and Menu
+      function populateCategories(vendor) {
+        const filtered = allMenus.filter(m => m.vendor === vendor);
+        const categories = [...new Set(filtered.map(m => m.category))];
+        categoryEl.innerHTML = '<option value="">-- Select Category --</option>';
+        categories.forEach(c => {
+          categoryEl.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+      }
 
-        if (vendorEl.value === 'Chilli Api Catering' && categoryEl.value === '1') {
-          menuEl.innerHTML += `
-            <option value="C101">[Catering 101] SQ Refreshment 1</option>
-            <option value="C102">[Catering 102] SQ Refreshment 2</option>`;
-          menuEl.disabled = false;
-        } else if (vendorEl.value === 'Continental Delight Catering Services' && categoryEl.value === '1') {
-          menuEl.innerHTML += `
-            <option value="C101">[Catering 101] SQ Refreshment 1</option>
-            <option value="C102">[Catering 102] SQ Refreshment 2</option>
-            <option value="C103">[Catering 103] SQ Refreshment 3</option>
-            <option value="C104">[Catering 104] SQ Refreshment 4</option>`;
-          menuEl.disabled = false;
-        }
+      function populateMenus(vendor, category) {
+        const filtered = allMenus.filter(m => m.vendor === vendor && m.category == category);
+        menuEl.innerHTML = '<option value="">-- Select Menu --</option>';
+        filtered.forEach(menu => {
+          menuEl.innerHTML += `<option value="${menu.code}">${menu.code}</option>`;
+        });
+        menuEl.disabled = false;
 
         if (defaultMenu) {
           menuEl.value = defaultMenu;
@@ -183,7 +219,7 @@
 
         const { data: pkg } = await supabaseClient
           .from('menu_packages')
-          .select('id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried, discount_below_500, discount_500_2000, discount_2000_4000, discount_above_4000')
+          .select('vendor, category, id, price_per_pax, moqfd, delivery_fee, general_note, max_deep_fried, discount_below_500, discount_500_2000, discount_2000_4000, discount_above_4000')
           .eq('vendor', vendorEl.value)
           .eq('code', code)
           .single();
@@ -312,23 +348,35 @@
         });
       };
 
-      // Bind change events
-      vendorEl.addEventListener('change', updateMenuOptions);
-      categoryEl.addEventListener('change', updateMenuOptions);
-      menuEl.addEventListener('change', fetchAndRenderPackage);
-      paxInput.addEventListener('input', fetchAndRenderPackage);
+    vendorEl.addEventListener('change', () => {
+      populateCategories(vendorEl.value);
+      menuEl.innerHTML = '<option value="">-- Select Menu --</option>';
+      menuEl.disabled = true;
+    });
 
-      // Recalculate when surcharge checkboxes change
-      document.getElementById(`cbddeliverycharges-${blockId}`).addEventListener('change', fetchAndRenderPackage);
-      document.getElementById(`odddeliverycharges-${blockId}`).addEventListener('change', fetchAndRenderPackage);
-      document.getElementById(`liftdeliverycharges-${blockId}`).addEventListener('change', fetchAndRenderPackage);
-      document.getElementById(`floorcount-${blockId}`).addEventListener('input', fetchAndRenderPackage);
+    categoryEl.addEventListener('change', () => {
+      populateMenus(vendorEl.value, categoryEl.value);
+    });
 
+    menuEl.addEventListener('change', fetchAndRenderPackage);
+    paxInput.addEventListener('input', fetchAndRenderPackage);
 
-      vendorEl.value = defaultVendor;
-      categoryEl.value = defaultCategory;
-      updateMenuOptions();
+    document.getElementById(`cbddeliverycharges-${blockId}`).addEventListener('change', fetchAndRenderPackage);
+    document.getElementById(`odddeliverycharges-${blockId}`).addEventListener('change', fetchAndRenderPackage);
+    document.getElementById(`liftdeliverycharges-${blockId}`).addEventListener('change', fetchAndRenderPackage);
+    document.getElementById(`floorcount-${blockId}`).addEventListener('input', fetchAndRenderPackage);
+
+    // Initialise dropdowns
+    vendorEl.innerHTML = '<option value="">-- Select Vendor --</option>';
+    const vendorOptions = [...new Set(allMenus.map(m => m.vendor))];
+    vendorOptions.forEach(v => {
+      vendorEl.innerHTML += `<option value="${v}">${v}</option>`;
+    });
+    vendorEl.value = defaultVendor;
+    vendorEl.dispatchEvent(new Event('change'));
+    categoryEl.value = defaultCategory;
+    categoryEl.dispatchEvent(new Event('change'));
     }
-  </script>
+    </script>
 </body>
 </html>

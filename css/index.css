@@ -170,10 +170,29 @@ a.clean-link:visited {
   margin-top: 8px;
 }
 
+.category-item {
+  list-style: none;
+  padding-left: 25px;
+  position: relative;
+}
+
+.category-item::before {
+  content: "🍽️"; 
+  position: absolute;
+  left: 0;
+  top: -0.2em;
+}
+
 .package-item {
+  list-style: none;
   margin: 4px 0;
   word-break: break-word;
   font-size: 14px;
+}
+
+.package-item::before {
+  content: "📋 ";
+  margin-right: 4px;
 }
 
 /* MOBILE */
