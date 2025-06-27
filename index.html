@@ -39,6 +39,8 @@
       <label><strong>Budget per Pax:</strong>
         <input type="range" id="filter-price" min="3" max="12" step="1" value="12"> 
         <span id="price-value">$7</span> <p></p>
+        <label> <strong>Categories:</strong><p></p><input type="checkbox" class="category-filter" value="Small Quantity Refreshment"> Small Quantity Refreshment</label>
+        <label><input type="checkbox" class="category-filter" value="Small Quantity Buffet"> Small Quantity Buffet</label>        
         <label> <strong>Delivery Restrictions:</strong><p></p><input type="checkbox" class="area-filter" value="All except West"> All except West</label>
         <label><input type="checkbox" class="area-filter" value="Off-Shore Island"> Off-Shore Island</label>
       </label>
@@ -88,6 +90,10 @@
       const checkedAreas = Array.from(document.querySelectorAll('.area-filter:checked'))
         .map(cb => cb.value);
 
+      // Get checked categories
+      const checkedCategories = Array.from(document.querySelectorAll('.category-filter:checked'))
+        .map(cb => cb.value);        
+
       const filtered = data.filter(pkg => {
         const matchSearch = [pkg.vendor, pkg.category, pkg.code]
           .some(field => field && normalise(field).includes(normalise(term)));
@@ -97,7 +103,10 @@
         // Handle restricted area filtering
         const blocked = checkedAreas.includes(pkg.restricted_areas);
 
-        return !blocked && matchSearch && matchPrice;
+        // Handle restricted category filtering
+        const matchCategory = checkedCategories.length === 0 || checkedCategories.includes(pkg.category);
+
+        return !blocked && matchCategory && matchSearch && matchPrice;
       });
 
       const groupedByVendor = {};
@@ -138,11 +147,17 @@
       });
 
       searchInput.addEventListener('input', renderList);
+
       document.querySelectorAll('.area-filter').forEach(cb =>
         cb.addEventListener('change', renderList)
       );
+
+      document.querySelectorAll('.category-filter').forEach(cb =>
+        cb.addEventListener('change', renderList)
+      );
+
       renderList();
-    });
+      });
   </script>
 </body>
 </html>
