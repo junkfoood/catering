@@ -130,6 +130,13 @@ a.clean-link:visited {
   font-size: 14px;
 }
 
+.filter-panel input[type="checkbox"] {
+  vertical-align: text-bottom;
+  margin-right: 6px;
+  position: relative;
+  top: 1px;
+}
+
 .filter-panel input[type="range"] {
   width: 100%;
 }
