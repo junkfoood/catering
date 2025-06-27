@@ -43,6 +43,10 @@
         <label><input type="checkbox" class="category-filter" value="Small Quantity Buffet"> Small Quantity Buffet</label>        
         <label> <strong>Delivery Restrictions:</strong><p></p><input type="checkbox" class="area-filter" value="All except West"> All except West</label>
         <label><input type="checkbox" class="area-filter" value="Off-Shore Island"> Off-Shore Island</label>
+        <label><input type="checkbox" class="area-filter" value="CBD"> Central Business District</label>
+        <label><input type="checkbox" class="area-filter" value="Sentosa"> Sentosa</label>
+        <label><input type="checkbox" class="area-filter" value="Jurong Island"> Jurong Island</label>
+        <label><input type="checkbox" class="area-filter" value="Airline Road"> Airline Road</label>
       </label>
     </div>
 
@@ -101,7 +105,10 @@
         const matchPrice = isNaN(maxPrice) || pkg.price_per_pax <= maxPrice;
 
         // Handle restricted area filtering
-        const blocked = checkedAreas.includes(pkg.restricted_areas);
+        const blocked = (pkg.restricted_areas || '')
+          .split(',')
+          .map(area => area.trim())
+          .some(area => checkedAreas.includes(area));
 
         // Handle restricted category filtering
         const matchCategory = checkedCategories.length === 0 || checkedCategories.includes(pkg.category);
