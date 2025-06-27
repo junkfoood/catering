@@ -28,7 +28,7 @@
     <h1 class="hero-heading">Find the Perfect Caterer for Your Event</h1>
     <p class="hero-subtext">Compare prices from catering vendors all in one place.</p>
     <div class="search-bar">
-      <input type="text" id="vendor-search" placeholder="Search vendors..." class="search-input">
+      <input type="text" id="vendor-search" placeholder="Search..." class="search-input">
     </div>
   </section>
 
@@ -79,8 +79,13 @@
       const term = searchInput.value.toLowerCase();
       const maxPrice = parseFloat(priceInput.value);
 
+      // Search matching
+      const normalise = str => str.toLowerCase().replace(/\s+/g, ' ').trim();
+
       const filtered = data.filter(pkg => {
-        const matchSearch = pkg.vendor.toLowerCase().includes(term);
+        const matchSearch = [pkg.vendor, pkg.category, pkg.code]
+          .some(field => field && normalise(field).includes(normalise(term)));
+
         const matchPrice = isNaN(maxPrice) || pkg.price_per_pax <= maxPrice;
         return matchSearch && matchPrice;
       });
