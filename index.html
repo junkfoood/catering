@@ -36,9 +36,11 @@
   <div class="content-wrapper">
     <!-- FILTER PANEL -->
     <div class="filter-panel">
-      <label>Budget per Pax:
-        <input type="range" id="filter-price" min="3" max="12" step="1" value="12">
-        <span id="price-value">$7</span>
+      <label><strong>Budget per Pax:</strong>
+        <input type="range" id="filter-price" min="3" max="12" step="1" value="12"> 
+        <span id="price-value">$7</span> <p></p>
+        <label> <strong>Delivery Restrictions:</strong><p></p><input type="checkbox" class="area-filter" value="All except West"> All except West</label>
+        <label><input type="checkbox" class="area-filter" value="Off-Shore Island"> Off-Shore Island</label>
       </label>
     </div>
 
@@ -67,7 +69,7 @@
 
       const { data, error } = await supabaseClient
         .from('menu_packages')
-        .select('vendor, category, code, price_per_pax, moqfd')
+        .select('vendor, category, code, price_per_pax, moqfd, restricted_areas')
         .neq('vendor', null);
 
       if (error) {
@@ -79,15 +81,23 @@
       const term = searchInput.value.toLowerCase();
       const maxPrice = parseFloat(priceInput.value);
 
-      // Search matching
+      // Search and Filtering
       const normalise = str => str.toLowerCase().replace(/\s+/g, ' ').trim();
+
+      // Get checked restricted areas
+      const checkedAreas = Array.from(document.querySelectorAll('.area-filter:checked'))
+        .map(cb => cb.value);
 
       const filtered = data.filter(pkg => {
         const matchSearch = [pkg.vendor, pkg.category, pkg.code]
           .some(field => field && normalise(field).includes(normalise(term)));
 
         const matchPrice = isNaN(maxPrice) || pkg.price_per_pax <= maxPrice;
-        return matchSearch && matchPrice;
+
+        // Handle restricted area filtering
+        const blocked = checkedAreas.includes(pkg.restricted_areas);
+
+        return !blocked && matchSearch && matchPrice;
       });
 
       const groupedByVendor = {};
@@ -128,6 +138,9 @@
       });
 
       searchInput.addEventListener('input', renderList);
+      document.querySelectorAll('.area-filter').forEach(cb =>
+        cb.addEventListener('change', renderList)
+      );
       renderList();
     });
   </script>
