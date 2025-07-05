@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# This is an internal GovTech application
+# Not intended for public indexing 
