@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["rhel-openssl-1.0.x", "native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+// Necessary for Next auth
+model User {
+  id        String   @id @default(uuid(7))
+  email     String   @unique
+  role      UserRole @default(USER)
+  name      String
+  activated Boolean  @default(true)
+
+  accounts Account[]
+  sessions Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Account {
+  id                String  @id @default(uuid(7))
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid(7))
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Caterer {
+  id   String @id @default(cuid())
+  name String @unique
+
+  menus CatererMenu[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum CatererMenuType {
+  SMALL_QTY_REFRESHMENT
+  SMALL_QTY_BUFFET
+}
+
+model CatererMenu {
+  id    String          @id @default(cuid())
+  code  String          @unique
+  type  CatererMenuType
+  notes String?
+
+  pricePerPerson Float
+  minimumOrder   Int
+  maxFriedItems  Int
+
+  sections CatererMenuSection[]
+
+  restrictedAreas RestrictedArea[]
+  discounts       CatererMenuDiscount[]
+
+  caterer   Caterer @relation(fields: [catererID], references: [id], onDelete: Cascade)
+  catererID String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model CatererMenuSection {
+  id String @id @default(cuid())
+
+  menu   CatererMenu @relation(fields: [menuID], references: [id], onDelete: Cascade)
+  menuID String
+
+  title       String
+  description String?
+
+  items CatererMenuSectionItem[]
+
+  selectionLimit Int
+  order          Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model CatererMenuSectionItem {
+  id String @id @default(cuid())
+
+  section   CatererMenuSection @relation(fields: [sectionID], references: [id], onDelete: Cascade)
+  sectionID String
+
+  name  String
+  order Int
+
+  vegetarian Boolean
+  fried      Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum DiscountType {
+  BELOW_500
+  BETWEEN_500_AND_2000
+  BETWEEN_2000_AND_4000
+  ABOVE_4000
+}
+
+model CatererMenuDiscount {
+  id       String       @id @default(cuid())
+  type     DiscountType
+  discount Int
+
+  catererMenu   CatererMenu @relation(fields: [catererMenuID], references: [id], onDelete: Cascade)
+  catererMenuID String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model RestrictedArea {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  catererMenus CatererMenu[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
