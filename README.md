@@ -102,36 +102,5 @@ To get started with the CIOO NextJS Template, follow these steps:
 ## Deployment
 
 You need the following environment variables on:
-* Gitlab
-    * `NEON_API_KEY` - You can create this in your Neon Account
-    * `NEON_PROJECT_ID` - Open your Neon project, go to "Overview", you should see the Project ID
-    * `PRODUCTION_DATABASE_URL` - The connection string for the production DB
-    * `STAGING_DATABASE_URL` - The connection string for the staging DB
-    * `VERCEL_ORG_ID` - For the CIOO Vercel, it is `team_1mJrmnykGcxiwY7Us9mCHMm7`
-    * `VERCEL_PROJECT_ID` - Open your Vercel project, go to "General", you should see the Project ID
-    * `VERCEL_TOKEN` - You can create this in your Vercel Account
 * Vercel
-    * Copy the `.env.example` file into Vercel
-    * `DATABASE_URL` - You can generate this in Neon (should be the same as your `PRODUCTION_DATABASE_URL`)
-    * Techpass Details
-        * On `portal.techpass.gov.sg`
-        * Go to `Your Name` > `Tenant` > `CIOO-product-team` > `Manage`
-        * Create a new Application, you will get an `Application ID` here
-        * Add the redirect URLs, it should be in this format `https://xxx.tech.gov.sg/api/auth/callback/microsoft-entra-id` 
-        * Create a Client Secret for your application
-        * Uncheck `Check to enable coarse grain access to application` to allow all TechPass users to login
-    * `AUTH_SECRET` can be created using the command `openssl rand -base64 32` to generate it
-
-
-## Troubleshooting
-
-If you have any certificate related issues for Cloudflare, please refer to this [document](https://docs.developer.tech.gov.sg/docs/security-suite-for-engineering-endpoint-devices/support/configuration-of-common-developer-cli-tools-with-cloudflare-warp-guide?id=nodejs-and-npm).
-
-You will likely need to run the following commands to resolve the issue for macOS:
-
-```
-mkdir -p "${HOME}/.config/.cloudflare"
-curl -sSLj -o "${HOME}/.config/.cloudflare/Cloudflare_CA.pem" "https://seed-general-public-files.s3.ap-southeast-1.amazonaws.com/seed-cloudflare-root-certs/Cloudflare_CA.pem"
-echo 'export NODE_EXTRA_CA_CERTS="${HOME}/.config/.cloudflare/Cloudflare_CA.pem"' | tee -a "${HOME}/.zshrc"
-source "${HOME}/.zshrc"
-```
+    * Copy your `.env` file into Vercel's Environment Variables
