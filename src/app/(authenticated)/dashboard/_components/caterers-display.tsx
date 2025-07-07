@@ -65,7 +65,7 @@ export default function CaterersDisplay({
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 							/>
-							<Button className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full bg-orange-500 hover:bg-orange-600">
+							<Button className="absolute right-0 top-1/2 transform -translate-y-1/2 -mt-5 rounded-full bg-orange-500 hover:bg-orange-600">
 								Search
 							</Button>
 						</div>
@@ -249,7 +249,7 @@ export default function CaterersDisplay({
 									</Card>
 								))}
 							</div>
-
+							
 							{/* Load More */}
 							<div className="text-center mt-8">
 								<Button variant="outline" size="lg">

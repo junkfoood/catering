@@ -16,7 +16,7 @@ export default async function LandingPage() {
 			body={
 				<div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg">
 					<h1 className="text-4xl mb-8 font-bold tracking-tighter md:text-5xl lg:text-7xl z-10">
-						Welcome to <AuroraText>Carering</AuroraText>
+						Welcome to <AuroraText>Cater Compare</AuroraText>
 					</h1>
 				</div>
 			}

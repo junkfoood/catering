@@ -12,7 +12,7 @@ Settings.defaultZone = "Asia/Singapore";
 export const metadata: Metadata = {
 	title: {
 		template: "%s",
-		default: "GovTech Product Scorecard",
+		default: "Cater Compare",
 	},
 	description:
 		"GovTech Product Scorecard, built in collaboration by the CIO Office Product Team, GTO Product Management Practice, Product Strategy Office, Technology Management Office, and the Transformation Office.",
