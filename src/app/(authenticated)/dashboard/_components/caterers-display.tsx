@@ -43,6 +43,47 @@ export default function CaterersDisplay({
 			setSelectedLocations(selectedLocations.filter((l) => l !== location));
 		}
 	};
+	
+	//Filtering for Location
+	const filteredCaterers = caterers.filter((vendor) => {
+	const matchesLocation =
+		selectedLocations.length === 0 ||
+		vendor.restrictedAreas?.some((area) =>
+			selectedLocations.includes(area.id),
+		);
+
+	//Filtering for Category
+	const matchesCategory =
+		selectedCategories.length === 0 ||
+		vendor.menus?.some((menu) =>
+			selectedCategories.includes(menu.type),
+		);
+
+	//Filtering for Budget
+	const matchesBudget =
+		vendor.menus?.some((menu) => menu.pricePerPerson <= budget[0]);
+
+	const matchesSearch =
+		searchQuery.trim() === "" ||
+		vendor.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+	return matchesLocation && matchesCategory && matchesBudget && matchesSearch;
+	});
+
+	//Labels for Categories
+	const categoryLabels: Record<CatererMenuType, string> = {
+		SMALL_QTY_REFRESHMENT: "Small Quantity Refreshment",
+		SMALL_QTY_BUFFET: "Small Quantity Buffet",
+		// Add others in future
+	};
+
+	//Flatten vendor list
+		const vendorMenuCards = caterers.flatMap((vendor) =>
+		vendor.menus.map((menu) => ({
+			vendor,
+			menu,
+		}))
+	);
 
 	return (
 		<PageShell
@@ -128,7 +169,7 @@ export default function CaterersDisplay({
 														htmlFor={category}
 														className="text-sm text-gray-700"
 													>
-														{category}
+														{categoryLabels[category]}
 													</Label>
 												</div>
 											))}
@@ -181,8 +222,8 @@ export default function CaterersDisplay({
 								<p className="text-gray-600">{caterers.length} vendors found</p>
 							</div>
 
-							<div className="grid gap-6">
-								{caterers.map((vendor) => (
+							<div className="grid gap-6" >
+								{filteredCaterers.map((vendor, menu) => (
 									<Card
 										key={vendor.id}
 										className="overflow-hidden hover:shadow-lg transition-shadow"
