@@ -47,6 +47,14 @@ export async function seedInitData() {
 			}),
 		]);
 
+		// Array indices for restricted areas:
+		// [0] = "All except West"
+		// [1] = "Off-Shore Island" 
+		// [2] = "Central Business District"
+		// [3] = "Sentosa"
+		// [4] = "Jurong Island"
+		// [5] = "Airline Road"
+
 		// Create caterers
 		const chilliApiCaterer = await tx.caterer.create({
 			data: {
@@ -77,6 +85,11 @@ export async function seedInitData() {
 				notes:
 					"Dishes are prepared using Healthier Oils and Lower Sodium Ingredients. Fresh Fruits can be selected to substitute any 1 item.",
 				catererID: chilliApiCaterer.id,
+				restrictedAreas: {
+					connect: [
+						{ id: restrictedAreas[0].id }, // All except West
+					],
+				},
 				discounts: {
 					create: [
 						{
@@ -369,6 +382,11 @@ export async function seedInitData() {
 				notes:
 					"All options are made with wholegrain. Dishes are prepared using Healthier Oils and Lower Sodium Ingredients. Fresh Fruits can be selected to substitute any 1 item.",
 				catererID: chilliApiCaterer.id,
+				restrictedAreas: {
+					connect: [
+						{ id: restrictedAreas[0].id }, // All except West
+					],
+				},
 				discounts: {
 					create: [
 						{
@@ -581,6 +599,11 @@ export async function seedInitData() {
 				notes:
 					"All options are made with wholegrain. Dishes are prepared using Healthier Oils and Lower Sodium Ingredients. Fresh Fruits can be selected to substitute any 1 item.",
 				catererID: continentalDelightCaterer.id,
+				restrictedAreas: {
+					connect: [
+						{ id: restrictedAreas[1].id }, // Off-Shore Island
+					],
+				},
 				discounts: {
 					create: [
 						{
@@ -822,6 +845,12 @@ export async function seedInitData() {
 				maxFriedItems: 3,
 				notes: "Test buffet menu",
 				catererID: testVendorCaterer.id,
+				restrictedAreas: {
+					connect: [
+						{ id: restrictedAreas[0].id }, // All except West
+						{ id: restrictedAreas[5].id }, // Airline Road
+					],
+				},
 				discounts: {
 					create: [
 						{
@@ -843,6 +872,13 @@ export async function seedInitData() {
 				maxFriedItems: 1,
 				notes: "Test refreshment menu",
 				catererID: testVendorCaterer.id,
+				restrictedAreas: {
+					connect: [
+						{ id: restrictedAreas[1].id }, // Off-Shore Island
+						{ id: restrictedAreas[3].id }, // Sentosa
+						{ id: restrictedAreas[4].id }, // Jurong Island
+					],
+				},
 				discounts: {
 					create: [
 						{

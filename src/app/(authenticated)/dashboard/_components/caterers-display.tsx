@@ -44,15 +44,28 @@ export default function CaterersDisplay({
 		}
 	};
 
-	//Filtering for Location
-	const filteredCaterers = caterers.filter((vendor) => {
-		const matchesLocation =
-			selectedLocations.length === 0 ||
-			vendor.menus?.some((menu) =>
-				menu.restrictedAreas?.some((area) =>
-					selectedLocations.includes(area.id),
-				),
-			);
+		//Filtering for Location (show only caterers that can deliver to selected areas)
+		const filteredCaterers = caterers.filter((vendor) => {
+			// If no locations selected, show all vendors
+			if (selectedLocations.length === 0) {
+				return true;
+			}
+			
+			// Check if vendor has at least one menu that can deliver to ALL selected areas
+			const hasDeliverableMenu = vendor.menus?.some((menu) => {
+				// Get all restricted areas for this menu
+				const menuRestrictedAreas = menu.restrictedAreas?.map(area => area.id) || [];
+				
+				// Check if this menu can deliver to ALL selected areas
+				// (i.e., none of the selected areas are in the menu's restricted areas)
+				const canDeliverToAllSelected = selectedLocations.every(selectedAreaId => 
+					!menuRestrictedAreas.includes(selectedAreaId)
+				);
+				
+				return canDeliverToAllSelected;
+			});
+			
+			return hasDeliverableMenu;
 
 		//Filtering for Category
 		const matchesCategory =
@@ -68,23 +81,23 @@ export default function CaterersDisplay({
 			searchQuery.trim() === "" ||
 			vendor.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-		return matchesLocation && matchesCategory && matchesBudget && matchesSearch;
-	});
+		return hasDeliverableMenu && matchesCategory && matchesBudget && matchesSearch;
+		});
 
-	//Labels for Categories
-	const categoryLabels: Record<CatererMenuType, string> = {
-		SMALL_QTY_REFRESHMENT: "Small Quantity Refreshment",
-		SMALL_QTY_BUFFET: "Small Quantity Buffet",
-		// Add others in future
-	};
+		//Flatten to vendor-menu pairs
+		const vendorMenuPairs = filteredCaterers.flatMap((vendor) =>
+			vendor.menus.map((menu) => ({
+				vendor,
+				menu,
+			}))
+		);
 
-	//Flatten vendor list
-	const vendorMenuCards = caterers.flatMap((vendor) =>
-		vendor.menus.map((menu) => ({
-			vendor,
-			menu,
-		})),
-	);
+		//Labels for Categories
+		const categoryLabels: Record<CatererMenuType, string> = {
+			SMALL_QTY_REFRESHMENT: "Small Quantity Refreshment",
+			SMALL_QTY_BUFFET: "Small Quantity Buffet",
+			// Add others in future
+		};
 
 	return (
 		<PageShell
@@ -182,7 +195,7 @@ export default function CaterersDisplay({
 									{/* Location Filter */}
 									<div>
 										<Label className="text-sm font-medium mb-3 block">
-											Delivery Areas
+											Delivery Areas (Show Only)
 										</Label>
 										<div className="space-y-2">
 											{restrictedAreas.map((location) => (
@@ -224,11 +237,8 @@ export default function CaterersDisplay({
 							</div>
 
 							<div className="grid gap-6">
-								{filteredCaterers.map((vendor, menu) => (
-									<Card
-										key={vendor.id}
-										className="overflow-hidden hover:shadow-lg transition-shadow"
-									>
+								{vendorMenuPairs.map(({ vendor, menu }) => (
+									<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
 										<div className="md:flex">
 											<div className="md:w-1/3">
 												<img
@@ -244,9 +254,7 @@ export default function CaterersDisplay({
 													</h3>
 													<div className="text-right">
 														<div className="text-2xl font-bold text-orange-600">
-															{vendor.menus
-																.map((menu) => `$${menu.pricePerPerson}`)
-																.join(", ")}
+															${menu.pricePerPerson}
 														</div>
 														<div className="text-sm text-gray-500">per pax</div>
 													</div>
