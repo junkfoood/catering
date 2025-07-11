@@ -80,14 +80,22 @@ export default function CaterersDisplay({
 			if (selectedLocations.length > 0) {
 				// Get all restricted areas for this specific menu
 				const menuRestrictedAreas = menu.restrictedAreas?.map(area => area.id) || [];
-				
-				// Check if this specific menu can deliver to ALL selected areas
-				// (i.e., none of the selected areas are in the menu's restricted areas)
-				const canDeliverToAllSelected = selectedLocations.every(selectedAreaId => 
-					!menuRestrictedAreas.includes(selectedAreaId)
-				);
-				
-				matchesLocation = canDeliverToAllSelected;
+				// If ANY selected location is in the menu's restricted areas, this menu cannot deliver there
+				matchesLocation = selectedLocations.every(selectedAreaId => !menuRestrictedAreas.includes(selectedAreaId));
+			}
+
+			// Debug: Log filtering results for troubleshooting
+			if (process.env.NODE_ENV === 'development') {
+				console.log(`Filtering ${vendor.name} - ${menu.code}:`, {
+					price: menu.pricePerPerson,
+					budget: budget[0],
+					matchesBudget,
+					matchesCategory,
+					matchesSearch,
+					matchesLocation,
+					selectedCategories,
+					selectedLocations
+				});
 			}
 
 			return matchesCategory && matchesBudget && matchesSearch && matchesLocation;
@@ -227,18 +235,22 @@ export default function CaterersDisplay({
 								<h2 className="text-2xl font-bold text-gray-900">
 									Available Vendor Packages
 								</h2>
-								<p className="text-gray-600">{caterers.length} vendors found</p>
+								<p className="text-gray-600">{filteredVendorMenuPairs.length} vendors found</p>
 							</div>
 
-							<div className="grid gap-6">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								{filteredVendorMenuPairs.map(({ vendor, menu }) => (
 									<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
 										<div className="md:flex">
 											<div className="md:w-1/3">
 												<img
-													src="https://placehold.co/600x400.png"
+													src={
+														vendor.imageFile
+															? `/vendor-images/${vendor.imageFile}.png`
+															: "/vendor-images/placeholder.jpg"
+													}
 													alt={vendor.name}
-													className="w-full h-48 md:h-full object-cover"
+													className="w-full h-40 object-cover rounded-t"
 												/>
 											</div>
 											<div className="md:w-2/3 p-6">
