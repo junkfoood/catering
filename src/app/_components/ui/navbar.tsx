@@ -9,7 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import logo from "public/Product Scorecard Logo.webp";
+import logo from "public/logo.webp";
 import React from "react";
 import { cn } from "~/lib/utils";
 import { auth } from "~/server/auth";
@@ -35,7 +35,7 @@ const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
 
 		return (
 			<div
-				className="flex h-16 items-center justify-between border-b-2 border-teal-400 px-4 py-4 lg:px-32"
+				className="flex h-16 items-center justify-between border-b-2 border-orange-400 px-4 py-4 lg:px-32"
 				{...props}
 				ref={ref}
 			>

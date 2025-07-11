@@ -77,6 +77,7 @@ prismaAdapter.createUser = async (data: UserProfile) => {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig = {
+	trustHost: true,
 	callbacks: {
 		signIn: async ({ user: authUser }) => {
 			if (authUser) {

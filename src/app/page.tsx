@@ -15,7 +15,7 @@ export default async function LandingPage() {
 			redirect(routes.dashboard.link);
 		}
 	} catch (error) {
-		console.error('Auth error:', error);
+		console.error("Auth error:", error);
 		// Continue to show the landing page even if auth fails
 	}
 
@@ -24,7 +24,7 @@ export default async function LandingPage() {
 			body={
 				<div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg">
 					<h1 className="text-4xl mb-8 font-bold tracking-tighter md:text-5xl lg:text-7xl z-10">
-						Welcome to <AuroraText>Cater Compare</AuroraText>
+						Welcome to <AuroraText>Catering Compare</AuroraText>
 					</h1>
 				</div>
 			}
