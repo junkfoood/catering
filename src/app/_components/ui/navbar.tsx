@@ -9,7 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import logo from "public/Product Scorecard Logo.webp";
+import logo from "public/logo.webp";
 import React from "react";
 import { cn } from "~/lib/utils";
 import { auth } from "~/server/auth";

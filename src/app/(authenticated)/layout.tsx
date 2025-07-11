@@ -6,7 +6,6 @@ export default async function NestedLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
 	const session = await auth();
-	console.log("Test");
 
 	if (!session) {
 		unauthorized();

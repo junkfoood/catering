@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { ChevronDown, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import logo from "public/Product Scorecard Logo.webp";
+import logo from "public/logo.webp";
 import { auth } from "~/server/auth";
 import { NestedRoute, Route } from "~/utils/route";
 import { Button } from "./button";
