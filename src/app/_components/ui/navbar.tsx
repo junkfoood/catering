@@ -35,7 +35,7 @@ const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
 
 		return (
 			<div
-				className="flex h-16 items-center justify-between border-b-2 border-teal-400 px-4 py-4 lg:px-32"
+				className="flex h-16 items-center justify-between border-b-2 border-orange-400 px-4 py-4 lg:px-32"
 				{...props}
 				ref={ref}
 			>
