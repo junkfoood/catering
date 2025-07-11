@@ -44,53 +44,7 @@ export default function CaterersDisplay({
 		}
 	};
 
-		//Filtering for Location (show only caterers that can deliver to selected areas)
-		const filteredCaterers = caterers.filter((vendor) => {
-			// If no locations selected, show all vendors
-			if (selectedLocations.length === 0) {
-				return true;
-			}
-			
-			// Check if vendor has at least one menu that can deliver to ALL selected areas
-			const hasDeliverableMenu = vendor.menus?.some((menu) => {
-				// Get all restricted areas for this menu
-				const menuRestrictedAreas = menu.restrictedAreas?.map(area => area.id) || [];
-				
-				// Check if this menu can deliver to ALL selected areas
-				// (i.e., none of the selected areas are in the menu's restricted areas)
-				const canDeliverToAllSelected = selectedLocations.every(selectedAreaId => 
-					!menuRestrictedAreas.includes(selectedAreaId)
-				);
-				
-				return canDeliverToAllSelected;
-			});
-			
-			return hasDeliverableMenu;
 
-		//Filtering for Category
-		const matchesCategory =
-			selectedCategories.length === 0 ||
-			vendor.menus?.some((menu) => selectedCategories.includes(menu.type));
-
-		//Filtering for Budget
-		const matchesBudget = vendor.menus?.some(
-			(menu) => menu.pricePerPerson <= (budget[0] ?? 0),
-		);
-
-		const matchesSearch =
-			searchQuery.trim() === "" ||
-			vendor.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-		return hasDeliverableMenu && matchesCategory && matchesBudget && matchesSearch;
-		});
-
-		//Flatten to vendor-menu pairs
-		const vendorMenuPairs = filteredCaterers.flatMap((vendor) =>
-			vendor.menus.map((menu) => ({
-				vendor,
-				menu,
-			}))
-		);
 
 		//Labels for Categories
 		const categoryLabels: Record<CatererMenuType, string> = {
@@ -98,6 +52,46 @@ export default function CaterersDisplay({
 			SMALL_QTY_BUFFET: "Small Quantity Buffet",
 			// Add others in future
 		};
+
+		//Flatten to vendor-menu pairs first
+		const vendorMenuPairs = caterers.flatMap((vendor) =>
+			vendor.menus.map((menu) => ({
+				vendor,
+				menu,
+			}))
+		);
+
+		//Filter the vendor-menu pairs
+		const filteredVendorMenuPairs = vendorMenuPairs.filter(({ vendor, menu }) => {
+			//Filtering for Category
+			const matchesCategory =
+				selectedCategories.length === 0 ||
+				selectedCategories.includes(menu.type);
+
+			//Filtering for Budget
+			const matchesBudget = menu.pricePerPerson <= (budget[0] ?? 0);
+
+			const matchesSearch =
+				searchQuery.trim() === "" ||
+				vendor.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+			//Filtering for Location (show only menus that can deliver to selected areas)
+			let matchesLocation = true;
+			if (selectedLocations.length > 0) {
+				// Get all restricted areas for this specific menu
+				const menuRestrictedAreas = menu.restrictedAreas?.map(area => area.id) || [];
+				
+				// Check if this specific menu can deliver to ALL selected areas
+				// (i.e., none of the selected areas are in the menu's restricted areas)
+				const canDeliverToAllSelected = selectedLocations.every(selectedAreaId => 
+					!menuRestrictedAreas.includes(selectedAreaId)
+				);
+				
+				matchesLocation = canDeliverToAllSelected;
+			}
+
+			return matchesCategory && matchesBudget && matchesSearch && matchesLocation;
+		});
 
 	return (
 		<PageShell
@@ -195,7 +189,7 @@ export default function CaterersDisplay({
 									{/* Location Filter */}
 									<div>
 										<Label className="text-sm font-medium mb-3 block">
-											Delivery Areas (Show Only)
+											Delivery Restrictions:
 										</Label>
 										<div className="space-y-2">
 											{restrictedAreas.map((location) => (
@@ -237,7 +231,7 @@ export default function CaterersDisplay({
 							</div>
 
 							<div className="grid gap-6">
-								{vendorMenuPairs.map(({ vendor, menu }) => (
+								{filteredVendorMenuPairs.map(({ vendor, menu }) => (
 									<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
 										<div className="md:flex">
 											<div className="md:w-1/3">

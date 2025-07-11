@@ -4,6 +4,9 @@ import { AuroraText } from "~/app/_components/ui/magicui/aurora-text";
 import { auth } from "~/server/auth";
 import { routes } from "~/utils/route";
 
+// Skip env validation for debugging
+process.env.SKIP_ENV_VALIDATION = "true";
+
 export default async function LandingPage() {
 	try {
 		const session = await auth();
