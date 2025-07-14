@@ -244,11 +244,7 @@ export default function CaterersDisplay({
 										<div className="md:flex">
 											<div className="md:w-1/3">
 												<img
-													src={
-														vendor.imageFile
-															? `/vendor-images/${vendor.imageFile}.png`
-															: "/vendor-images/placeholder.jpg"
-													}
+													src="/vendor-images/placeholder.jpg"
 													alt={vendor.name}
 													className="w-full h-40 object-cover rounded-t"
 												/>
