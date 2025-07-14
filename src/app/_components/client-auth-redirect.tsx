@@ -7,13 +7,15 @@ import { routes } from "~/utils/route";
 
 export function ClientAuthRedirect() {
 	const router = useRouter();
-	const { data: session, status } = useSession();
+	const sessionResult = useSession();
+	const data = sessionResult?.data;
+	const status = sessionResult?.status;
 
 	useEffect(() => {
-		if (status === "authenticated" && session) {
+		if (status === "authenticated" && data) {
 			router.push(routes.dashboard.link);
 		}
-	}, [session, status, router]);
+	}, [data, status, router]);
 
 	return null;
 } 
