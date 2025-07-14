@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { PageShell } from "@components/ui/page-shell";
 import { AuroraText } from "~/app/_components/ui/magicui/aurora-text";
 import { ClientAuthRedirect } from "./_components/client-auth-redirect";
