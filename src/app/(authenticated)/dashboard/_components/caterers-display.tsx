@@ -44,8 +44,6 @@ export default function CaterersDisplay({
 		}
 	};
 
-
-
 		//Labels for Categories
 		const categoryLabels: Record<CatererMenuType, string> = {
 			SMALL_QTY_REFRESHMENT: "Small Quantity Refreshment",
@@ -262,16 +260,10 @@ export default function CaterersDisplay({
 													</div>
 												</div>
 
-												<div className="flex items-center gap-4 mb-3">
-													<div className="flex items-center gap-1">
-														<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-														<span className="font-medium">4.5</span>
-														<span className="text-gray-500">(100 reviews)</span>
-													</div>
-													<div className="flex items-center gap-1 text-gray-600">
-														<MapPin className="w-4 h-4" />
-														<span className="text-sm">Tampines</span>
-													</div>
+												<div className="flex items-center gap-1 mb-3">
+													<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+													<span className="font-medium">4.5</span>
+													<span className="text-gray-500">(100 reviews)</span>
 												</div>
 
 												<p className="text-gray-600 mb-4">Lorem Ipsum</p>
