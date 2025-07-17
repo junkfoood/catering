@@ -242,7 +242,7 @@ export default function CaterersDisplay({
 										<div className="md:flex">
 											<div className="md:w-1/3">
 												<img
-													src="/vendor-images/placeholder.jpg"
+													src={vendor.imageFile ? `/vendor-images/${vendor.imageFile}` : "/vendor-images/placeholder.jpg"}
 													alt={vendor.name}
 													className="w-full h-40 object-cover rounded-t"
 												/>
@@ -260,7 +260,7 @@ export default function CaterersDisplay({
 													</div>
 												</div>
 
-												<div className="flex items-center gap-1 mb-3">
+												{/*<div className="flex items-center gap-1 mb-3">
 													<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
 													<span className="font-medium">4.5</span>
 													<span className="text-gray-500">(100 reviews)</span>
@@ -270,7 +270,7 @@ export default function CaterersDisplay({
 
 												<div className="flex flex-wrap gap-2 mb-4">
 													<Badge variant="secondary">Western</Badge>
-												</div>
+												</div>*/}
 
 												<div className="flex gap-3">
 													<Button

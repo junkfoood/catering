@@ -59,18 +59,21 @@ export async function seedInitData() {
 		const chilliApiCaterer = await tx.caterer.create({
 			data: {
 				name: "Chilli Api Catering",
+				imageFile: "chilliapi.jpg",
 			},
 		});
 
 		const continentalDelightCaterer = await tx.caterer.create({
 			data: {
 				name: "Continental Delight Catering Services",
+				imageFile: "continentaldelight.jpg",
 			},
 		});
 
 		const testVendorCaterer = await tx.caterer.create({
 			data: {
 				name: "TEST VENDOR",
+				imageFile: null, // No image for test vendor
 			},
 		});
 
