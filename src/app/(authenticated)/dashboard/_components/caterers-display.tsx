@@ -237,61 +237,66 @@ export default function CaterersDisplay({
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								{filteredVendorMenuPairs.map(({ vendor, menu }) => (
-									<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-										<div className="md:flex">
-											<div className="md:w-1/3">
-												<img
-													src={vendor.imageFile ? `/vendor-images/${vendor.imageFile}` : "/vendor-images/placeholder.jpg"}
-													alt={vendor.name}
-													className="w-full h-40 object-cover rounded-t"
-												/>
-											</div>
-											<div className="md:w-2/3 p-6">
-												<div className="flex justify-between items-start mb-2">
-													<h3 className="text-xl font-bold text-gray-900">
-														{vendor.name}
-													</h3>
-													<div className="text-right">
-														<div className="text-2xl font-bold text-orange-600">
-															${menu.pricePerPerson}
+								{filteredVendorMenuPairs.map(({ vendor, menu }) => {
+									const imageSrc = vendor.imageFile ? `/vendor-images/${vendor.imageFile}` : "/vendor-images/placeholder.jpg";
+									console.log(`Vendor: ${vendor.name}, Image: ${imageSrc}`);
+
+									return (
+										<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+											<div className="md:flex">
+												<div className="md:w-1/3">
+													<img
+														src={imageSrc}
+														alt={vendor.name}
+														className="w-full h-40 object-cover rounded-t"
+													/>
+												</div>
+												<div className="md:w-2/3 p-6">
+													<div className="flex justify-between items-start mb-2">
+														<h3 className="text-xl font-bold text-gray-900">
+															{vendor.name}
+														</h3>
+														<div className="text-right">
+															<div className="text-2xl font-bold text-orange-600">
+																${menu.pricePerPerson}
+															</div>
+															<div className="text-sm text-gray-500">per pax</div>
 														</div>
-														<div className="text-sm text-gray-500">per pax</div>
+													</div>
+
+													{/*<div className="flex items-center gap-1 mb-3">
+														<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+														<span className="font-medium">4.5</span>
+														<span className="text-gray-500">(100 reviews)</span>
+													</div>
+
+													<p className="text-gray-600 mb-4">Lorem Ipsum</p>
+
+													<div className="flex flex-wrap gap-2 mb-4">
+														<Badge variant="secondary">Western</Badge>
+													</div>*/}
+
+													<div className="flex gap-3">
+														<Button
+															className="flex-1 bg-orange-500 hover:bg-orange-600"
+															asChild
+														>
+															<Link href={routeFormatter.caterer(vendor)}>
+																View Details
+															</Link>
+														</Button>
+														<Button
+															variant="outline"
+															className="flex-1 bg-transparent"
+														>
+															Compare
+														</Button>
 													</div>
 												</div>
-
-												{/*<div className="flex items-center gap-1 mb-3">
-													<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-													<span className="font-medium">4.5</span>
-													<span className="text-gray-500">(100 reviews)</span>
-												</div>
-
-												<p className="text-gray-600 mb-4">Lorem Ipsum</p>
-
-												<div className="flex flex-wrap gap-2 mb-4">
-													<Badge variant="secondary">Western</Badge>
-												</div>*/}
-
-												<div className="flex gap-3">
-													<Button
-														className="flex-1 bg-orange-500 hover:bg-orange-600"
-														asChild
-													>
-														<Link href={routeFormatter.caterer(vendor)}>
-															View Details
-														</Link>
-													</Button>
-													<Button
-														variant="outline"
-														className="flex-1 bg-transparent"
-													>
-														Compare
-													</Button>
-												</div>
 											</div>
-										</div>
-									</Card>
-								))}
+										</Card>
+									);
+								})}
 							</div>
 
 							{/* Load More */}
