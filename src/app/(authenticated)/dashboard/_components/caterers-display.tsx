@@ -238,7 +238,9 @@ export default function CaterersDisplay({
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								{filteredVendorMenuPairs.map(({ vendor, menu }) => {
-									const imageSrc = vendor.imageFile ? `/vendor-images/${vendor.imageFile}` : "/vendor-images/placeholder.jpg";
+									const imageSrc = vendor.imageFile
+										? `/vendor-images/${vendor.imageFile}`
+										: "https://placehold.co/400x400";
 									console.log(`Vendor: ${vendor.name}, Image: ${imageSrc}`);
 
 									return (
