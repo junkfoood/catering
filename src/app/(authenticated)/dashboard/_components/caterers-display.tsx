@@ -240,7 +240,7 @@ export default function CaterersDisplay({
 								{filteredVendorMenuPairs.map(({ vendor, menu }) => {
 									const imageSrc = vendor.imageFile
 										? `/vendor-images/${vendor.imageFile}`
-										: "https://placehold.co/400x400";
+										: `/vendor-images/400x400.svg`;
 									console.log(`Vendor: ${vendor.name}, Image: ${imageSrc}`);
 
 									return (
