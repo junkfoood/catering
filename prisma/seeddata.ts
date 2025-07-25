@@ -73,7 +73,7 @@ export async function seedInitData() {
 		const testVendorCaterer = await tx.caterer.create({
 			data: {
 				name: "TEST VENDOR",
-				imageFile: null, // No image for test vendor
+				imageFile: `/vendor-images/400x400.svg`, // No image for test vendor
 			},
 		});
 
