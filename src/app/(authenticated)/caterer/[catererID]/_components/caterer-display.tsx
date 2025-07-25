@@ -103,7 +103,7 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 							<CardContent className="p-6">
 								<div className="flex flex-col md:flex-row gap-6">
 									<img
-										src="https://placehold.co/600x400.png"
+										src="public/vendor-images/400x400.svg"
 										alt={caterer.name}
 										className="w-full md:w-48 h-48 object-cover rounded-lg"
 									/>
