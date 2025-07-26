@@ -39,6 +39,7 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 		[sectionId: string]: string[];
 	}>({});
 	const [deliveryCharges, setDeliveryCharges] = useState<string[]>([]);
+	const [floors, setFloors] = useState(1);
 
 	const handleItemSelection = (
 		sectionId: string,
@@ -73,10 +74,28 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 		const subtotal = selectedMenu.pricePerPerson * paxCount;
 		const discount = subtotal * 1;
 		const adminFee = subtotal * 1;
-		const delivery = deliveryCharges.length > 0 ? 35 : 0; // Mock delivery charge
+		
+		// Calculate delivery charges based on checkboxes
+		let delivery = 0;
+		let deliveryLabel = paxCount < selectedMenu.minimumOrder ? 'Delivery fee' : 'Delivery Waived';
+		
+		if (deliveryCharges.includes("cbd")) {
+			delivery += 35;
+			deliveryLabel += ' + CBD Surcharge (+$35)';
+		}
+		if (deliveryCharges.includes("odd-hours")) {
+			delivery += 30;
+			deliveryLabel += ' + Odd Hours Surcharge (+$30)';
+		}
+		if (deliveryCharges.includes("no-lift")) {
+			const liftCharge = 25 * floors;
+			delivery += liftCharge;
+			deliveryLabel += ` + Lift Surcharge (+$25 x ${floors} floor${floors > 1 ? 's' : ''})`;
+		}
+		
 		const total = subtotal - discount + adminFee + delivery;
 
-		return { subtotal, discount, adminFee, delivery, total };
+		return { subtotal, discount, adminFee, delivery, total, deliveryLabel };
 	};
 
 	const isSelectionComplete = () => {
@@ -92,6 +111,11 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 
 	const pricing = calculateTotal();
 
+	// Create the image source variable
+	const imageSrc = caterer.imageFile
+		? `/vendor-images/${caterer.imageFile}`
+		: "/vendor-images/400x400.svg";
+
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -103,16 +127,17 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 							<CardContent className="p-6">
 								<div className="flex flex-col md:flex-row gap-6">
 									<img
-										src="public/vendor-images/400x400.svg"
+										src={imageSrc}
 										alt={caterer.name}
-										className="w-full md:w-48 h-48 object-cover rounded-lg"
+										className="w-70 h-full object-contain rounded-t"
 									/>
 									<div className="flex-1">
 										<div className="flex items-start justify-between mb-4">
-											<div>
-												<h1 className="text-2xl font-bold text-gray-900 mb-2">
+										<h1 className="text-2xl font-bold text-gray-900 mb-2">
 													{caterer.name}
 												</h1>
+											{/*<div>
+
 												<Badge variant="secondary" className="mb-2">
 													Western
 												</Badge>
@@ -120,10 +145,10 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 											<Button variant="outline">
 												<ShoppingCart className="w-4 h-4 mr-2" />
 												Add to Compare
-											</Button>
+											</Button>*/}
 										</div>
 
-										<div className="flex items-center gap-4 mb-4">
+										{/*<div className="flex items-center gap-4 mb-4">
 											<div className="flex items-center gap-1">
 												<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
 												<span className="font-medium">4.5</span>
@@ -133,7 +158,7 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 												<MapPin className="w-4 h-4" />
 												<span className="text-sm">Singapore</span>
 											</div>
-										</div>
+										</div>*/}
 
 										<p className="text-gray-600 mb-4">
 											Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -274,6 +299,21 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 												No lift access (+$25 per floor)
 											</Label>
 										</div>
+										{deliveryCharges.includes("no-lift") && (
+											<div className="ml-6 mt-2">
+												<Label htmlFor="floors" className="text-sm">
+													Number of floors:
+												</Label>
+												<Input
+													id="floors"
+													type="number"
+													value={floors}
+													onChange={(e) => setFloors(Number(e.target.value) || 1)}
+													min={1}
+													className="w-20 mt-1"
+												/>
+											</div>
+										)}
 									</div>
 								</div>
 							</CardContent>
@@ -437,7 +477,7 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 											</div>
 											{pricing.delivery > 0 && (
 												<div className="flex justify-between">
-													<span>Delivery Charges</span>
+													<span className="text-xs">{pricing.deliveryLabel}</span>
 													<span>${pricing.delivery.toFixed(2)}</span>
 												</div>
 											)}

@@ -46,7 +46,7 @@ export default function CaterersDisplay({
 
 		//Labels for Categories
 		const categoryLabels: Record<CatererMenuType, string> = {
-			SMALL_QTY_REFRESHMENT: "Small Quantity Refreshment",
+			SMALL_QTY_REFRESHMENT: "Tea Refreshments",
 			SMALL_QTY_BUFFET: "Small Quantity Buffet",
 			// Add others in future
 		};
@@ -115,14 +115,14 @@ export default function CaterersDisplay({
 							<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
 							<Input
 								type="text"
-								placeholder="Search for cuisine type, location, or caterer name..."
+								placeholder="Search for caterer name..."
 								className="pl-12 pr-4 py-4 text-lg rounded-full border-2 border-orange-200 focus:border-orange-400"
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 							/>
-							<Button className="absolute right-0 top-1/2 transform -translate-y-1/2 -mt-5 rounded-full bg-orange-500 hover:bg-orange-600">
+							{/*<Button className="absolute right-0 top-1/2 transform -translate-y-1/2 -mt-5 rounded-full bg-orange-500 hover:bg-orange-600">
 								Search
-							</Button>
+							</Button>*/}
 						</div>
 					</div>
 				</section>
@@ -239,18 +239,18 @@ export default function CaterersDisplay({
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								{filteredVendorMenuPairs.map(({ vendor, menu }) => {
 									const imageSrc = vendor.imageFile
-										? `/vendor-images/${vendor.imageFile}`
-										: `/vendor-images/400x400.svg`;
-									console.log(`Vendor: ${vendor.name}, Image: ${imageSrc}`);
+									? `/vendor-images/${vendor.imageFile}`
+									: `/vendor-images/400x400.svg`;
+								console.log(`Vendor: ${vendor.name}, Image: ${imageSrc}`);
 
 									return (
 										<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
 											<div className="md:flex">
-												<div className="md:w-1/3">
+												<div className="md:w-1/3 h-45">
 													<img
 														src={imageSrc}
 														alt={vendor.name}
-														className="w-full h-40 object-cover rounded-t"
+														className="w-full h-full object-contain rounded-t"
 													/>
 												</div>
 												<div className="md:w-2/3 p-6">
