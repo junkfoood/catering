@@ -48,6 +48,11 @@ export default function CaterersDisplay({
 		const categoryLabels: Record<CatererMenuType, string> = {
 			SMALL_QTY_REFRESHMENT: "Tea Refreshments",
 			SMALL_QTY_BUFFET: "Small Quantity Buffet",
+			PACKED_MEALS: "Packed Meals",
+			TEA_RECEPTION: "Tea Reception",
+			BUFFET_1: "Buffet 1",
+			ETHNIC_FOOD_MALAY: "Ethnic Food Malay",
+			ETHNIC_FOOD_INDIAN: "Ethnic Food Indian",
 			// Add others in future
 		};
 
