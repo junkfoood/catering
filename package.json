@@ -3,6 +3,12 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
+
+	"prisma": {
+		"seed-prod": "npx tsx -r tsconfig-paths/register prisma/seed-prod.ts",
+		"seed": "npx tsx -r tsconfig-paths/register prisma/seed.ts"
+	},
+
 	"scripts": {
 		"build": "next build",
 		"check": "biome check .",
