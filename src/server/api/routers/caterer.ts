@@ -43,7 +43,6 @@ export const includeCatererMenuData = {
 			items: true,
 		},
 	},
-	discounts: true,
 	restrictedAreas: true,
 } satisfies Prisma.CatererMenuInclude;
 
