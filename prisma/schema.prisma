@@ -72,7 +72,7 @@ model VerificationToken {
 model Caterer {
   id        String  @id @default(cuid())
   name      String  @unique
-  imageFile String? // Added for vendor images
+  imageFile String?
 
   menus     CatererMenu[]
 
@@ -83,6 +83,14 @@ model Caterer {
 enum CatererMenuType {
   SMALL_QTY_REFRESHMENT
   SMALL_QTY_BUFFET
+  PACKED_MEALS
+  TEA_RECEPTION
+  BUFFET_1
+  ETHNIC_FOOD_MALAY
+  ETHNIC_FOOD_INDIAN
+  BUFFET_2
+  BBQ_BUFFET
+  THEME_BUFFET
 }
 
 model CatererMenu {
@@ -93,6 +101,8 @@ model CatererMenu {
 
   pricePerPerson Float
   minimumOrder   Int
+  minimumOrderForFreeDelivery Int?
+  deliveryFee Int?
   maxFriedItems  Int
 
   sections CatererMenuSection[]

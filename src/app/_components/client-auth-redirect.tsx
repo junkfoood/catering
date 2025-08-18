@@ -7,15 +7,18 @@ import { routes } from "~/utils/route";
 
 export function ClientAuthRedirect() {
 	const router = useRouter();
-	const sessionResult = useSession();
-	const data = sessionResult?.data;
-	const status = sessionResult?.status;
+	const { data, status } = useSession();
 
 	useEffect(() => {
 		if (status === "authenticated" && data) {
-			router.push(routes.dashboard.link);
+			// Use hard reload to ensure session is available
+			window.location.href = routes.dashboard.link;
 		}
 	}, [data, status, router]);
+
+	if (status === "loading") {
+		return <div className="w-full text-center py-8">Loading...</div>;
+	}
 
 	return null;
 } 
