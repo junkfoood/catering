@@ -108,7 +108,10 @@ model CatererMenu {
   sections CatererMenuSection[]
 
   restrictedAreas RestrictedArea[]
-  discounts       CatererMenuDiscount[]
+  discount_below_500 Float
+  discount_500_2000	Float
+  discount_2000_4000 Float	
+  discount_above_4000 Float
 
   caterer   Caterer @relation(fields: [catererID], references: [id], onDelete: Cascade)
   catererID String
@@ -146,25 +149,6 @@ model CatererMenuSectionItem {
 
   vegetarian Boolean
   fried      Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-}
-
-enum DiscountType {
-  BELOW_500
-  BETWEEN_500_AND_2000
-  BETWEEN_2000_AND_4000
-  ABOVE_4000
-}
-
-model CatererMenuDiscount {
-  id       String       @id @default(cuid())
-  type     DiscountType
-  discount Int
-
-  catererMenu   CatererMenu @relation(fields: [catererMenuID], references: [id], onDelete: Cascade)
-  catererMenuID String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

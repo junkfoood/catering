@@ -91,7 +91,7 @@ export default function CaterersDisplay({
 			}
 
 			// Debug: Log filtering results for troubleshooting
-			if (process.env.NODE_ENV === 'development') {
+			/*if (process.env.NODE_ENV === 'development') {
 				console.log(`Filtering ${vendor.name} - ${menu.code}:`, {
 					price: menu.pricePerPerson,
 					budget: budget[0],
@@ -102,7 +102,7 @@ export default function CaterersDisplay({
 					selectedCategories,
 					selectedLocations
 				});
-			}
+			}*/
 
 			return matchesCategory && matchesBudget && matchesSearch && matchesLocation;
 		});

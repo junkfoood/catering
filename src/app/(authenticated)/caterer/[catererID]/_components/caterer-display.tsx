@@ -29,6 +29,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
 import { CatererMenu } from "@prisma/client";
 
+const discountFields = [
+	{ key: "discount_below_500", label: "Below $500" },
+	{ key: "discount_500_2000", label: "$500 - $2,000" },
+	{ key: "discount_2000_4000", label: "$2,000 - $4,000" },
+	{ key: "discount_above_4000", label: "Above $4,000" },
+];
+
 export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 	const router = useRouter();
 	const [selectedMenu, setSelectedMenu] = useState<CatererMenuData | null>(
@@ -228,12 +235,16 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 										</div>
 										{selectedMenu && (
 											<p className="text-xs text-green-600">
-												{selectedMenu.discounts.map((discount) => (
-													<>
-														{discount.discount}% discount applied to{" "}
-														{discount.type}
-													</>
-												))}
+												{discountFields.map(({ key, label }) => {
+													const value = (selectedMenu as any)[key];
+													if (value == null || value === 0) return null;
+													return (
+														<span key={key}>
+															{value}% discount applied to {label}
+															<br />
+														</span>
+													);
+												})}
 											</p>
 										)}
 									</div>
