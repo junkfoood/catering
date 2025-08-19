@@ -12,18 +12,16 @@ import { Label } from "@components/ui/label";
 import { Separator } from "@components/ui/separator";
 import { CatererListData } from "~/server/api/routers/caterer";
 import { PageShell } from "~/app/_components/ui/page-shell";
-import { CatererMenuType, RestrictedArea } from "@prisma/client";
+import { CatererMenuType } from "@prisma/client";
 import Link from "next/link";
 import { routeFormatter } from "~/utils/route";
 
 export default function CaterersDisplay({
 	caterers,
-	restrictedAreas,
 }: {
 	caterers: CatererListData[];
-	restrictedAreas: RestrictedArea[];
 }) {
-	const [budget, setBudget] = useState([12]);
+	const [budget, setBudget] = useState<[number, number]>([2, 60]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -43,6 +41,19 @@ export default function CaterersDisplay({
 			setSelectedLocations(selectedLocations.filter((l) => l !== location));
 		}
 	};
+
+	// 1. Add the static restrictedAreas array at the top of the component
+	const restrictedAreas = [
+		"All except West",
+		"Off-Shore Island",
+		"Central Business District",
+		"Sentosa",
+		"Jurong Island",
+		"Airline Road",
+	];
+
+	//Pagination
+	const [vendorsToShow, setVendorsToShow] = useState(5);
 
 		//Labels for Categories
 		const categoryLabels: Record<CatererMenuType, string> = {
@@ -75,7 +86,7 @@ export default function CaterersDisplay({
 				selectedCategories.includes(menu.type);
 
 			//Filtering for Budget
-			const matchesBudget = menu.pricePerPerson <= (budget[0] ?? 0);
+			const matchesBudget = menu.pricePerPerson >= budget[0] && menu.pricePerPerson <= budget[1];
 
 			const matchesSearch =
 				searchQuery.trim() === "" ||
@@ -84,10 +95,10 @@ export default function CaterersDisplay({
 			//Filtering for Location (show only menus that can deliver to selected areas)
 			let matchesLocation = true;
 			if (selectedLocations.length > 0) {
-				// Get all restricted areas for this specific menu
-				const menuRestrictedAreas = menu.restrictedAreas?.map(area => area.id) || [];
-				// If ANY selected location is in the menu's restricted areas, this menu cannot deliver there
-				matchesLocation = selectedLocations.every(selectedAreaId => !menuRestrictedAreas.includes(selectedAreaId));
+				// Exclude menu if ANY selected location is in menu.restrictedAreas
+				matchesLocation = selectedLocations.every(
+					selectedArea => !menu.restrictedAreas.includes(selectedArea)
+				);
 			}
 
 			// Debug: Log filtering results for troubleshooting
@@ -114,13 +125,9 @@ export default function CaterersDisplay({
 					<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 						<h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
 							Find the Perfect Caterer for Your Event
-						</h1>
-						<p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-							Compare prices from top catering vendors all in one place. Save
-							time and money on your next event.
-						</p>
+						</h1><br></br>
 						<div className="max-w-2xl mx-auto relative">
-							<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+							<Search className="absolute left-4 top-2.5 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
 							<Input
 								type="text"
 								placeholder="Search for caterer name..."
@@ -156,14 +163,14 @@ export default function CaterersDisplay({
 										<Slider
 											value={budget}
 											onValueChange={setBudget}
-											max={50}
-											min={5}
+											max={60}
+											min={2}
 											step={1}
 											className="w-full"
 										/>
 										<div className="flex justify-between text-xs text-gray-500 mt-1">
-											<span>$5</span>
-											<span>$50</span>
+											<span>$2</span>
+											<span>$60</span>
 										</div>
 									</div>
 
@@ -207,25 +214,19 @@ export default function CaterersDisplay({
 										</Label>
 										<div className="space-y-2">
 											{restrictedAreas.map((location) => (
-												<div
-													key={location.id}
-													className="flex items-center space-x-2"
-												>
+												<div key={location} className="flex items-center space-x-2">
 													<Checkbox
-														id={location.id}
-														checked={selectedLocations.includes(location.id)}
+														id={location}
+														checked={selectedLocations.includes(location)}
 														onCheckedChange={(checked) =>
-															handleLocationChange(
-																location.id,
-																checked as boolean,
-															)
+															handleLocationChange(location, checked as boolean)
 														}
 													/>
 													<Label
-														htmlFor={location.id}
+														htmlFor={location}
 														className="text-sm text-gray-700"
 													>
-														{location.name}
+														{location}
 													</Label>
 												</div>
 											))}
@@ -245,7 +246,7 @@ export default function CaterersDisplay({
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								{filteredVendorMenuPairs.map(({ vendor, menu }) => {
+								{filteredVendorMenuPairs.slice(0, vendorsToShow).map(({ vendor, menu }) => {
 									const imageSrc = vendor.imageFile
 									? `/vendor-images/${vendor.imageFile}`
 									: `/vendor-images/400x400.svg`;
@@ -310,11 +311,16 @@ export default function CaterersDisplay({
 							</div>
 
 							{/* Load More */}
-							<div className="text-center mt-8">
-								<Button variant="outline" size="lg">
-									Load More Vendors
-								</Button>
-							</div>
+							{filteredVendorMenuPairs.length > vendorsToShow && filteredVendorMenuPairs.length > 0 && (
+								<div className="text-center mt-8">
+									<Button variant="outline"
+										size="lg"
+										onClick={() => setVendorsToShow((prev) => prev + 5)}
+									>
+										Load More Vendors
+									</Button>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

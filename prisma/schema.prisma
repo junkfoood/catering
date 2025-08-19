@@ -107,7 +107,7 @@ model CatererMenu {
 
   sections CatererMenuSection[]
 
-  restrictedAreas RestrictedArea[]
+  restrictedAreas String[]
   discount_below_500 Float
   discount_500_2000	Float
   discount_2000_4000 Float	
@@ -149,17 +149,6 @@ model CatererMenuSectionItem {
 
   vegetarian Boolean
   fried      Boolean
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-}
-
-model RestrictedArea {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  catererMenus CatererMenu[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

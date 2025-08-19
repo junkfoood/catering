@@ -5,7 +5,7 @@ import { activeUserProcedure, createTRPCRouter } from "~/server/api/trpc";
 export const catererRouter = createTRPCRouter({
 	getCaterers: activeUserProcedure.query(async ({ ctx }) => {
 		return await ctx.db.caterer.findMany({
-			include: includeCatererListData,
+			include: includeCatererData,
 		});
 	}),
 	getCaterer: activeUserProcedure
@@ -20,21 +20,21 @@ export const catererRouter = createTRPCRouter({
 				include: includeCatererData,
 			});
 		}),
-	getRestrictedAreas: activeUserProcedure.query(async ({ ctx }) => {
-		return await ctx.db.restrictedArea.findMany();
-	}),
+		getAllRestrictedAreas: activeUserProcedure.query(async ({ ctx }) => {
+			// Fetch only the restrictedAreas field from all menus
+			const menus = await ctx.db.catererMenu.findMany({
+			  select: { restrictedAreas: true }
+			});
+			// Flatten and deduplicate
+			const allAreas = Array.from(
+			  new Set(menus.flatMap(menu => menu.restrictedAreas))
+			);
+			return allAreas;
+		  }),
 });
 
-export const includeCatererListData = {
-	menus: {
-		include: {
-			restrictedAreas: true,
-		},
-	},
-} satisfies Prisma.CatererInclude;
-
 export type CatererListData = Prisma.CatererGetPayload<{
-	include: typeof includeCatererListData;
+	include: typeof includeCatererData;
 }>;
 
 export const includeCatererMenuData = {
@@ -43,7 +43,6 @@ export const includeCatererMenuData = {
 			items: true,
 		},
 	},
-	restrictedAreas: true,
 } satisfies Prisma.CatererMenuInclude;
 
 export type CatererMenuData = Prisma.CatererMenuGetPayload<{

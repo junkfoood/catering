@@ -2,10 +2,7 @@
 CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'USER');
 
 -- CreateEnum
-CREATE TYPE "CatererMenuType" AS ENUM ('SMALL_QTY_REFRESHMENT', 'SMALL_QTY_BUFFET');
-
--- CreateEnum
-CREATE TYPE "DiscountType" AS ENUM ('BELOW_500', 'BETWEEN_500_AND_2000', 'BETWEEN_2000_AND_4000', 'ABOVE_4000');
+CREATE TYPE "CatererMenuType" AS ENUM ('SMALL_QTY_REFRESHMENT', 'SMALL_QTY_BUFFET', 'PACKED_MEALS', 'TEA_RECEPTION', 'BUFFET_1', 'ETHNIC_FOOD_MALAY', 'ETHNIC_FOOD_INDIAN', 'BUFFET_2', 'BBQ_BUFFET', 'THEME_BUFFET');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -59,6 +56,7 @@ CREATE TABLE "VerificationToken" (
 CREATE TABLE "Caterer" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "imageFile" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -73,7 +71,14 @@ CREATE TABLE "CatererMenu" (
     "notes" TEXT,
     "pricePerPerson" DOUBLE PRECISION NOT NULL,
     "minimumOrder" INTEGER NOT NULL,
+    "minimumOrderForFreeDelivery" INTEGER,
+    "deliveryFee" INTEGER,
     "maxFriedItems" INTEGER NOT NULL,
+    "restrictedAreas" TEXT[],
+    "discount_below_500" DOUBLE PRECISION NOT NULL,
+    "discount_500_2000" DOUBLE PRECISION NOT NULL,
+    "discount_2000_4000" DOUBLE PRECISION NOT NULL,
+    "discount_above_4000" DOUBLE PRECISION NOT NULL,
     "catererID" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -109,37 +114,6 @@ CREATE TABLE "CatererMenuSectionItem" (
     CONSTRAINT "CatererMenuSectionItem_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "CatererMenuDiscount" (
-    "id" TEXT NOT NULL,
-    "type" "DiscountType" NOT NULL,
-    "discount" INTEGER NOT NULL,
-    "catererMenuID" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "CatererMenuDiscount_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "RestrictedArea" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "RestrictedArea_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "_CatererMenuToRestrictedArea" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
-
-    CONSTRAINT "_CatererMenuToRestrictedArea_AB_pkey" PRIMARY KEY ("A","B")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -161,9 +135,6 @@ CREATE UNIQUE INDEX "Caterer_name_key" ON "Caterer"("name");
 -- CreateIndex
 CREATE UNIQUE INDEX "CatererMenu_code_key" ON "CatererMenu"("code");
 
--- CreateIndex
-CREATE INDEX "_CatererMenuToRestrictedArea_B_index" ON "_CatererMenuToRestrictedArea"("B");
-
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -178,12 +149,3 @@ ALTER TABLE "CatererMenuSection" ADD CONSTRAINT "CatererMenuSection_menuID_fkey"
 
 -- AddForeignKey
 ALTER TABLE "CatererMenuSectionItem" ADD CONSTRAINT "CatererMenuSectionItem_sectionID_fkey" FOREIGN KEY ("sectionID") REFERENCES "CatererMenuSection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CatererMenuDiscount" ADD CONSTRAINT "CatererMenuDiscount_catererMenuID_fkey" FOREIGN KEY ("catererMenuID") REFERENCES "CatererMenu"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CatererMenuToRestrictedArea" ADD CONSTRAINT "_CatererMenuToRestrictedArea_A_fkey" FOREIGN KEY ("A") REFERENCES "CatererMenu"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CatererMenuToRestrictedArea" ADD CONSTRAINT "_CatererMenuToRestrictedArea_B_fkey" FOREIGN KEY ("B") REFERENCES "RestrictedArea"("id") ON DELETE CASCADE ON UPDATE CASCADE;

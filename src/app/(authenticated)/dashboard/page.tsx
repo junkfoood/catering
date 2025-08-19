@@ -10,9 +10,8 @@ export const metadata: Metadata = {
 export default async function LandingPage() {
   try {
     const caterers = await api.caterer.getCaterers();
-    const restrictedAreas = await api.caterer.getRestrictedAreas();
     return (
-      <CaterersDisplay caterers={caterers} restrictedAreas={restrictedAreas} />
+      <CaterersDisplay caterers={caterers} />
     );
   } catch (error: any) {
     console.error("Dashboard error:", error);

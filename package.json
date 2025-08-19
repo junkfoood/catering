@@ -8,7 +8,6 @@
 		"seed-prod": "npx tsx -r tsconfig-paths/register prisma/seed-prod.ts",
 		"seed": "npx tsx -r tsconfig-paths/register prisma/seed.ts"
 	},
-
 	"scripts": {
 		"build": "next build",
 		"check": "biome check .",
@@ -117,6 +116,7 @@
 		"prisma": "^6.14.0",
 		"tailwindcss": "^4.0.0",
 		"tsconfig-paths": "^4.2.0",
+		"tsx": "^4.20.4",
 		"typescript": "^5.7.3"
 	},
 	"overrides": {
