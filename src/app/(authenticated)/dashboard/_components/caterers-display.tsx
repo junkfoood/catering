@@ -162,7 +162,7 @@ export default function CaterersDisplay({
 										</Label>
 										<Slider
 											value={budget}
-											onValueChange={setBudget}
+											onValueChange={value => setBudget([value[0], value[1]] as [number, number])}
 											max={60}
 											min={2}
 											step={1}
