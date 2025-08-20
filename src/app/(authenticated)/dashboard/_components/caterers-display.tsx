@@ -21,7 +21,7 @@ export default function CaterersDisplay({
 }: {
 	caterers: CatererListData[];
 }) {
-	const [budget, setBudget] = useState<[number, number]>([2, 60]);
+	const [budget, setBudget] = useState<[number, number]>([3, 60]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -127,7 +127,7 @@ export default function CaterersDisplay({
 							Find the Perfect Caterer for Your Event
 						</h1><br></br>
 						<div className="max-w-2xl mx-auto relative">
-							<Search className="absolute left-4 top-2.5 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+							<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
 							<Input
 								type="text"
 								placeholder="Search for caterer name..."
@@ -164,12 +164,12 @@ export default function CaterersDisplay({
 											value={budget}
 											onValueChange={value => setBudget([value[0], value[1]] as [number, number])}
 											max={60}
-											min={2}
+											min={3}
 											step={1}
 											className="w-full"
 										/>
 										<div className="flex justify-between text-xs text-gray-500 mt-1">
-											<span>$2</span>
+											<span>$3</span>
 											<span>$60</span>
 										</div>
 									</div>
@@ -264,9 +264,17 @@ export default function CaterersDisplay({
 												</div>
 												<div className="md:w-2/3 p-6">
 													<div className="flex justify-between items-start mb-2">
-														<h3 className="text-xl font-bold text-gray-900">
-															{vendor.name}
-														</h3>
+														<div>
+															<h3 className="text-xl font-bold text-gray-900">
+																{vendor.name}
+															</h3>
+															<div className="flex items-center gap-1 mt-1">
+																<Badge variant="secondary">
+																	{categoryLabels[menu.type]}
+																	{menu.code.trim().slice(-4)}
+																</Badge>
+															</div>
+														</div>
 														<div className="text-right">
 															<div className="text-2xl font-bold text-orange-600">
 																${menu.pricePerPerson}
@@ -274,18 +282,6 @@ export default function CaterersDisplay({
 															<div className="text-sm text-gray-500">per pax</div>
 														</div>
 													</div>
-
-													{/*<div className="flex items-center gap-1 mb-3">
-														<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-														<span className="font-medium">4.5</span>
-														<span className="text-gray-500">(100 reviews)</span>
-													</div>
-
-													<p className="text-gray-600 mb-4">Lorem Ipsum</p>
-
-													<div className="flex flex-wrap gap-2 mb-4">
-														<Badge variant="secondary">Western</Badge>
-													</div>*/}
 
 													<div className="flex gap-3">
 														<Button

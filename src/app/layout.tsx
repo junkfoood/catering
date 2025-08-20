@@ -4,7 +4,9 @@ import { Toaster } from "@components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
 import { Settings } from "luxon";
 import { type Metadata } from "next";
+import { auth } from "~/server/auth";
 import { TRPCReactProvider } from "~/trpc/react";
+import { Providers } from "./_components/providers";
 import { Shell } from "./_components/ui/shell";
 
 Settings.defaultZone = "Asia/Singapore";
@@ -83,12 +85,16 @@ export const metadata: Metadata = {
 export default async function RootLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
+	const session = await auth();
+	
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body>
 				<Analytics />
 				<TRPCReactProvider>
-					<Shell>{children}</Shell>
+					<Providers session={session}>
+						<Shell>{children}</Shell>
+					</Providers>
 				</TRPCReactProvider>
 				<Toaster />
 			</body>
