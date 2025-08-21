@@ -9,9 +9,14 @@ export const metadata: Metadata = {
 
 export default async function LandingPage() {
   try {
-    const caterers = await api.caterer.getCaterers();
+    // Load only the first 6 caterers initially to prevent timeout
+    const initialData = await api.caterer.getCaterersPaginated({ skip: 0, take: 6 });
     return (
-      <CaterersDisplay caterers={caterers} />
+      <CaterersDisplay 
+        initialCaterers={initialData.caterers} 
+        totalCaterers={initialData.total}
+        hasMore={initialData.hasMore}
+      />
     );
   } catch (error: any) {
     console.error("Dashboard error:", error);

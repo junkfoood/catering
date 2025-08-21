@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search, MapPin, Star, Filter } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Search, MapPin, Star, Filter, Loader2 } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
@@ -15,16 +15,28 @@ import { PageShell } from "~/app/_components/ui/page-shell";
 import { CatererMenuType } from "@prisma/client";
 import Link from "next/link";
 import { routeFormatter } from "~/utils/route";
+import { api } from "~/trpc/react";
 
 export default function CaterersDisplay({
-	caterers,
+	initialCaterers,
+	totalCaterers,
+	hasMore,
 }: {
-	caterers: CatererListData[];
+	initialCaterers: CatererListData[];
+	totalCaterers: number;
+	hasMore: boolean;
 }) {
+	const [allCaterers, setAllCaterers] = useState<CatererListData[]>(initialCaterers);
+
+
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const [hasLoadedAll, setHasLoadedAll] = useState(!hasMore);
 	const [budget, setBudget] = useState<[number, number]>([3, 60]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+
+
 
 	const handleCategoryChange = (category: string, checked: boolean) => {
 		if (checked) {
@@ -53,7 +65,7 @@ export default function CaterersDisplay({
 	];
 
 	//Pagination
-	const [vendorsToShow, setVendorsToShow] = useState(5);
+	const [vendorsToShow, setVendorsToShow] = useState(6);
 
 		//Labels for Categories
 		const categoryLabels: Record<CatererMenuType, string> = {
@@ -71,12 +83,14 @@ export default function CaterersDisplay({
 		};
 
 		//Flatten to vendor-menu pairs first
-		const vendorMenuPairs = caterers.flatMap((vendor) =>
+		const vendorMenuPairs = allCaterers.flatMap((vendor) =>
 			vendor.menus.map((menu) => ({
 				vendor,
 				menu,
 			}))
 		);
+
+
 
 		//Filter the vendor-menu pairs
 		const filteredVendorMenuPairs = vendorMenuPairs.filter(({ vendor, menu }) => {
@@ -101,22 +115,50 @@ export default function CaterersDisplay({
 				);
 			}
 
-			// Debug: Log filtering results for troubleshooting
-			/*if (process.env.NODE_ENV === 'development') {
-				console.log(`Filtering ${vendor.name} - ${menu.code}:`, {
-					price: menu.pricePerPerson,
-					budget: budget[0],
-					matchesBudget,
-					matchesCategory,
-					matchesSearch,
-					matchesLocation,
-					selectedCategories,
-					selectedLocations
-				});
-			}*/
+
 
 			return matchesCategory && matchesBudget && matchesSearch && matchesLocation;
 		});
+
+		// Infinite scroll handler
+		const handleScroll = useCallback(() => {
+			if (
+				window.innerHeight + document.documentElement.scrollTop >=
+				document.documentElement.offsetHeight - 1000 && // Load when 1000px from bottom
+				!isLoadingMore &&
+				vendorsToShow < totalCaterers
+			) {
+				setVendorsToShow((prev) => prev + 6);
+			}
+		}, [isLoadingMore, vendorsToShow, totalCaterers]);
+
+		// Add scroll listener
+		useEffect(() => {
+			window.addEventListener('scroll', handleScroll);
+			return () => window.removeEventListener('scroll', handleScroll);
+		}, [handleScroll]);
+
+		// Load vendors in batches as needed
+	const { data: batchData, isLoading: isLoadingBatch } = api.caterer.getCaterersPaginated.useQuery(
+		{ skip: vendorsToShow, take: 6 },
+		{
+			enabled: hasMore && vendorsToShow < totalCaterers && !isLoadingMore,
+			staleTime: 5 * 60 * 1000, // 5 minutes
+		}
+	);
+
+	// Update allCaterers when batch data is loaded
+	useEffect(() => {
+		if (batchData && batchData.caterers.length > 0) {
+			setAllCaterers(prev => [...prev, ...batchData.caterers]);
+			setIsLoadingMore(false);
+		}
+	}, [batchData]);
+
+	// Set loading state based on tRPC query
+	useEffect(() => {
+		setIsLoadingMore(isLoadingBatch);
+	}, [isLoadingBatch]);
 
 	return (
 		<PageShell
@@ -158,7 +200,7 @@ export default function CaterersDisplay({
 									{/* Budget Filter */}
 									<div>
 										<Label className="text-sm font-medium mb-3 block">
-											Budget per Pax: ${budget[0]}
+											Budget per Pax: ${budget[0]} - ${budget[1]}
 										</Label>
 										<Slider
 											value={budget}
@@ -240,9 +282,17 @@ export default function CaterersDisplay({
 						<div className="lg:col-span-3">
 							<div className="flex justify-between items-center mb-6">
 								<h2 className="text-2xl font-bold text-gray-900">
-									Available Vendor Packages
+									Available Menu Packages
 								</h2>
-								<p className="text-gray-600">{filteredVendorMenuPairs.length} vendors found</p>
+								<div className="flex items-center gap-2">
+									<p className="text-gray-600">{filteredVendorMenuPairs.length} menu packages found</p>
+									{isLoadingMore && (
+										<div className="flex items-center gap-2 text-sm text-gray-500">
+											<Loader2 className="w-4 h-4 animate-spin" />
+											<span>Loading more...</span>
+										</div>
+									)}
+								</div>
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -288,7 +338,7 @@ export default function CaterersDisplay({
 															className="flex-1 bg-orange-500 hover:bg-orange-600"
 															asChild
 														>
-															<Link href={routeFormatter.caterer(vendor)}>
+															<Link href={routeFormatter.caterer(vendor, menu.id)}>
 																View Details
 															</Link>
 														</Button>
@@ -306,15 +356,25 @@ export default function CaterersDisplay({
 								})}
 							</div>
 
-							{/* Load More */}
-							{filteredVendorMenuPairs.length > vendorsToShow && filteredVendorMenuPairs.length > 0 && (
+							{/* Load More button */}
+							{filteredVendorMenuPairs.length > vendorsToShow && filteredVendorMenuPairs.length > 0 && !isLoadingMore && (
 								<div className="text-center mt-8">
 									<Button variant="outline"
 										size="lg"
-										onClick={() => setVendorsToShow((prev) => prev + 5)}
+										onClick={() => setVendorsToShow((prev) => prev + 6)}
 									>
-										Load More Vendors
+										Load More Menu Packages
 									</Button>
+								</div>
+							)}
+							
+							{/* Loading indicator - shows when loading OR when there are more items to load */}
+							{(isLoadingMore || (filteredVendorMenuPairs.length > vendorsToShow && filteredVendorMenuPairs.length > 0)) && (
+								<div className="text-center mt-8">
+									<div className="flex items-center justify-center gap-2 text-gray-600">
+										<Loader2 className="w-5 h-5 animate-spin" />
+										<span>Loading more menu packages...</span>
+									</div>
 								</div>
 							)}
 						</div>

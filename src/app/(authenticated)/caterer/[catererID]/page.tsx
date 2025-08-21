@@ -32,10 +32,13 @@ export async function generateMetadata({
 
 export default async function CatererPage({
 	params,
+	searchParams,
 }: {
 	params: Promise<{ catererID: string }>;
+	searchParams: Promise<{ menu?: string }>;
 }) {
 	const { catererID } = await params;
+	const { menu: menuId } = await searchParams;
 	const caterer = await api.caterer.getCaterer({
 		id: decodeURIComponent(catererID),
 	});
@@ -67,7 +70,7 @@ export default async function CatererPage({
 							</div>
 						</div>
 					</div>
-					<CatererDisplay caterer={caterer} />
+					<CatererDisplay caterer={caterer} initialMenuId={menuId} />
 				</div>
 			}
 		/>

@@ -36,11 +36,21 @@ const discountFields = [
 	{ key: "discount_above_4000", label: "Above $4,000" },
 ];
 
-export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
+export default function CatererDisplay({ 
+	caterer, 
+	initialMenuId 
+}: { 
+	caterer: CatererData;
+	initialMenuId?: string;
+}) {
 	const router = useRouter();
-	const [selectedMenu, setSelectedMenu] = useState<CatererMenuData | null>(
-		caterer.menus[0] ?? null,
-	);
+	const [selectedMenu, setSelectedMenu] = useState<CatererMenuData | null>(() => {
+		if (initialMenuId) {
+			const menu = caterer.menus.find(m => m.id === initialMenuId);
+			return menu ?? caterer.menus[0] ?? null;
+		}
+		return caterer.menus[0] ?? null;
+	});
 	const [paxCount, setPaxCount] = useState(20);
 	const [selectedItems, setSelectedItems] = useState<{
 		[sectionId: string]: string[];
@@ -173,14 +183,18 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 										</p>
 
 										<div className="flex flex-col sm:flex-row gap-4 text-sm text-gray-600">
-											<div className="flex items-center gap-1">
-												<Phone className="w-4 h-4" />
-												<span>+65 1234 5678</span>
-											</div>
-											<div className="flex items-center gap-1">
-												<Mail className="w-4 h-4" />
-												<span>info@example.com</span>
-											</div>
+											{caterer.telephone && (
+												<div className="flex items-center gap-1">
+													<Phone className="w-4 h-4" />
+													<span>{caterer.telephone}</span>
+												</div>
+											)}
+											{caterer.email && (
+												<div className="flex items-center gap-1">
+													<Mail className="w-4 h-4" />
+													<span>{caterer.email}</span>
+												</div>
+											)}
 										</div>
 									</div>
 								</div>
@@ -194,7 +208,7 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 							</CardHeader>
 							<CardContent className="space-y-6">
 								<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-									<div>
+									<div className="md:col-span-2">
 										<Label htmlFor="menu">Menu</Label>
 										<Select
 											value={selectedMenu?.id.toString()}
@@ -209,26 +223,14 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 											<SelectContent>
 												{caterer.menus.map((menu) => (
 													<SelectItem key={menu.id} value={menu.id}>
-														{`${menu.pricePerPerson}/pax`}
+														{`${menu.code} - $${menu.pricePerPerson}/pax`}
 													</SelectItem>
 												))}
 											</SelectContent>
 										</Select>
 									</div>
 
-									<div>
-										<Label htmlFor="pax">Number of Pax</Label>
-										<Input
-											type="number"
-											value={paxCount}
-											onChange={(e) =>
-												setPaxCount(Number.parseInt(e.target.value) || 0)
-											}
-											min={1} //FIX
-										/>
-									</div>
-
-									<div>
+									<div className="md:col-start-3 md:row-span-2">
 										<Label>Price per Pax</Label>
 										<div className="text-2xl font-bold text-orange-600">
 											${selectedMenu?.pricePerPerson.toFixed(2)}
@@ -247,6 +249,18 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 												})}
 											</p>
 										)}
+									</div>
+
+									<div>
+										<Label htmlFor="pax">Number of Pax</Label>
+										<Input className="text-center"
+											type="number"
+											value={paxCount}
+											onChange={(e) =>
+												setPaxCount(Number.parseInt(e.target.value) || 0)
+											}
+											min={1} //FIX
+										/>
 									</div>
 								</div>
 
@@ -335,16 +349,19 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 							<Card>
 								<CardHeader>
 									<CardTitle>Menu Items Selection</CardTitle>
-									<p className="text-sm text-gray-600">Lorem IPsum</p>
 								</CardHeader>
 								<CardContent>
 									<Tabs defaultValue="0" className="w-full">
-										<TabsList className="grid w-full grid-cols-3">
+										<TabsList className="flex gap-1 p-1">
 											{selectedMenu.sections.map((section, index) => (
-												<TabsTrigger key={section.id} value={index.toString()}>
-													{section.title}
-													{selectedItems[section.id] && (
-														<Check className="w-4 h-4 ml-2 text-green-600" />
+												<TabsTrigger 
+													key={section.id} 
+													value={index.toString()}
+													className="flex items-center gap-1 min-w-0 text-xs sm:text-sm"
+												>
+													<span className="truncate">{section.title}</span>
+													{(selectedItems[section.id]?.length ?? 0) === section.selectionLimit && (
+														<Check className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 text-green-600" />
 													)}
 												</TabsTrigger>
 											))}
@@ -361,7 +378,7 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 														{section.title}
 													</h3>
 													<p className="text-sm text-blue-700 mb-2">
-														{section.description}
+														{selectedMenu?.notes || section.description}
 													</p>
 													<p className="text-xs text-blue-600">
 														Select {section.selectionLimit} item(s)
@@ -382,13 +399,22 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 														return (
 															<div
 																key={item.id}
-																className={`p-4 border rounded-lg transition-colors ${
+																className={`p-4 border rounded-lg transition-colors cursor-pointer ${
 																	isSelected
 																		? "border-orange-200 bg-orange-50"
 																		: canSelect
 																			? "border-gray-200 hover:border-gray-300"
 																			: "border-gray-100 bg-gray-50"
 																}`}
+																onClick={() => {
+																	if (canSelect) {
+																		handleItemSelection(
+																			section.id,
+																			item.id,
+																			!isSelected,
+																		);
+																	}
+																}}
 															>
 																<div className="flex items-start space-x-3">
 																	<Checkbox
@@ -402,19 +428,17 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 																			)
 																		}
 																		className="mt-1"
+																		onClick={(e) => e.stopPropagation()}
 																	/>
 																	<div className="flex-1">
-																		<h4 className="font-medium text-gray-900 mb-1">
-																			{item.name}
-																		</h4>
-																		<p className="text-sm text-gray-600 mb-2">
-																			Lorem Ipsum
-																		</p>
-																		<div className="flex gap-2">
+																		<div className="flex items-center gap-2 mb-1">
+																			<h4 className="font-medium text-gray-900">
+																				{item.name}
+																			</h4>
 																			{item.vegetarian && (
 																				<Badge
 																					variant="outline"
-																					className="text-green-600 border-green-200"
+																					className="text-green-600 border-green-200 text-xs"
 																				>
 																					Vegetarian
 																				</Badge>
@@ -422,9 +446,9 @@ export default function CatererDisplay({ caterer }: { caterer: CatererData }) {
 																			{item.fried && (
 																				<Badge
 																					variant="outline"
-																					className="text-blue-600 border-blue-200"
+																					className="text-orange-900 border-orange-700 text-xs"
 																				>
-																					Fried Food
+																					Deep Fried
 																				</Badge>
 																			)}
 																		</div>

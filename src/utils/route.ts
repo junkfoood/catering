@@ -32,5 +32,6 @@ export const routes = {
 };
 
 export const routeFormatter = {
-	caterer: (caterer: Caterer) => `/caterer/${caterer.id}`,
+	caterer: (caterer: Caterer, menuId?: string) => 
+		menuId ? `/caterer/${caterer.id}?menu=${menuId}` : `/caterer/${caterer.id}`,
 };

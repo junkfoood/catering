@@ -8,6 +8,31 @@ export const catererRouter = createTRPCRouter({
 			include: includeCatererData,
 		});
 	}),
+	getCaterersPaginated: activeUserProcedure
+		.input(
+			z.object({
+				skip: z.number().default(0),
+				take: z.number().default(5),
+			}),
+		)
+		.query(async ({ ctx, input }) => {
+			const [caterers, total] = await Promise.all([
+				ctx.db.caterer.findMany({
+					skip: input.skip,
+					take: input.take,
+					include: includeCatererData,
+				}),
+				ctx.db.caterer.count(),
+			]);
+			
+
+			
+			return {
+				caterers,
+				total,
+				hasMore: input.skip + input.take < total,
+			};
+		}),
 	getCaterer: activeUserProcedure
 		.input(
 			z.object({
