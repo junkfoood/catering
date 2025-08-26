@@ -35,19 +35,19 @@ export const metadata: Metadata = {
 	other: {
 		"theme-color": "#ff6b35",
 	},
-	metadataBase: new URL("https://products.tech.gov.sg"),
+	metadataBase: new URL("https://catering-5rca.vercel.app"),
 	openGraph: {
 		type: "website",
 		siteName: "Catering Compare",
 		title: "Catering Compare",
 		description:
 			"Catering Compare - Compare and evaluate catering services and providers.",
-		url: "https://products.tech.gov.sg",
+		url: "https://catering-5rca.vercel.app",
 		images: [
 			{
-				url: "/opengraph-image.png",
-				width: 1200,
-				height: 630,
+				url: "/logo.webp",
+				width: 512,
+				height: 512,
 				alt: "Catering Compare",
 			},
 		],
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
 		title: "Catering Compare",
 		description:
 			"Catering Compare - Compare and evaluate catering services and providers",
-		images: ["/opengraph-image.png"],
+		images: ["/logo.webp"],
 	},
 	robots: {
 		index: false,
