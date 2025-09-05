@@ -20,7 +20,7 @@ export const routes = {
 		link: "/",
 	},
 	dashboard: {
-		label: "Dashboard",
+		label: "Menus",
 		link: "/dashboard",
 	},
 	api: {

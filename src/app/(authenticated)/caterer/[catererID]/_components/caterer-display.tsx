@@ -27,7 +27,6 @@ import {
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
-import { CatererMenu } from "@prisma/client";
 
 const discountFields = [
 	{ key: "discount_below_500", label: "Below $500" },
@@ -43,7 +42,6 @@ export default function CatererDisplay({
 	caterer: CatererData;
 	initialMenuId?: string;
 }) {
-	const router = useRouter();
 	const [selectedMenu, setSelectedMenu] = useState<CatererMenuData | null>(() => {
 		if (initialMenuId) {
 			const menu = caterer.menus.find(m => m.id === initialMenuId);

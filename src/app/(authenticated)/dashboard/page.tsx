@@ -3,8 +3,8 @@ import { api } from "~/trpc/server";
 import CaterersDisplay from "./_components/caterers-display";
 
 export const metadata: Metadata = {
-	title: "Dashboard",
-	description: "See GovTech Products",
+	title: "Menus",
+	description: "See Caterers Menus",
 };
 
 export default async function LandingPage() {
