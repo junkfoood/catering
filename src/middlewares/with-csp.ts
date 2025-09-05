@@ -30,10 +30,10 @@ export const withCSP: MiddlewareFactory = (next) => {
 			: `
           default-src 'self';
           script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
-          style-src 'self' 'unsafe-inline';
+          style-src 'self' 'unsafe-inline' fonts.googleapis.com;
           img-src 'self' blob: data: *.blob.vercel-storage.com;
           connect-src 'self' *.blob.vercel-storage.com *.amplitude.com;
-          font-src 'self';
+          font-src 'self' fonts.gstatic.com;
           object-src 'none';
           base-uri 'self';
           form-action 'self';
