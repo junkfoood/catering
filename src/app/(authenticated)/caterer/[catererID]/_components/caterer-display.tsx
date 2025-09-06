@@ -84,33 +84,86 @@ export default function CatererDisplay({
 
 	const calculateTotal = () => {
 		if (!selectedMenu)
-			return { subtotal: 0, discount: 0, adminFee: 0, delivery: 0, total: 0 };
+			return { 
+				subtotal: 0, 
+				discount: 0, 
+				discountRate: 0,
+				adminFee: 0, 
+				baseDelivery: 0,
+				additionalDelivery: 0,
+				additionalDeliveryItems: [],
+				delivery: 0, 
+				total: 0 
+			};
 
 		const subtotal = selectedMenu.pricePerPerson * paxCount;
-		const discount = subtotal * 1;
-		const adminFee = subtotal * 1;
 		
-		// Calculate delivery charges based on checkboxes
-		let delivery = 0;
-		let deliveryLabel = paxCount < selectedMenu.minimumOrder ? 'Delivery fee' : 'Delivery Waived';
+		// Calculate base delivery fee and additional delivery fees separately
+		let baseDelivery = 0;
+		let additionalDelivery = 0;
+		let additionalDeliveryItems: { label: string; amount: number }[] = [];
 		
+		// Check if minimum order is met for free delivery
+		if (paxCount >= selectedMenu.minimumOrder) {
+			baseDelivery = 0; // Free delivery
+		} else {
+			baseDelivery = 20; // Base delivery fee
+		}
+		
+		// Calculate additional delivery fees (surcharges)
 		if (deliveryCharges.includes("cbd")) {
-			delivery += 35;
-			deliveryLabel += ' + CBD Surcharge (+$35)';
+			additionalDelivery += 35;
+			additionalDeliveryItems.push({ label: "CBD Surcharge", amount: 35 });
 		}
 		if (deliveryCharges.includes("odd-hours")) {
-			delivery += 30;
-			deliveryLabel += ' + Odd Hours Surcharge (+$30)';
+			additionalDelivery += 30;
+			additionalDeliveryItems.push({ label: "Odd Hours Surcharge", amount: 30 });
 		}
 		if (deliveryCharges.includes("no-lift")) {
 			const liftCharge = 25 * floors;
-			delivery += liftCharge;
-			deliveryLabel += ` + Lift Surcharge (+$25 x ${floors} floor${floors > 1 ? 's' : ''})`;
+			additionalDelivery += liftCharge;
+			additionalDeliveryItems.push({ 
+				label: `Lift Surcharge (${floors} floor${floors > 1 ? 's' : ''})`, 
+				amount: liftCharge 
+			});
 		}
 		
-		const total = subtotal - discount + adminFee + delivery;
+		const totalDelivery = baseDelivery + additionalDelivery;
+		
+		// Calculate discount based on total order value (subtotal + delivery)
+		const orderValue = subtotal + totalDelivery;
+		let discountRate = 0;
+		
+		if (orderValue < 500) {
+			discountRate = 0; // No discount
+		} else if (orderValue >= 500 && orderValue < 2000) {
+			discountRate = 0.05; // 5% discount
+		} else if (orderValue >= 2000 && orderValue < 4000) {
+			discountRate = 0.10; // 10% discount
+		} else {
+			discountRate = 0.15; // 15% discount for $4000+
+		}
+		
+		const discount = orderValue * discountRate;
+		
+		// Calculate admin fee on the total after discounts (subtotal + delivery - discount)
+		const discountedSubtotal = subtotal * (1 - discountRate);
+		const discountedDelivery = totalDelivery * (1 - discountRate);
+		const adminFee = (discountedSubtotal + discountedDelivery) * 0.015; // 1.5% admin fee
+		
+		const total = discountedSubtotal + discountedDelivery + adminFee;
 
-		return { subtotal, discount, adminFee, delivery, total, deliveryLabel };
+		return { 
+			subtotal, 
+			discount, 
+			discountRate,
+			adminFee, 
+			baseDelivery,
+			additionalDelivery,
+			additionalDeliveryItems,
+			delivery: totalDelivery, 
+			total 
+		};
 	};
 
 	const isSelectionComplete = () => {
@@ -495,25 +548,57 @@ export default function CatererDisplay({
 
 										<div className="space-y-2">
 											<div className="flex justify-between">
-												<span>Subtotal</span>
-												<span>${pricing.subtotal.toFixed(2)}</span>
-											</div>
-											{pricing.discount > 0 && (
-												<div className="flex justify-between text-green-600">
-													<span>Discount 0%</span>
-													<span>-${pricing.discount.toFixed(2)}</span>
+												<span>{selectedMenu.code}</span>
+												<div className="text-right">
+													{(pricing.discountRate ?? 0) > 0 ? (
+														<>
+															<div className="line-through text-gray-500">${pricing.subtotal.toFixed(2)}</div>
+															<div className="text-green-600">${(pricing.subtotal * (1 - (pricing.discountRate ?? 0))).toFixed(2)}</div>
+														</>
+													) : (
+														<span>${pricing.subtotal.toFixed(2)}</span>
+													)}
 												</div>
-											)}
+											</div>
+											
+											{/* Base Delivery Fee */}
 											<div className="flex justify-between">
-												<span>Admin Fee 0%</span>
+												<span>Delivery Fee</span>
+												<div className="text-right">
+													{paxCount >= selectedMenu.minimumOrder ? (
+														<span className="text-green-600">Free</span>
+													) : (pricing.discountRate ?? 0) > 0 ? (
+														<>
+															<div className="line-through text-gray-500">${(pricing.baseDelivery ?? 0).toFixed(2)}</div>
+															<div className="text-green-600">${((pricing.baseDelivery ?? 0) * (1 - (pricing.discountRate ?? 0))).toFixed(2)}</div>
+														</>
+													) : (
+														<span>${(pricing.baseDelivery ?? 0).toFixed(2)}</span>
+													)}
+												</div>
+											</div>
+											
+											{/* Additional Delivery Fees */}
+											{(pricing.additionalDeliveryItems ?? []).map((item, index) => (
+												<div key={index} className="flex justify-between">
+													<span className="text-sm text-gray-600">{item.label}</span>
+													<div className="text-right">
+														{(pricing.discountRate ?? 0) > 0 ? (
+															<>
+																<div className="line-through text-gray-500">${item.amount.toFixed(2)}</div>
+																<div className="text-green-600">${(item.amount * (1 - (pricing.discountRate ?? 0))).toFixed(2)}</div>
+															</>
+														) : (
+															<span>${item.amount.toFixed(2)}</span>
+														)}
+													</div>
+												</div>
+											))}
+											
+											<div className="flex justify-between">
+												<span>Admin Fee 1.5%</span>
 												<span>${pricing.adminFee.toFixed(2)}</span>
 											</div>
-											{pricing.delivery > 0 && (
-												<div className="flex justify-between">
-													<span className="text-xs">{pricing.deliveryLabel}</span>
-													<span>${pricing.delivery.toFixed(2)}</span>
-												</div>
-											)}
 										</div>
 
 										<Separator />
