@@ -2,6 +2,9 @@ import { Metadata } from "next";
 import { api } from "~/trpc/server";
 import CaterersDisplay from "./_components/caterers-display";
 
+// Force dynamic rendering for authenticated routes
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
 	title: "Menus",
 	description: "See Caterers Menus",

@@ -355,18 +355,6 @@ export default function CaterersDisplay({
 									);
 								})}
 							</div>
-
-							{/* Load More button */}
-							{filteredVendorMenuPairs.length > vendorsToShow && filteredVendorMenuPairs.length > 0 && !isLoadingMore && (
-								<div className="text-center mt-8">
-									<Button variant="outline"
-										size="lg"
-										onClick={() => setVendorsToShow((prev) => prev + 6)}
-									>
-										Load More Menu Packages
-									</Button>
-								</div>
-							)}
 							
 							{/* Loading indicator - shows when loading OR when there are more items to load */}
 							{(isLoadingMore || (filteredVendorMenuPairs.length > vendorsToShow && filteredVendorMenuPairs.length > 0)) && (
