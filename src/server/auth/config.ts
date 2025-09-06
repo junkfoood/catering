@@ -148,7 +148,7 @@ export const authConfig = {
 			type: "oauth",
 			clientId: env.SGID_CLIENT_ID,
 			clientSecret: env.SGID_CLIENT_SECRET,
-			checks: ["pkce", "state"],
+			checks: ["state"],
 			authorization: {
 				url: `${env.SGID_OPENID_CONFIG}/oauth/authorize`,
 				params: {
