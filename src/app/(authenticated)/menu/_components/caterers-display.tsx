@@ -196,10 +196,10 @@ export default function CaterersDisplay({
 										Filters
 									</CardTitle>
 								</CardHeader>
-								<CardContent className="space-y-6">
+								<CardContent className="space-y-4">
 									{/* Budget Filter */}
 									<div>
-										<Label className="text-sm font-medium mb-3 block">
+										<Label className="text-sm font-medium mb-2 block">
 											Budget per Pax: ${budget[0]} - ${budget[1]}
 										</Label>
 										<Slider
@@ -216,14 +216,14 @@ export default function CaterersDisplay({
 										</div>
 									</div>
 
-									<Separator />
+									<Separator className="my-3" />
 
 									{/* Categories Filter */}
 									<div>
-										<Label className="text-sm font-medium mb-3 block">
+										<Label className="text-sm font-medium mb-2 block">
 											Categories
 										</Label>
-										<div className="space-y-2">
+										<div className="space-y-1">
 											{Object.values(CatererMenuType).map((category) => (
 												<div
 													key={category}
@@ -238,7 +238,7 @@ export default function CaterersDisplay({
 													/>
 													<Label
 														htmlFor={category}
-														className="text-sm text-gray-700"
+														className="text-xs text-gray-700"
 													>
 														{categoryLabels[category]}
 													</Label>
@@ -247,14 +247,14 @@ export default function CaterersDisplay({
 										</div>
 									</div>
 
-									<Separator />
+									<Separator className="my-3" />
 
 									{/* Location Filter */}
 									<div>
-										<Label className="text-sm font-medium mb-3 block">
+										<Label className="text-sm font-medium mb-2 block">
 											Delivery Restrictions:
 										</Label>
-										<div className="space-y-2">
+										<div className="space-y-1">
 											{restrictedAreas.map((location) => (
 												<div key={location} className="flex items-center space-x-2">
 													<Checkbox
@@ -266,7 +266,7 @@ export default function CaterersDisplay({
 													/>
 													<Label
 														htmlFor={location}
-														className="text-sm text-gray-700"
+														className="text-xs text-gray-700"
 													>
 														{location}
 													</Label>
