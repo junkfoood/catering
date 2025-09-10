@@ -36,7 +36,7 @@ export async function NavbarSidebar({
 			</SheetTrigger>
 			<SheetContent side="left" className="pr-0">
 				<MobileLink href="/" className="flex items-center">
-					<Image src={logo} alt="Logo" className="h-auto w-[30%]" />
+					<Image src={logo} alt="Logo" className="h-12 w-auto" />
 				</MobileLink>
 				<div className="flex flex-col space-y-3 pt-6">
 					{(session ? navbarRoutes : publicNavbarRoutes).map((route) =>

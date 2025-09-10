@@ -24,7 +24,7 @@ export interface NavbarProps
 	selector?: Route;
 }
 
-const navbarRoutes: () => (Route | NestedRoute)[] = () => [routes.dashboard];
+const navbarRoutes: () => (Route | NestedRoute)[] = () => [routes.dashboard, routes.comparison];
 const publicNavbarRoutes: (Route | NestedRoute)[] = [];
 
 const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
@@ -47,7 +47,7 @@ const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
 					<Image
 						src={logo}
 						alt="Logo"
-						className="h-full w-auto hover:cursor-pointer"
+						className="h-12 w-auto hover:cursor-pointer"
 						onClick={async () => {
 							"use server";
 

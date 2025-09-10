@@ -23,6 +23,10 @@ export const routes = {
 		label: "Menus",
 		link: "/dashboard",
 	},
+	comparison: {
+		label: "Comparison",
+		link: "/comparison",
+	},
 	api: {
 		reference: {
 			label: "API Reference",
