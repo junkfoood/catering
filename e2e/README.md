@@ -1,12 +1,12 @@
 # End-to-End Testing
 
-This directory contains Playwright end-to-end tests for the Catering Compare application.
+This directory contains Playwright end-to-end tests for the application.
 
 ## Test Structure
 
 - `home.spec.ts` - Tests for the home page functionality
 - `auth.spec.ts` - Tests for authentication flows (login/logout)
-- `dashboard.spec.ts` - Tests for the dashboard and caterer display functionality
+- `menu.spec.ts` - Tests for the menu and caterer display functionality
 - `utils/login.ts` - Helper functions for authentication testing
 
 ## Running Tests

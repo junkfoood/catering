@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
 	Star,
 	MapPin,
@@ -243,7 +244,12 @@ export default function CatererDisplay({
 											{caterer.email && (
 												<div className="flex items-center gap-1">
 													<Mail className="w-4 h-4" />
-													<span>{caterer.email}</span>
+													<a 
+														href={`mailto:${caterer.email}`}
+														className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+													>
+														{caterer.email}
+													</a>
 												</div>
 											)}
 										</div>
@@ -254,9 +260,6 @@ export default function CatererDisplay({
 
 						{/* Menu Configuration */}
 						<Card>
-							<CardHeader>
-								<CardTitle>Menu Configuration</CardTitle>
-							</CardHeader>
 							<CardContent className="space-y-6">
 								<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 									<div className="md:col-span-2">
@@ -274,7 +277,7 @@ export default function CatererDisplay({
 											<SelectContent>
 												{caterer.menus.map((menu) => (
 													<SelectItem key={menu.id} value={menu.id}>
-														{`${menu.code} - $${menu.pricePerPerson}/pax`}
+														{`${menu.code}`}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -287,21 +290,22 @@ export default function CatererDisplay({
 											${selectedMenu?.pricePerPerson.toFixed(2)}
 										</div>
 										{selectedMenu && (
-											<p className="text-xs text-green-600">
-												{discountFields.map(({ key, label }) => {
-													const value = (selectedMenu as any)[key];
-													if (value == null || value === 0) return null;
-													return (
-														<span key={key}>
-															{value}% discount applied to {label}
-															<br />
-														</span>
-													);
-												})}
-											</p>
+											<div className="text-xs relative group">
+												<span>Discount Info ⓘ</span>
+												<div className="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10">
+													{discountFields.map(({ key, label }) => {
+														const value = (selectedMenu as any)[key];
+														if (value == null || value === 0) return null;
+														return (
+															<div key={key}>
+																{value}% discount applied to {label}
+															</div>
+														);
+													})}
+												</div>
+											</div>
 										)}
 									</div>
-
 									<div>
 										<Label htmlFor="pax">Number of Pax</Label>
 										<Input className="text-center"
@@ -403,12 +407,12 @@ export default function CatererDisplay({
 								</CardHeader>
 								<CardContent>
 									<Tabs defaultValue="0" className="w-full">
-										<TabsList className="flex gap-1 p-1">
+										<TabsList className="grid grid-cols-4 gap-1 gap-y-3 p-1 auto-rows-fr">
 											{selectedMenu.sections.map((section, index) => (
 												<TabsTrigger 
 													key={section.id} 
 													value={index.toString()}
-													className="flex items-center gap-1 min-w-0 text-xs sm:text-sm"
+													className="flex items-center gap-1 min-w-0 text-xs sm:text-sm justify-center"
 												>
 													<span className="truncate">{section.title}</span>
 													{(selectedItems[section.id]?.length ?? 0) === section.selectionLimit && (
@@ -620,8 +624,11 @@ export default function CatererDisplay({
 											<Button
 												variant="outline"
 												className="w-full bg-transparent"
+												asChild
 											>
-												Add to Compare
+												<Link href={`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`}>
+													Add to Compare
+												</Link>
 											</Button>
 										</div>
 

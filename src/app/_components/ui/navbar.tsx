@@ -24,7 +24,7 @@ export interface NavbarProps
 	selector?: Route;
 }
 
-const navbarRoutes: () => (Route | NestedRoute)[] = () => [routes.dashboard, routes.comparison];
+const navbarRoutes: () => (Route | NestedRoute)[] = () => [routes.menu, routes.comparison];
 const publicNavbarRoutes: (Route | NestedRoute)[] = [];
 
 const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
@@ -53,7 +53,7 @@ const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
 
 							redirect(
 								isActiveUser
-									? routes.dashboard.link
+									? routes.menu.link
 									: routes.anonDashboard.link,
 							);
 						}}

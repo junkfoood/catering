@@ -38,7 +38,7 @@ const NavbarLoginButton = React.forwardRef<
 									"use server";
 
 									await signIn("microsoft-entra-id", {
-										redirectTo: "/dashboard",
+										redirectTo: "/menu",
 									});
 								}}
 								className="bg-red-700 hover:bg-red-600"
@@ -52,7 +52,7 @@ const NavbarLoginButton = React.forwardRef<
 									onClick={async () => {
 										"use server";
 
-										await signIn("sgid", { redirectTo: "/dashboard" });
+										await signIn("sgid", { redirectTo: "/menu" });
 									}}
 								>
 									<svg

@@ -12,7 +12,7 @@ export function ClientAuthRedirect() {
 	useEffect(() => {
 		if (status === "authenticated" && data) {
 			// Use hard reload to ensure session is available
-			window.location.href = routes.dashboard.link;
+			window.location.href = routes.menu.link;
 		}
 	}, [data, status, router]);
 

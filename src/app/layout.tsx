@@ -14,10 +14,10 @@ Settings.defaultZone = "Asia/Singapore";
 export const metadata: Metadata = {
 	title: {
 		template: "%s",
-		default: "Cater Compare",
+		default: "Where's the Food",
 	},
 	description:
-		"Catering Compare - Compare and evaluate catering services and providers.",
+		"Where's the Food - Compare and evaluate catering services and providers.",
 	keywords: [
 		"catering",
 		"compare",
@@ -38,26 +38,26 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://catering-5rca.vercel.app"),
 	openGraph: {
 		type: "website",
-		siteName: "Catering Compare",
-		title: "Catering Compare",
+		siteName: "Where's the Food",
+		title: "Where's the Food",
 		description:
-			"Catering Compare - Compare and evaluate catering services and providers.",
+			"Where's the Food - Compare and evaluate catering services and providers.",
 		url: "https://catering-5rca.vercel.app",
 		images: [
 			{
 				url: "/logo.webp",
 				width: 512,
 				height: 512,
-				alt: "Catering Compare",
+				alt: "Where's the Food",
 			},
 		],
 		locale: "en_SG",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Catering Compare",
+		title: "Where's the Food",
 		description:
-			"Catering Compare - Compare and evaluate catering services and providers",
+			"Where's the Food - Compare and evaluate catering services and providers",
 		images: ["/logo.webp"],
 	},
 	robots: {

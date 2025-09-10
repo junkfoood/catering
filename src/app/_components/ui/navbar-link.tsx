@@ -20,8 +20,8 @@ export const NavbarLink = React.forwardRef<HTMLDivElement, NavbarLinkProps>(
 	({ link, label, ...props }, ref) => {
 		const pathname = usePathname();
 
-		const pathURL = pathname === "/dashboard" ? "/products" : pathname;
-		const baseURL = link === "/dashboard" ? "/products" : link;
+		const pathURL = pathname === "/menu" ? "/products" : pathname;
+		const baseURL = link === "/menu" ? "/products" : link;
 
 		return (
 			<NavigationMenuLink
@@ -54,8 +54,8 @@ export const NavbarLabel = React.forwardRef<HTMLDivElement, NavbarLabelProps>(
 	({ label, link, ...props }, ref) => {
 		const pathname = usePathname();
 
-		const pathURL = pathname === "/dashboard" ? "/products" : pathname;
-		const baseURL = link === "/dashboard" ? "/products" : link;
+		const pathURL = pathname === "/menu" ? "/products" : pathname;
+		const baseURL = link === "/menu" ? "/products" : link;
 
 		return (
 			<NavigationMenuTrigger

@@ -345,8 +345,11 @@ export default function CaterersDisplay({
 														<Button
 															variant="outline"
 															className="flex-1 bg-transparent"
+															asChild
 														>
-															Compare
+															<Link href="/comparison">
+																Compare
+															</Link>
 														</Button>
 													</div>
 												</div>

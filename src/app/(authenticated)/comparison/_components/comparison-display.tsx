@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, X, Trash2, Eye } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Badge } from "@components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@components/ui/dialog";
+import { Slider } from "@components/ui/slider";
+import { Label } from "@components/ui/label";
 import { CatererListData } from "~/server/api/routers/caterer";
 import { CatererMenuType } from "@prisma/client";
 import { api } from "~/trpc/react";
@@ -19,16 +22,42 @@ interface ComparisonItem {
 }
 
 export default function ComparisonDisplay() {
+	const searchParams = useSearchParams();
 	const [comparisonItems, setComparisonItems] = useState<ComparisonItem[]>([]);
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
+	const [budget, setBudget] = useState<[number, number]>([3, 60]);
+	const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
 	// Fetch all caterers for the add dialog
 	const { data: allCaterers, isLoading } = api.caterer.getCaterersPaginated.useQuery(
 		{ skip: 0, take: 100 }, // Get more caterers for selection
 		{ staleTime: 5 * 60 * 1000 }
 	);
+
+	// Auto-populate caterer from URL parameters
+	useEffect(() => {
+		const catererId = searchParams.get('caterer');
+		const menuId = searchParams.get('menu');
+		
+		if (catererId && menuId && allCaterers?.caterers) {
+			const caterer = allCaterers.caterers.find(c => c.id === catererId);
+			if (caterer) {
+				const menu = caterer.menus.find(m => m.id === menuId);
+				if (menu) {
+					// Check if this caterer-menu combination is already in comparison
+					const exists = comparisonItems.some(
+						item => item.vendor.id === caterer.id && item.menu.id === menu.id
+					);
+					
+					if (!exists && comparisonItems.length < 4) {
+						setComparisonItems([{ vendor: caterer, menu }]);
+					}
+				}
+			}
+		}
+	}, [searchParams, allCaterers, comparisonItems]);
 
 	// Category labels
 	const categoryLabels: Record<CatererMenuType, string> = {
@@ -58,12 +87,18 @@ export default function ComparisonDisplay() {
 		return matchesSearch && matchesCategory;
 	}) || [];
 
-	// Flatten to vendor-menu pairs for selection
+	// Flatten to vendor-menu pairs for selection, but only include menus that match the selected category and budget
 	const vendorMenuPairs = filteredCaterers.flatMap((vendor) =>
-		vendor.menus.map((menu) => ({
-			vendor,
-			menu,
-		}))
+		vendor.menus
+			.filter(menu => {
+				const matchesCategory = selectedCategory === "" || menu.type === selectedCategory;
+				const matchesBudget = menu.pricePerPerson >= budget[0] && menu.pricePerPerson <= budget[1];
+				return matchesCategory && matchesBudget;
+			})
+			.map((menu) => ({
+				vendor,
+				menu,
+			}))
 	);
 
 	const addToComparison = (vendor: CatererListData, menu: CatererListData['menus'][0]) => {
@@ -85,6 +120,18 @@ export default function ComparisonDisplay() {
 
 	const clearComparison = () => {
 		setComparisonItems([]);
+	};
+
+	const toggleSectionExpansion = (sectionKey: string) => {
+		setExpandedSections(prev => {
+			const newSet = new Set(prev);
+			if (newSet.has(sectionKey)) {
+				newSet.delete(sectionKey);
+			} else {
+				newSet.add(sectionKey);
+			}
+			return newSet;
+		});
 	};
 
 	// Get unique features across all compared items
@@ -143,26 +190,47 @@ export default function ComparisonDisplay() {
 							</DialogHeader>
 							<div className="space-y-4">
 								{/* Search and Filter */}
-								<div className="flex gap-4">
-									<input
-										type="text"
-										placeholder="Search caterer name..."
-										className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-										value={searchQuery}
-										onChange={(e) => setSearchQuery(e.target.value)}
-									/>
-									<select
-										className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-										value={selectedCategory}
-										onChange={(e) => setSelectedCategory(e.target.value)}
-									>
-										<option value="">All Categories</option>
-										{allMenuTypes.map(type => (
-											<option key={type} value={type}>
-												{categoryLabels[type]}
-											</option>
-										))}
-									</select>
+								<div className="space-y-4">
+									<div className="flex gap-4">
+										<input
+											type="text"
+											placeholder="Search caterer name..."
+											className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+											value={searchQuery}
+											onChange={(e) => setSearchQuery(e.target.value)}
+										/>
+										<select
+											className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+											value={selectedCategory}
+											onChange={(e) => setSelectedCategory(e.target.value)}
+										>
+											<option value="">All Categories</option>
+											{allMenuTypes.map(type => (
+												<option key={type} value={type}>
+													{categoryLabels[type]}
+												</option>
+											))}
+										</select>
+									</div>
+									
+									{/* Budget Filter */}
+									<div>
+										<Label className="text-sm font-medium mb-3 block">
+											Budget per Pax: ${budget[0]} - ${budget[1]}
+										</Label>
+										<Slider
+											value={budget}
+											onValueChange={value => setBudget([value[0], value[1]] as [number, number])}
+											max={60}
+											min={3}
+											step={1}
+											className="w-full"
+										/>
+										<div className="flex justify-between text-xs text-gray-500 mt-1">
+											<span>$3</span>
+											<span>$60</span>
+										</div>
+									</div>
 								</div>
 
 								{/* Menu Items Grid */}
@@ -197,9 +265,9 @@ export default function ComparisonDisplay() {
 														</div>
 														<div className="flex-1 p-4">
 															<h3 className="font-semibold text-sm">{vendor.name}</h3>
-															<Badge variant="secondary" className="text-xs mt-1">
-																{categoryLabels[menu.type]}
-															</Badge>
+															<h2 className="text-xs mt-1">
+																{menu.code}
+															</h2>
 															<div className="text-lg font-bold text-orange-600 mt-2">
 																{formatPrice(menu.pricePerPerson)}
 															</div>
@@ -249,15 +317,15 @@ export default function ComparisonDisplay() {
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead className="w-48">Feature</TableHead>
+								<TableHead className="w-48 text-black">Menu</TableHead>
 								{comparisonItems.map((item, index) => (
 									<TableHead key={index} className="w-64">
-										<div className="flex items-center justify-between">
+										<div className="flex items-center justify-between text-black">
 											<div>
-												<div className="font-semibold">{item.vendor.name}</div>
-												<Badge variant="secondary" className="text-xs">
-													{categoryLabels[item.menu.type]}
-												</Badge>
+												<div className="font-bold">{item.vendor.name}</div>
+												<div className="text-xs font-semibold">
+													{item.menu.code}
+												</div>
 											</div>
 											<Button
 												variant="ghost"
@@ -347,13 +415,29 @@ export default function ComparisonDisplay() {
 														{section.items.length > 0 && (
 															<div className="text-sm">
 																<span className="font-medium">Items: </span>
-																{section.items.slice(0, 3).map(item => item.name).join(", ")}
-																{section.items.length > 3 && ` +${section.items.length - 3} more`}
-															</div>
-														)}
-														{section.selectionLimit && (
-															<div className="text-xs text-gray-500">
-																Select {section.selectionLimit}
+																{(() => {
+																	const sectionKey = `${index}-${feature}`;
+																	const isExpanded = expandedSections.has(sectionKey);
+																	const itemsToShow = isExpanded ? section.items : section.items.slice(0, 3);
+																	const hasMore = section.items.length > 3;
+																	
+																	return (
+																		<div>
+																			<div>
+																				{itemsToShow.map(item => item.name).join(", ")}
+																				{!isExpanded && hasMore && ` +${section.items.length - 3} more`}
+																			</div>
+																			{hasMore && (
+																				<button
+																					onClick={() => toggleSectionExpansion(sectionKey)}
+																					className="text-blue-600 hover:text-blue-800 text-xs underline mt-1"
+																				>
+																					{isExpanded ? "Show less" : "Show all"}
+																				</button>
+																			)}
+																		</div>
+																	);
+																})()}
 															</div>
 														)}
 													</div>

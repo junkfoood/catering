@@ -4,7 +4,7 @@ import { Separator } from "./separator";
 const Footer = () => {
 	return (
 		<div className="flex flex-col gap-8 bg-neutral-800 px-4 py-10 text-white lg:px-32">
-			<p className="text-3xl font-bold">Catering Compare</p>
+			<p className="text-3xl font-bold">Where's the Food</p>
 			<div className="flex flex-col">
 				<p>Built by...</p>
 			</div>

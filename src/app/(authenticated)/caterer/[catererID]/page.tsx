@@ -52,7 +52,7 @@ export default async function CatererPage({
 			header={
 				<HeaderBreadcrumb
 					breadcrumbs={[
-						routes.dashboard,
+						routes.menu,
 						{
 							label: caterer.name,
 							link: routeFormatter.caterer(caterer),

@@ -19,9 +19,9 @@ export const routes = {
 		label: "Dashboard",
 		link: "/",
 	},
-	dashboard: {
+	menu: {
 		label: "Menus",
-		link: "/dashboard",
+		link: "/menu",
 	},
 	comparison: {
 		label: "Comparison",

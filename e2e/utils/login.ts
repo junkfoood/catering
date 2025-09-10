@@ -65,7 +65,7 @@ const loginAsUser = async ({ page, user }: { page: Page; user: string }) => {
 };
 
 export async function logout({ page }: { page: Page }) {
-	await page.goto("/dashboard");
+	await page.goto("/menu");
 
 	await expect(page.getByTestId("navbar-user-button")).toBeVisible();
 
