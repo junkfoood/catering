@@ -27,7 +27,7 @@ import {
 } from "@components/ui/select";
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { CatererData, CatererMenuData, CatererMenuType } from "~/server/api/routers/caterer";
+import { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
 
 const discountFields = [
 	{ key: "discount_below_500", label: "Below $500" },
@@ -35,20 +35,6 @@ const discountFields = [
 	{ key: "discount_2000_4000", label: "$2,000 - $4,000" },
 	{ key: "discount_above_4000", label: "Above $4,000" },
 ];
-
-// Category labels
-const categoryLabels: Record<CatererMenuType, string> = {
-	SMALL_QTY_REFRESHMENT: "Small Quantity Refreshments",
-	SMALL_QTY_BUFFET: "Small Quantity Buffet",
-	PACKED_MEALS: "Packed Meals",
-	TEA_RECEPTION: "Tea Reception",
-	BUFFET_1: "Buffet 1",
-	BUFFET_2: "Buffet 2",
-	BBQ_BUFFET: "BBQ Buffet",
-	THEME_BUFFET: "Theme Buffet",
-	ETHNIC_FOOD_MALAY: "Ethnic Food Malay",
-	ETHNIC_FOOD_INDIAN: "Ethnic Food Indian",
-};
 
 export default function CatererDisplay({ 
 	caterer, 
@@ -310,7 +296,14 @@ export default function CatererDisplay({
 										</Select>
 									</div>
 
-									<div className="md:col-start-4 md:row-span-2">
+									<div className="md:col-start-3 md:col-span-2 md:row-span-2">
+										<Label>Minumum Order for Free Delivery</Label>
+										<div className="text-2xl font-bold text-black-600 text-center">
+											{selectedMenu?.minimumOrder} pax
+										</div>
+									</div>
+
+									<div className="md:col-start-5 md:row-span-2">
 										<Label>Price per Pax</Label>
 										<div className="text-2xl font-bold text-orange-600">
 											${selectedMenu?.pricePerPerson.toFixed(2)}
@@ -564,7 +557,7 @@ export default function CatererDisplay({
 												<div className="flex justify-between items-center">
 													<span className="font-medium">Selected Items:</span>
 													<span className={`font-medium ${isSelectionComplete() ? 'text-green-600' : 'text-red-600'}`}>
-														{isSelectionComplete() ? 'Complete ✓' : 'X Incomplete'}
+														{isSelectionComplete() ? 'Complete ✓' : 'X Incomplete Menu Selection'}
 													</span>
 												</div>
 												<div className="mt-1 space-y-1">
@@ -592,7 +585,7 @@ export default function CatererDisplay({
 
 										<div className="space-y-2">
 											<div className="flex justify-between">
-												<span>[{selectedMenu.code}{pricing.alphabet}] {categoryLabels[selectedMenu.type]}</span>
+												<span>{selectedMenu.code}{pricing.alphabet} ({paxCount} Pax)</span>
 												<div className="text-right">
 													{(pricing.discountRate ?? 0) > 0 ? (
 														<>
