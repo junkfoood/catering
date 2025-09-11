@@ -27,7 +27,7 @@ import {
 } from "@components/ui/select";
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
+import { CatererData, CatererMenuData, CatererMenuType } from "~/server/api/routers/caterer";
 
 const discountFields = [
 	{ key: "discount_below_500", label: "Below $500" },
@@ -35,6 +35,20 @@ const discountFields = [
 	{ key: "discount_2000_4000", label: "$2,000 - $4,000" },
 	{ key: "discount_above_4000", label: "Above $4,000" },
 ];
+
+// Category labels
+const categoryLabels: Record<CatererMenuType, string> = {
+	SMALL_QTY_REFRESHMENT: "Small Quantity Refreshments",
+	SMALL_QTY_BUFFET: "Small Quantity Buffet",
+	PACKED_MEALS: "Packed Meals",
+	TEA_RECEPTION: "Tea Reception",
+	BUFFET_1: "Buffet 1",
+	BUFFET_2: "Buffet 2",
+	BBQ_BUFFET: "BBQ Buffet",
+	THEME_BUFFET: "Theme Buffet",
+	ETHNIC_FOOD_MALAY: "Ethnic Food Malay",
+	ETHNIC_FOOD_INDIAN: "Ethnic Food Indian",
+};
 
 export default function CatererDisplay({ 
 	caterer, 
@@ -144,6 +158,19 @@ export default function CatererDisplay({
 		} else {
 			discountRate = 0.15; // 15% discount for $4000+
 		}
+
+		// Calculate alphabet discount based on total order value (subtotal + delivery)
+		let alphabet = "";
+		
+		if (orderValue < 500) {
+			alphabet = "A"; // No discount
+		} else if (orderValue >= 500 && orderValue < 2000) {
+			alphabet = "B"; // 5% discount
+		} else if (orderValue >= 2000 && orderValue < 4000) {
+			alphabet = "C"; // 10% discount
+		} else {
+			alphabet = "D"; // 15% discount for $4000+
+		}		
 		
 		const discount = orderValue * discountRate;
 		
@@ -163,7 +190,8 @@ export default function CatererDisplay({
 			additionalDelivery,
 			additionalDeliveryItems,
 			delivery: totalDelivery, 
-			total 
+			total,
+			alphabet
 		};
 	};
 
@@ -172,9 +200,7 @@ export default function CatererDisplay({
 
 		return selectedMenu.sections.every((section) => {
 			const selections = selectedItems[section.id] || [];
-			return (
-				selections.length >= 0 && selections.length <= section.selectionLimit
-			);
+			return selections.length === section.selectionLimit;
 		});
 	};
 
@@ -261,7 +287,7 @@ export default function CatererDisplay({
 						{/* Menu Configuration */}
 						<Card>
 							<CardContent className="space-y-6">
-								<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 									<div className="md:col-span-2">
 										<Label htmlFor="menu">Menu</Label>
 										<Select
@@ -284,7 +310,7 @@ export default function CatererDisplay({
 										</Select>
 									</div>
 
-									<div className="md:col-start-3 md:row-span-2">
+									<div className="md:col-start-4 md:row-span-2">
 										<Label>Price per Pax</Label>
 										<div className="text-2xl font-bold text-orange-600">
 											${selectedMenu?.pricePerPerson.toFixed(2)}
@@ -534,17 +560,31 @@ export default function CatererDisplay({
 								{selectedMenu && (
 									<>
 										<div className="space-y-2">
-											<div className="flex justify-between text-sm">
-												<span>Menu: {selectedMenu.code}</span>
-											</div>
-											<div className="flex justify-between text-sm">
-												<span>Pax: {paxCount}</span>
-											</div>
-											<div className="flex justify-between text-sm">
-												<span>
-													Price per pax: $
-													{selectedMenu.pricePerPerson.toFixed(2)}
-												</span>
+											<div className="text-sm">
+												<div className="flex justify-between items-center">
+													<span className="font-medium">Selected Items:</span>
+													<span className={`font-medium ${isSelectionComplete() ? 'text-green-600' : 'text-red-600'}`}>
+														{isSelectionComplete() ? 'Complete ✓' : 'X Incomplete'}
+													</span>
+												</div>
+												<div className="mt-1 space-y-1">
+													{selectedMenu.sections.map((section) => {
+														const selectedSectionItems = selectedItems[section.id] || [];
+														return selectedSectionItems.map((itemId) => {
+															const item = section.items.find(i => i.id === itemId);
+															return item ? (
+																<div key={itemId} className="text-xs text-gray-600 ml-2">
+																	• {item.name}
+																</div>
+															) : null;
+														});
+													})}
+													{Object.values(selectedItems).every(items => items.length === 0) && (
+														<div className="text-xs text-gray-400 ml-2">
+															No items selected yet
+														</div>
+													)}
+												</div>
 											</div>
 										</div>
 
@@ -552,7 +592,7 @@ export default function CatererDisplay({
 
 										<div className="space-y-2">
 											<div className="flex justify-between">
-												<span>{selectedMenu.code}</span>
+												<span>[{selectedMenu.code}{pricing.alphabet}] {categoryLabels[selectedMenu.type]}</span>
 												<div className="text-right">
 													{(pricing.discountRate ?? 0) > 0 ? (
 														<>
@@ -633,7 +673,7 @@ export default function CatererDisplay({
 										</div>
 
 										{!isSelectionComplete() && (
-											<p className="text-xs text-amber-600 text-center">
+											<p className="text-xs text-red-600 text-center">
 												Please complete all menu selections to proceed
 											</p>
 										)}
