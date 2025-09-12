@@ -5,7 +5,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { Settings } from "luxon";
 import { type Metadata } from "next";
 import { auth } from "~/server/auth";
-import { warmupAuth } from "~/server/auth/warmup";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./_components/providers";
 import { Shell } from "./_components/ui/shell";
@@ -86,9 +85,6 @@ export const metadata: Metadata = {
 export default async function RootLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
-	// Warm up the auth service early to prevent configuration errors
-	await warmupAuth();
-	
 	const session = await auth();
 	
 	return (

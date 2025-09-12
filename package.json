@@ -24,8 +24,7 @@
 		"postinstall": "prisma generate",
 		"preview": "next build && next start",
 		"start": "next start",
-		"typecheck": "tsc --noEmit",
-		"warmup:auth": "npx tsx -r tsconfig-paths/register src/scripts/warmup-auth.ts"
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@amplitude/analytics-browser": "^2.11.13",
