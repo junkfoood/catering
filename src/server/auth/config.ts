@@ -81,6 +81,9 @@ export const authConfig = {
 	callbacks: {
 		signIn: async ({ user: authUser }) => {
 			try {
+				// Add a small delay to ensure auth service is fully initialized
+				await new Promise(resolve => setTimeout(resolve, 500));
+				
 				if (authUser) {
 					const user = await db.user.findFirst({
 						where: {
@@ -105,6 +108,9 @@ export const authConfig = {
 		},
 		session: async ({ session, user: authUser }) => {
 			try {
+				// Add a small delay to ensure session is properly established
+				await new Promise(resolve => setTimeout(resolve, 300));
+				
 				const user = await db.user.findFirst({
 					where: {
 						email: authUser.email,
