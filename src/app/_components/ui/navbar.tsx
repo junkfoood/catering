@@ -47,7 +47,7 @@ const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
 					<Image
 						src={logo}
 						alt="Logo"
-						className="h-12 w-auto hover:cursor-pointer"
+						className="h-15.5 w-18 hover:cursor-pointer"
 						onClick={async () => {
 							"use server";
 

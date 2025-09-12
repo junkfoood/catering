@@ -80,56 +80,80 @@ export const authConfig = {
 	trustHost: true,
 	callbacks: {
 		signIn: async ({ user: authUser }) => {
-			if (authUser) {
+			try {
+				if (authUser) {
+					const user = await db.user.findFirst({
+						where: {
+							email: {
+								equals: authUser.email ?? "-",
+								mode: "insensitive",
+							},
+						},
+					});
+
+					if (user && !user?.activated) {
+						return false;
+					}
+				}
+
+				return true;
+			} catch (error) {
+				console.error("SignIn callback error:", error);
+				// Allow sign in to proceed even if there's a database error
+				return true;
+			}
+		},
+		session: async ({ session, user: authUser }) => {
+			try {
 				const user = await db.user.findFirst({
 					where: {
-						email: {
-							equals: authUser.email ?? "-",
-							mode: "insensitive",
-						},
+						email: authUser.email,
+					},
+					select: {
+						id: true,
+						email: true,
+						name: true,
+						role: true,
+						activated: true,
 					},
 				});
 
-				if (user && !user?.activated) {
-					return false;
+				if (!user) {
+					return session;
 				}
-			}
 
-			return true;
-		},
-		session: async ({ session, user: authUser }) => {
-			const user = await db.user.findFirst({
-				where: {
-					email: authUser.email,
-				},
-				select: {
-					id: true,
-					email: true,
-					name: true,
-					role: true,
-					activated: true,
-				},
-			});
-
-			if (!user) {
+				return {
+					...session,
+					user: {
+						...session.user,
+						id: user.id,
+						email: user.email,
+						name: user.name,
+						role: user.role,
+					},
+				};
+			} catch (error) {
+				console.error("Session callback error:", error);
+				// Return the original session if there's an error
 				return session;
 			}
-
-			return {
-				...session,
-				user: {
-					...session.user,
-					id: user.id,
-					email: user.email,
-					name: user.name,
-					role: user.role,
-				},
-			};
 		},
 	},
 	adapter: prismaAdapter,
 	pages: {
 		error: "/auth/error",
+	},
+	events: {
+		async signIn({ user, account, profile, isNewUser }) {
+			console.log("User signed in:", { user: user.email, isNewUser });
+		},
+		async signOut(message) {
+			if ('session' in message) {
+				console.log("User signed out with session");
+			} else if ('token' in message) {
+				console.log("User signed out with token");
+			}
+		},
 	},
 	providers: [
 		MicrosoftEntraID({

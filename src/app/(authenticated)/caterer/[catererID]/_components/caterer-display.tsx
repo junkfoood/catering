@@ -273,8 +273,8 @@ export default function CatererDisplay({
 						{/* Menu Configuration */}
 						<Card>
 							<CardContent className="space-y-6">
-								<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-									<div className="md:col-span-2">
+								<div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+									<div className="md:col-span-3">
 										<Label htmlFor="menu">Menu</Label>
 										<Select
 											value={selectedMenu?.id.toString()}
@@ -296,14 +296,14 @@ export default function CatererDisplay({
 										</Select>
 									</div>
 
-									<div className="md:col-start-3 md:col-span-2 md:row-span-2">
+									<div className="md:col-start-4 md:col-span-2 md:row-span-2">
 										<Label>Minumum Order for Free Delivery</Label>
 										<div className="text-2xl font-bold text-black-600 text-center">
-											{selectedMenu?.minimumOrder} pax
+											{selectedMenu?.minimumOrderForFreeDelivery} pax
 										</div>
 									</div>
 
-									<div className="md:col-start-5 md:row-span-2">
+									<div className="md:col-start-6 md:row-span-2">
 										<Label>Price per Pax</Label>
 										<div className="text-2xl font-bold text-orange-600">
 											${selectedMenu?.pricePerPerson.toFixed(2)}
