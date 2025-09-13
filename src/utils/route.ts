@@ -1,5 +1,4 @@
-import { Caterer, User } from "@prisma/client";
-import { permissions } from "./permissions";
+import type { Caterer, User } from "@prisma/client";
 
 export interface Route {
 	label?: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { useState } from "react";
 import { DataTable } from "~/app/_components/ui/data-table";
 import { Input } from "~/app/_components/ui/input";

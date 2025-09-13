@@ -3,7 +3,7 @@ import "~/styles/globals.css";
 import { Toaster } from "@components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
 import { Settings } from "luxon";
-import { type Metadata } from "next";
+import type { Metadata } from "next";
 import { auth } from "~/server/auth";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./_components/providers";

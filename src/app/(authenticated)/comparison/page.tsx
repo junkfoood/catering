@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import ComparisonDisplay from "./_components/comparison-display";
 
 // Force dynamic rendering for authenticated routes

@@ -1,4 +1,4 @@
-import { type Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageShell } from "~/app/_components/ui/page-shell";
 import { api } from "~/trpc/server";
@@ -64,7 +64,7 @@ export default async function CatererPage({
 				<div className="flex flex-col gap-8 grow">
 					<div className="flex items-center justify-between">
 						<div>
-							<p className="text-muted-foreground">{caterer.id}</p>
+							{/* <p className="text-muted-foreground">{caterer.id}</p> */}
 							<div className="flex items-center gap-2">
 								<h1 className="text-3xl font-bold">{caterer.name}</h1>
 							</div>

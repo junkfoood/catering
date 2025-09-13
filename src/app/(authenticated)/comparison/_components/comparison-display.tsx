@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@components/ui/dialog";
 import { Slider } from "@components/ui/slider";
 import { Label } from "@components/ui/label";
-import { CatererListData } from "~/server/api/routers/caterer";
+import type { CatererListData } from "~/server/api/routers/caterer";
 import { CatererMenuType } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";

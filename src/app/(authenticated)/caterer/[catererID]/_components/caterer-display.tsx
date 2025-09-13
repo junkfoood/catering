@@ -27,7 +27,7 @@ import {
 } from "@components/ui/select";
 import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
+import type { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
 
 const discountFields = [
 	{ key: "discount_below_500", label: "Below $500" },
@@ -102,7 +102,7 @@ export default function CatererDisplay({
 		// Calculate base delivery fee and additional delivery fees separately
 		let baseDelivery = 0;
 		let additionalDelivery = 0;
-		let additionalDeliveryItems: { label: string; amount: number }[] = [];
+		const additionalDeliveryItems: { label: string; amount: number }[] = [];
 		
 		// Check if minimum order is met for free delivery
 		if (paxCount >= selectedMenu.minimumOrder) {

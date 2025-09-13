@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { api } from "~/trpc/server";
 import CaterersDisplay from "./_components/caterers-display";
 

@@ -1,8 +1,8 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import SgidClient from "@opengovsg/sgid-client";
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { jwtDecode } from "jwt-decode";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import type { DefaultSession, NextAuthConfig } from "next-auth";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import { env } from "~/env";
 

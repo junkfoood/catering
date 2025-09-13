@@ -1,7 +1,7 @@
 "use client";
 
-import { User } from "@prisma/client";
-import { type ColumnDef } from "@tanstack/react-table";
+import type { User } from "@prisma/client";
+import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Button } from "~/app/_components/ui/button";
 import { SortableTableHeader } from "~/app/_components/ui/sortable-table-header";

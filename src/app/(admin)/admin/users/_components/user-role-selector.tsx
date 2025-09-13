@@ -12,7 +12,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@components/ui/popover";
-import { User, UserRole } from "@prisma/client";
+import { type User, UserRole } from "@prisma/client";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
