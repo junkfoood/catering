@@ -61,16 +61,16 @@ export default async function CatererPage({
 				/>
 			}
 			body={
-				<div className="flex flex-col gap-8 grow">
-					<div className="flex items-center justify-between">
+				<div className="flex flex-col">
+					{/* <div className="flex items-center justify-between">
 						<div>
-							{/* <p className="text-muted-foreground">{caterer.id}</p> */}
+							<p className="text-muted-foreground">{caterer.id}</p>
 							<div className="flex items-center gap-2">
 								<h1 className="text-3xl font-bold">{caterer.name}</h1>
 							</div>
 						</div>
-					</div>
-					<CatererDisplay caterer={caterer} initialMenuId={menuId} />
+					</div> */}
+					<CatererDisplay caterer={caterer} initialMenuId={menuId}/>
 				</div>
 			}
 		/>
