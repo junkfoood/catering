@@ -119,7 +119,7 @@ export default function CatererDisplay({
 		}
 		
 		// Calculate order value first to determine alphabet
-		const orderValue = subtotal + baseDelivery;
+		const orderValue = subtotal + baseDelivery + additionalDelivery;
 		
 		// Calculate alphabet based on order value
 		let alphabet = "";
@@ -153,17 +153,17 @@ export default function CatererDisplay({
 		
 		const totalDelivery = baseDelivery + additionalDelivery;
 		
-		// Calculate discount based on total order value (subtotal + delivery)
+		// Calculate discount based on total order value using caterer menu discount rates
 		let discountRate = 0;
 		
 		if (orderValue < 500) {
-			discountRate = 0; // No discount
+			discountRate = (selectedMenu.discount_below_500 ?? 0) / 100; // Convert percentage to decimal
 		} else if (orderValue >= 500 && orderValue < 2000) {
-			discountRate = 0.05; // 5% discount
+			discountRate = (selectedMenu.discount_500_2000 ?? 0) / 100; // Convert percentage to decimal
 		} else if (orderValue >= 2000 && orderValue < 4000) {
-			discountRate = 0.10; // 10% discount
+			discountRate = (selectedMenu.discount_2000_4000 ?? 0) / 100; // Convert percentage to decimal
 		} else {
-			discountRate = 0.15; // 15% discount for $4000+
+			discountRate = (selectedMenu.discount_above_4000 ?? 0) / 100; // Convert percentage to decimal
 		}		
 		
 		const discount = orderValue * discountRate;
