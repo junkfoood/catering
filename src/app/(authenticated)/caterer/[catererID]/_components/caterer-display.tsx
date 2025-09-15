@@ -346,6 +346,10 @@ export default function CatererDisplay({
 											value={paxCount}
 											onChange={(e) => {
 												const newValue = Number.parseInt(e.target.value) || 0;
+												setPaxCount(newValue);
+											}}
+											onBlur={(e) => {
+												const newValue = Number.parseInt(e.target.value) || 0;
 												const minOrder = selectedMenu?.minimumOrder ?? 1;
 												setPaxCount(Math.max(newValue, minOrder));
 											}}
@@ -373,7 +377,18 @@ export default function CatererDisplay({
 													}
 												}}
 											/>
-											<Label htmlFor="cbd" className="text-sm">
+											<Label 
+												htmlFor="cbd" 
+												className="text-sm cursor-pointer"
+												onClick={() => {
+													const isChecked = deliveryCharges.includes("cbd");
+													if (isChecked) {
+														setDeliveryCharges(deliveryCharges.filter((c) => c !== "cbd"));
+													} else {
+														setDeliveryCharges([...deliveryCharges, "cbd"]);
+													}
+												}}
+											>
 												CBD areas which will pass through ERPs (+$35)
 											</Label>
 										</div>
@@ -393,7 +408,18 @@ export default function CatererDisplay({
 													}
 												}}
 											/>
-											<Label htmlFor="odd-hours" className="text-sm">
+											<Label 
+												htmlFor="odd-hours" 
+												className="text-sm cursor-pointer"
+												onClick={() => {
+													const isChecked = deliveryCharges.includes("odd-hours");
+													if (isChecked) {
+														setDeliveryCharges(deliveryCharges.filter((c) => c !== "odd-hours"));
+													} else {
+														setDeliveryCharges([...deliveryCharges, "odd-hours"]);
+													}
+												}}
+											>
 												Odd hours between 12am before 6am (+$30)
 											</Label>
 										</div>
@@ -410,7 +436,18 @@ export default function CatererDisplay({
 													}
 												}}
 											/>
-											<Label htmlFor="no-lift" className="text-sm">
+											<Label 
+												htmlFor="no-lift" 
+												className="text-sm cursor-pointer"
+												onClick={() => {
+													const isChecked = deliveryCharges.includes("no-lift");
+													if (isChecked) {
+														setDeliveryCharges(deliveryCharges.filter((c) => c !== "no-lift"));
+													} else {
+														setDeliveryCharges([...deliveryCharges, "no-lift"]);
+													}
+												}}
+											>
 												No lift access (+$25 per floor)
 											</Label>
 										</div>
