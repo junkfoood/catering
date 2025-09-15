@@ -118,20 +118,35 @@ export default function CatererDisplay({
 			baseDelivery = selectedMenu.deliveryFee ?? 0; // Use caterer menu delivery fee
 		}
 		
-		// Calculate additional delivery fees (surcharges)
+		// Calculate order value first to determine alphabet
+		const orderValue = subtotal + baseDelivery;
+		
+		// Calculate alphabet based on order value
+		let alphabet = "";
+		if (orderValue < 500) {
+			alphabet = "A"; // No discount
+		} else if (orderValue >= 500 && orderValue < 2000) {
+			alphabet = "B"; // 5% discount
+		} else if (orderValue >= 2000 && orderValue < 4000) {
+			alphabet = "C"; // 10% discount
+		} else {
+			alphabet = "D"; // 15% discount for $4000+
+		}
+		
+		// Calculate additional delivery fees (surcharges) - now alphabet is available
 		if (deliveryCharges.includes("cbd")) {
 			additionalDelivery += 35;
-			additionalDeliveryItems.push({ label: "CBD Surcharge", amount: 35 });
+			additionalDeliveryItems.push({ label: `[Catering 002 ${alphabet}] Delivery Charge - Delivery to Central Business District (CBD) areas which will pass through ERPs`, amount: 35 });
 		}
 		if (deliveryCharges.includes("odd-hours")) {
 			additionalDelivery += 30;
-			additionalDeliveryItems.push({ label: "Odd Hours Surcharge", amount: 30 });
+			additionalDeliveryItems.push({ label: `[Catering 003 ${alphabet}] Delivery Charge - Delivery during odd-hours (between 12 midnight to before 6 am)`, amount: 30 });
 		}
 		if (deliveryCharges.includes("no-lift")) {
 			const liftCharge = 25 * floors;
 			additionalDelivery += liftCharge;
 			additionalDeliveryItems.push({ 
-				label: `Lift Surcharge (${floors} floor${floors > 1 ? 's' : ''})`, 
+				label: `[Catering 004 ${alphabet}] Delivery Charge - Delivery with no lift access (per floor) (${floors} floor${floors > 1 ? 's' : ''})`, 
 				amount: liftCharge 
 			});
 		}
@@ -139,7 +154,6 @@ export default function CatererDisplay({
 		const totalDelivery = baseDelivery + additionalDelivery;
 		
 		// Calculate discount based on total order value (subtotal + delivery)
-		const orderValue = subtotal + totalDelivery;
 		let discountRate = 0;
 		
 		if (orderValue < 500) {
@@ -150,19 +164,6 @@ export default function CatererDisplay({
 			discountRate = 0.10; // 10% discount
 		} else {
 			discountRate = 0.15; // 15% discount for $4000+
-		}
-
-		// Calculate alphabet discount based on total order value (subtotal + delivery)
-		let alphabet = "";
-		
-		if (orderValue < 500) {
-			alphabet = "A"; // No discount
-		} else if (orderValue >= 500 && orderValue < 2000) {
-			alphabet = "B"; // 5% discount
-		} else if (orderValue >= 2000 && orderValue < 4000) {
-			alphabet = "C"; // 10% discount
-		} else {
-			alphabet = "D"; // 15% discount for $4000+
 		}		
 		
 		const discount = orderValue * discountRate;
@@ -653,7 +654,12 @@ export default function CatererDisplay({
 											
 											{/* Base Delivery Fee */}
 											<div className="flex justify-between">
-												<span>Delivery Fee</span>
+												<span>
+													{paxCount >= (selectedMenu.minimumOrderForFreeDelivery ?? 0) 
+														? "Delivery Fee" 
+														: `[Catering 001 ${pricing.alphabet}] Delivery Charge - Not meeting MOQFD (for Categories 4 to 9)`
+													}
+												</span>
 												<div className="text-right">
 													{paxCount >= (selectedMenu.minimumOrderForFreeDelivery ?? 0) ? (
 														<span className="text-green-600">Free</span>
@@ -671,7 +677,7 @@ export default function CatererDisplay({
 											{/* Additional Delivery Fees */}
 											{(pricing.additionalDeliveryItems ?? []).map((item, index) => (
 												<div key={index} className="flex justify-between">
-													<span className="text-sm text-gray-600">{item.label}</span>
+													<span>{item.label}</span>
 													<div className="text-right">
 														{(pricing.discountRate ?? 0) > 0 ? (
 															<>
