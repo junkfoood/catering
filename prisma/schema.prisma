@@ -58,10 +58,10 @@ model Caterer {
   id        String        @id @default(cuid())
   name      String        @unique
   imageFile String?
-  telephone String
-  email     String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now()) @updatedAt
+  telephone String
+  email     String
   menus     CatererMenu[]
 }
 

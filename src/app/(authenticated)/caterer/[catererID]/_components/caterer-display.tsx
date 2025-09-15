@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -57,6 +57,13 @@ export default function CatererDisplay({
 	const [deliveryCharges, setDeliveryCharges] = useState<string[]>([]);
 	const [floors, setFloors] = useState(1);
 
+	// Update pax count to respect minimum order when selected menu changes
+	useEffect(() => {
+		if (selectedMenu) {
+			setPaxCount(prev => Math.max(prev, selectedMenu.minimumOrder ?? 1));
+		}
+	}, [selectedMenu]);
+
 	const handleItemSelection = (
 		sectionId: string,
 		itemId: string,
@@ -105,10 +112,10 @@ export default function CatererDisplay({
 		const additionalDeliveryItems: { label: string; amount: number }[] = [];
 		
 		// Check if minimum order is met for free delivery
-		if (paxCount >= selectedMenu.minimumOrder) {
+		if (paxCount >= (selectedMenu.minimumOrderForFreeDelivery ?? 0)) {
 			baseDelivery = 0; // Free delivery
 		} else {
-			baseDelivery = 20; // Base delivery fee
+			baseDelivery = selectedMenu.deliveryFee ?? 0; // Use caterer menu delivery fee
 		}
 		
 		// Calculate additional delivery fees (surcharges)
@@ -281,6 +288,10 @@ export default function CatererDisplay({
 											onValueChange={(value) => {
 												const menu = caterer.menus.find((m) => m.id === value);
 												setSelectedMenu(menu || null);
+												// Update pax count to respect minimum order
+												if (menu) {
+													setPaxCount(prev => Math.max(prev, menu.minimumOrder ?? 1));
+												}
 											}}
 										>
 											<SelectTrigger>
@@ -300,6 +311,9 @@ export default function CatererDisplay({
 										<Label>Minumum Order for Free Delivery</Label>
 										<div className="text-2xl font-bold text-black-600 text-center">
 											{selectedMenu?.minimumOrderForFreeDelivery} pax
+										</div>
+										<div className="text-sm text-gray-600 text-center mt-1">
+											Min Order: {selectedMenu?.minimumOrder} pax
 										</div>
 									</div>
 
@@ -330,10 +344,12 @@ export default function CatererDisplay({
 										<Input className="text-center"
 											type="number"
 											value={paxCount}
-											onChange={(e) =>
-												setPaxCount(Number.parseInt(e.target.value) || 0)
-											}
-											min={1} //FIX
+											onChange={(e) => {
+												const newValue = Number.parseInt(e.target.value) || 0;
+												const minOrder = selectedMenu?.minimumOrder ?? 1;
+												setPaxCount(Math.max(newValue, minOrder));
+											}}
+											min={selectedMenu?.minimumOrder ?? 1}
 										/>
 									</div>
 								</div>
@@ -602,7 +618,7 @@ export default function CatererDisplay({
 											<div className="flex justify-between">
 												<span>Delivery Fee</span>
 												<div className="text-right">
-													{paxCount >= selectedMenu.minimumOrder ? (
+													{paxCount >= (selectedMenu.minimumOrderForFreeDelivery ?? 0) ? (
 														<span className="text-green-600">Free</span>
 													) : (pricing.discountRate ?? 0) > 0 ? (
 														<>
