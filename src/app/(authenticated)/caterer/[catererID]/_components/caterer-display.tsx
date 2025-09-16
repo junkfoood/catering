@@ -711,7 +711,7 @@ export default function CatererDisplay({
 												className="w-full bg-orange-500 hover:bg-orange-600"
 												disabled={!isSelectionComplete()}
 											>
-												Book Now
+											<a href="https://staging.pair.gov.sg/chat?assistant=assistant_b88ee1a4-faf4-4023-b507-10b0c0c04e13" target="_blank">Seek AOR Now</a>
 											</Button>
 											<Button
 												variant="outline"
