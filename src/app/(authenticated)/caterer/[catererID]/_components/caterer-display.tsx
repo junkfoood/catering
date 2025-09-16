@@ -805,7 +805,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 															/>
 															<Calendar 
 																className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 cursor-pointer" 
-																onClick={() => document.getElementById('eventDate')?.showPicker()}
+																onClick={() => (document.getElementById('eventDate') as HTMLInputElement)?.showPicker()}
 															/>
 														</div>
 													</div>
