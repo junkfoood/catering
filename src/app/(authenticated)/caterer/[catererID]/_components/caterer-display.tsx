@@ -771,7 +771,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 											className="w-full bg-orange-500 hover:bg-orange-600 text-white"
 											asChild
 										>
-											<Link href={`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`}>
+											<Link href={`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`} target="_blank">
 												Add to Compare
 											</Link>
 										</Button>
