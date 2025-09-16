@@ -53,10 +53,67 @@ const loginAsUser = async ({ page, user }: { page: Page; user: string }) => {
 
 	await page.getByRole("button", { name: "Login" }).click();
 
-	//Click through Mockpasss
-	await page.locator("input#id-input").click();
+	//Click through MockPass - handle autocomplete/searchable dropdown
+	// Try multiple selectors for MockPass dropdown/input
+	const selectors = [
+		"select", // Standard select dropdown
+		"input[type='text']", // Text input
+		"input#id-input", // Specific ID input
+		"[data-testid='user-select']", // Test ID selector
+		".user-dropdown", // Class-based selector
+		"input", // Generic input
+	];
 
-	await page.locator("input#id-input").fill(user);
+	let elementFound = false;
+	for (const selector of selectors) {
+		const element = page.locator(selector);
+		if (await element.isVisible()) {
+			console.log(`Found element with selector: ${selector}`);
+			
+			if (selector === "select") {
+				// Handle dropdown selection
+				await element.selectOption({ label: user });
+			} else {
+				// Handle autocomplete/searchable input
+				await element.click();
+				await page.waitForTimeout(200);
+				
+				// Try different approaches to trigger dropdown
+				// Method 1: Type a space to trigger dropdown
+				await element.fill(" ");
+				await page.waitForTimeout(300);
+				await element.clear();
+				
+				// Method 2: Try typing the user name directly
+				await element.fill(user);
+				await page.waitForTimeout(500);
+				
+				// Method 3: Try pressing Enter to select
+				await element.press("Enter");
+				
+				// Method 4: Try pressing Tab to move to next field
+				await element.press("Tab");
+				
+				// Method 5: Look for dropdown options that might have appeared
+				const dropdownOption = page.locator(`text=${user}`).first();
+				if (await dropdownOption.isVisible()) {
+					await dropdownOption.click();
+				}
+				
+				// Method 6: Try clicking on any visible option
+				const anyOption = page.locator("[role='option'], .dropdown-item, .autocomplete-option").first();
+				if (await anyOption.isVisible()) {
+					await anyOption.click();
+				}
+			}
+			elementFound = true;
+			break;
+		}
+	}
+
+	if (!elementFound) {
+		throw new Error("Could not find MockPass user selection element");
+	}
 
 	//Login button shouldn't be present
 	await expect(page.getByRole("button", { name: "Login" })).not.toBeVisible({

@@ -57,7 +57,7 @@ npx playwright test --grep "should load the home page"
 
 The tests use mock accounts defined in `utils/login.ts`:
 
-- `admin` - Lim Yong Xiang (Lead Software Engineer)
+- `admin` -  Xiang (Lead Software Engineer)
 - `user` - Song Chin Yong (Senior Software Engineer)
 - Various other team members
 
