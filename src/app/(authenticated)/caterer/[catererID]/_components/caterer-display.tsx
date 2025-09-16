@@ -1,16 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-	Star,
-	MapPin,
 	Phone,
 	Mail,
 	Calculator,
-	ShoppingCart,
 	Check,
+	Calendar,
 } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
@@ -56,6 +53,15 @@ export default function CatererDisplay({
 	}>({});
 	const [deliveryCharges, setDeliveryCharges] = useState<string[]>([]);
 	const [floors, setFloors] = useState(1);
+	
+	// Background information for approval
+	const [backgroundInfo, setBackgroundInfo] = useState({
+		eventType: "",
+		eventDate: "",
+		attendees: "",
+		fundingSource: "",
+		approver: ""
+	});
 
 	// Update pax count to respect minimum order when selected menu changes
 	useEffect(() => {
@@ -196,6 +202,56 @@ export default function CatererDisplay({
 			const selections = selectedItems[section.id] || [];
 			return selections.length === section.selectionLimit;
 		});
+	};
+
+	// Export function for ChatGPT approval
+	const exportForApproval = () => {
+		if (!selectedMenu) return;
+
+		const pricing = calculateTotal();
+		
+		// Get selected items with names
+		const selectedItemsWithNames: { [sectionId: string]: string[] } = {};
+		selectedMenu.sections.forEach(section => {
+			const selectedSectionItems = selectedItems[section.id] || [];
+			selectedItemsWithNames[section.id] = selectedSectionItems.map(itemId => {
+				const item = section.items.find(i => i.id === itemId);
+				return item?.name || itemId;
+			});
+		});
+
+		// Create ChatGPT prompt
+		const exportPrompt = `**CATERING REQUEST AOR**
+
+**Background:**
+Aim and Brief Background: ${backgroundInfo.eventType || "[Not specified]"}
+Event Date/Timeline: ${backgroundInfo.eventDate || "[Not specified]"}
+Funding Source: ${backgroundInfo.fundingSource || "[Not specified]"}
+Approver: ${backgroundInfo.approver || "[Not specified]"}
+
+**Order Summary:**
+Caterer: ${caterer.name}
+Menu: ${selectedMenu.code}
+Pax Count: ${paxCount}
+Selected Items:
+${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).join(", ") || "None selected"}
+
+**Cost:**
+**TOTAL without GST (+10% Contingency): $${(pricing.total * 1.1).toFixed(2)}**`;
+
+		// Copy to clipboard
+		navigator.clipboard.writeText(exportPrompt).then(() => {
+			alert("Catering request copied to clipboard!");
+		}).catch(() => {
+			// Fallback: show in console
+			console.log("Catering Request for Approval:", exportPrompt);
+			alert("Catering request logged to console. Check browser console for details.");
+		});
+	};
+
+	// Open AOR link function
+	const openAORLink = () => {
+		window.open("https://staging.pair.gov.sg/chat?assistant=assistant_b88ee1a4-faf4-4023-b507-10b0c0c04e13", "_blank");
 	};
 
 	const pricing = calculateTotal();
@@ -596,7 +652,7 @@ export default function CatererDisplay({
 
 					{/* Order Summary */}
 					<div className="lg:col-span-1">
-						<Card className="sticky top-4">
+						<Card className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
 							<CardHeader>
 								<CardTitle className="flex items-center gap-2">
 									<Calculator className="w-5 h-5" />
@@ -606,6 +662,7 @@ export default function CatererDisplay({
 							<CardContent className="space-y-4">
 								{selectedMenu && (
 									<>
+
 										<div className="space-y-2">
 											<div className="text-sm">
 												<div className="flex justify-between items-center">
@@ -637,7 +694,7 @@ export default function CatererDisplay({
 
 										<Separator />
 
-										<div className="space-y-2">
+										<div className="space-y-2 text-sm">
 											<div className="flex justify-between">
 												<span>{selectedMenu.code}{pricing.alphabet} ({paxCount} Pax)</span>
 												<div className="text-right">
@@ -706,22 +763,93 @@ export default function CatererDisplay({
 											</span>
 										</div>
 
+										<Separator />
+
+										{/* Add to Compare Button */}
+										<Button
+											variant="outline"
+											className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+											asChild
+										>
+											<Link href={`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`}>
+												Add to Compare
+											</Link>
+										</Button>
+
+										<Separator />
+
+										{/* Background Information Form */}
+										<div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+											<h4 className="font-medium text-sm text-gray-700">Background Information for AOR</h4>
+											<div className="grid grid-cols-1 gap-2">
+												<div>
+													<Label htmlFor="eventType" className="text-xs">Aim and Brief Background</Label>
+													<Input
+														id="eventType"
+														placeholder="e.g., Event/Conference, Training/Workshop Events"
+														value={backgroundInfo.eventType}
+														onChange={(e) => setBackgroundInfo(prev => ({ ...prev, eventType: e.target.value }))}
+														className="text-xs"
+													/>
+												</div>
+												<div className="grid grid-cols-1 gap-2">
+													<div>
+														<Label htmlFor="eventDate" className="text-xs">Event Date</Label>
+														<div className="relative">
+															<Input
+																id="eventDate"
+																type="date"
+																value={backgroundInfo.eventDate}
+																onChange={(e) => setBackgroundInfo(prev => ({ ...prev, eventDate: e.target.value }))}
+																className="text-xs pr-8 w-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+															/>
+															<Calendar 
+																className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 cursor-pointer" 
+																onClick={() => document.getElementById('eventDate')?.showPicker()}
+															/>
+														</div>
+													</div>
+												</div>
+												<div>
+													<Label htmlFor="fundingSource" className="text-xs">Funding Source</Label>
+													<Input
+														id="fundingSource"
+														placeholder="e.g., Cost Centre"
+														value={backgroundInfo.fundingSource}
+														onChange={(e) => setBackgroundInfo(prev => ({ ...prev, fundingSource: e.target.value }))}
+														className="text-xs"
+													/>
+												</div>
+												<div>
+													<Label htmlFor="approver" className="text-xs">Approver</Label>
+													<Input
+														id="approver"
+														placeholder="Name of person approving"
+														value={backgroundInfo.approver}
+														onChange={(e) => setBackgroundInfo(prev => ({ ...prev, approver: e.target.value }))}
+														className="text-xs"
+													/>
+												</div>
+											</div>
+										</div>
+
 										<div className="space-y-2 pt-4">
-											<Button
-												className="w-full bg-orange-500 hover:bg-orange-600"
-												disabled={!isSelectionComplete()}
-											>
-											<a href="https://staging.pair.gov.sg/chat?assistant=assistant_b88ee1a4-faf4-4023-b507-10b0c0c04e13" target="_blank">Seek AOR Now</a>
-											</Button>
-											<Button
-												variant="outline"
-												className="w-full bg-transparent"
-												asChild
-											>
-												<Link href={`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`}>
-													Add to Compare
-												</Link>
-											</Button>
+											<div className="grid grid-cols-2 gap-2">
+												<Button 
+													onClick={exportForApproval}
+													className="bg-orange-500 hover:bg-orange-600"
+													disabled={!isSelectionComplete()}
+												>
+													<Calculator className="w-4 h-4 mr-2" />
+													Copy for AOR
+												</Button>
+												<Button 
+													onClick={openAORLink}
+													className="bg-blue-500 hover:bg-blue-600"
+												>
+													Open AOR Builder
+												</Button>
+											</div>
 										</div>
 
 										{!isSelectionComplete() && (
