@@ -204,6 +204,51 @@ export default function CatererDisplay({
 		});
 	};
 
+	// Check if deep fried items exceed the maximum allowed
+	const getDeepFriedCount = () => {
+		if (!selectedMenu) return 0;
+		
+		let deepFriedCount = 0;
+		selectedMenu.sections.forEach(section => {
+			const selectedSectionItems = selectedItems[section.id] || [];
+			selectedSectionItems.forEach(itemId => {
+				const item = section.items.find(i => i.id === itemId);
+				if (item?.fried) {
+					deepFriedCount++;
+				}
+			});
+		});
+		return deepFriedCount;
+	};
+
+	const canSelectItem = (sectionId: string, itemId: string) => {
+		if (!selectedMenu) return false;
+		
+		const section = selectedMenu.sections.find(s => s.id === sectionId);
+		if (!section) return false;
+		
+		const item = section.items.find(i => i.id === itemId);
+		if (!item) return false;
+		
+		// Check if item is already selected
+		const isSelected = selectedItems[sectionId]?.includes(itemId) || false;
+		if (isSelected) return true; // Can deselect
+		
+		// Check section selection limit
+		const currentSelections = selectedItems[sectionId]?.length || 0;
+		if (currentSelections >= section.selectionLimit) return false;
+		
+		// Check deep fried limit if item is fried
+		if (item.fried) {
+			const currentDeepFriedCount = getDeepFriedCount();
+			if (currentDeepFriedCount >= (selectedMenu.maxFriedItems || 0)) {
+				return false;
+			}
+		}
+		
+		return true;
+	};
+
 	// Export function for ChatGPT approval
 	const exportForApproval = () => {
 		if (!selectedMenu) return;
@@ -567,6 +612,11 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 													<p className="text-xs text-blue-600">
 														Select {section.selectionLimit} item(s)
 													</p>
+													{selectedMenu && selectedMenu.maxFriedItems > 0 && (
+														<p className="text-xs text-orange-600 mt-1">
+															Number of Deep Fried Items Selected: {getDeepFriedCount()}/{selectedMenu.maxFriedItems}
+														</p>
+													)}
 												</div>
 
 												<div className="grid gap-3">
@@ -574,11 +624,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 														const isSelected =
 															selectedItems[section.id]?.includes(item.id) ||
 															false;
-														const currentSelections =
-															selectedItems[section.id]?.length || 0;
-														const canSelect =
-															currentSelections < section.selectionLimit ||
-															isSelected;
+														const canSelect = canSelectItem(section.id, item.id);
 
 														return (
 															<div
@@ -599,6 +645,13 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 																		);
 																	}
 																}}
+																title={
+																	!canSelect && item.fried && getDeepFriedCount() >= (selectedMenu?.maxFriedItems || 0)
+																		? "Deep fried limit reached"
+																		: !canSelect
+																		? "Selection limit reached for this section"
+																		: ""
+																}
 															>
 																<div className="flex items-start space-x-3">
 																	<Checkbox
