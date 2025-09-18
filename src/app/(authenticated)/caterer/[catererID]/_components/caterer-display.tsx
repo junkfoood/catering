@@ -562,7 +562,14 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 													id="floors"
 													type="number"
 													value={floors}
-													onChange={(e) => setFloors(Number(e.target.value) || 1)}
+													onChange={(e) => {
+														const newValue = Number.parseInt(e.target.value) || 0;
+														setFloors(newValue);
+													}}
+													onBlur={(e) => {
+														const newValue = Number.parseInt(e.target.value) || 1;
+														setFloors(newValue);
+													}}
 													min={1}
 													className="w-20 mt-1"
 												/>
