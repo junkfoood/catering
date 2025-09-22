@@ -266,7 +266,7 @@ export default function CatererDisplay({
 		});
 
 		// Create ChatGPT prompt
-		const exportPrompt = `**PLEASE DRAFT THE FOLLOWINGCATERING REQUEST AOR**
+		const exportPrompt = `**PLEASE DRAFT THE FOLLOWING CATERING REQUEST AOR**
 
 **Background:**
 Aim and Brief Background: ${backgroundInfo.eventType || "[Not specified]"}
