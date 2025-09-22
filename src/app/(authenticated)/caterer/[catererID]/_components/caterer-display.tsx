@@ -266,7 +266,7 @@ export default function CatererDisplay({
 		});
 
 		// Create ChatGPT prompt
-		const exportPrompt = `**CATERING REQUEST AOR**
+		const exportPrompt = `**PLEASE DRAFT THE FOLLOWINGCATERING REQUEST AOR**
 
 **Background:**
 Aim and Brief Background: ${backgroundInfo.eventType || "[Not specified]"}
@@ -620,7 +620,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 														Select {section.selectionLimit} item(s)
 													</p>
 													{selectedMenu && selectedMenu.maxFriedItems > 0 && (
-														<p className="text-xs text-orange-600 mt-1">
+														<p className="text-xs text-orange-900 mt-1">
 															Number of Deep Fried Items Selected: {getDeepFriedCount()}/{selectedMenu.maxFriedItems}
 														</p>
 													)}
@@ -874,7 +874,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 													<Label htmlFor="fundingSource" className="text-xs">Funding Source</Label>
 													<Input
 														id="fundingSource"
-														placeholder="e.g., Cost Centre"
+														placeholder="e.g., Cost Centre GVT_CC1234"
 														value={backgroundInfo.fundingSource}
 														onChange={(e) => setBackgroundInfo(prev => ({ ...prev, fundingSource: e.target.value }))}
 														className="text-xs"
