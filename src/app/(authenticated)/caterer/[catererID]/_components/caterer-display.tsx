@@ -296,7 +296,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 
 	// Open AOR link function
 	const openAORLink = () => {
-		window.open("https://staging.pair.gov.sg/chat?assistant=assistant_b88ee1a4-faf4-4023-b507-10b0c0c04e13", "_blank");
+		window.open("https://aibots.gov.sg/chats/aor-buddy", "_blank");
 	};
 
 	const pricing = calculateTotal();
