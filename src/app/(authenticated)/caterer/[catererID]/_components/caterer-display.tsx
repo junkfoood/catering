@@ -141,8 +141,8 @@ export default function CatererDisplay({
 		
 		// Calculate additional delivery fees (surcharges) - now alphabet is available
 		if (deliveryCharges.includes("cbd")) {
-			additionalDelivery += 35;
-			additionalDeliveryItems.push({ label: `[Catering 002 ${alphabet}] Delivery Charge - Delivery to Central Business District (CBD) areas which will pass through ERPs`, amount: 35 });
+			additionalDelivery += 5;
+			additionalDeliveryItems.push({ label: `[Catering 002 ${alphabet}] Delivery Charge - Delivery to Central Business District (CBD) areas which will pass through ERPs`, amount: 5 });
 		}
 		if (deliveryCharges.includes("odd-hours")) {
 			additionalDelivery += 30;
@@ -265,7 +265,7 @@ export default function CatererDisplay({
 			});
 		});
 
-		// Create ChatGPT prompt
+		// Create prompt
 		const exportPrompt = `**PLEASE DRAFT THE FOLLOWING CATERING REQUEST AOR**
 
 **Background:**
@@ -491,7 +491,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 													}
 												}}
 											>
-												CBD areas which will pass through ERPs (+$35)
+												CBD areas which will pass through ERPs (+$5)
 											</Label>
 										</div>
 										<div className="flex items-center space-x-2">
