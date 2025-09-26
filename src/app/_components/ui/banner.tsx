@@ -19,7 +19,7 @@ export const Banner = () => {
 						<div className="flex items-center gap-2">
                         ⚠️ 
 							<div className="flex flex-wrap items-center gap-2">
-                                <strong>Disclaimer:</strong> This site is for price and menu comparison only. Information may not reflect the latest updates. Please check the official GeBiz{" "}
+                                <strong>Disclaimer:</strong> This site is for price and menu comparison only. Information may not reflect the latest updates. Please check VITAL infosite at{" "}
 									<a
 										href="https://sgdcs.sgnet.gov.sg/sites/VITAL-pts/SitePages/CateringServices(2024-2027).aspx"
 										className="text-blue-600 underline hover:text-blue-800 font-semibold"
