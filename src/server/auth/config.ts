@@ -19,6 +19,8 @@ type PublicOfficerDetails = {
 const REDIRECT_URI = `${env.APP_PROTOCOL}://${env.APP_URL ?? env.VERCEL_URL}/api/auth/callback/sgid`;
 const WOG_REDIRECT_URI = `https://catering.gov.sg/api/auth/callback/microsoft`;
 
+console.log("WOG_REDIRECT_URI:", WOG_REDIRECT_URI);
+
 const SGID_CLIENT = () =>
 	new SgidClient({
 		clientId: env.SGID_CLIENT_ID,
@@ -148,11 +150,6 @@ export const authConfig = {
 			clientId: env.AUTH_WOG_APPLICATION_ID,
 			clientSecret: env.AUTH_WOG_SECRET,
 			issuer: `https://login.microsoftonline.com/${env.AUTH_WOG_DIRECTORY_ID}/v2.0`,
-			authorization: {
-				params: {
-					redirect_uri: WOG_REDIRECT_URI,
-				},
-			},
 		}),
 		{
 			id: "sgid",
