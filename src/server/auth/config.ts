@@ -133,10 +133,20 @@ export const authConfig = {
 	},
 	providers: [
 		MicrosoftEntraID({
+			id: "microsoft-entra-id",
+			name: "TechPassID",
 			allowDangerousEmailAccountLinking: true,
 			clientId: env.AUTH_TECHPASS_APPLICATION_ID,
 			clientSecret: env.AUTH_TECHPASS_SECRET,
 			issuer: `https://login.microsoftonline.com/${env.AUTH_TECHPASS_DIRECTORY_ID}/v2.0`,
+		}),
+		MicrosoftEntraID({
+			id: "microsoft",
+			name: "WOG Entra ID",
+			allowDangerousEmailAccountLinking: true,
+			clientId: env.AUTH_WOG_APPLICATION_ID,
+			clientSecret: env.AUTH_WOG_SECRET,
+			issuer: `https://login.microsoftonline.com/${env.AUTH_WOG_DIRECTORY_ID}/v2.0`,
 		}),
 		{
 			id: "sgid",

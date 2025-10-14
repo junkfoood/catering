@@ -59,6 +59,19 @@ export const env = createEnv({
 			process.env.NODE_ENV === "production"
 				? z.string().min(1)
 				: z.string().min(1).optional(),
+		// WOG Entra ID
+		AUTH_WOG_DIRECTORY_ID:
+			process.env.NODE_ENV === "production"
+				? z.string().min(1)
+				: z.string().min(1).optional(),
+		AUTH_WOG_APPLICATION_ID:
+			process.env.NODE_ENV === "production"
+				? z.string().min(1)
+				: z.string().min(1).optional(),
+		AUTH_WOG_SECRET:
+			process.env.NODE_ENV === "production"
+				? z.string().min(1)
+				: z.string().min(1).optional(),
 		FEATURE_FLAG_MOCKPASS: booleanStringSchema.optional().default(false),
 	},
 
@@ -90,6 +103,9 @@ export const env = createEnv({
 		AUTH_TECHPASS_DIRECTORY_ID: process.env.AUTH_TECHPASS_DIRECTORY_ID,
 		AUTH_TECHPASS_APPLICATION_ID: process.env.AUTH_TECHPASS_APPLICATION_ID,
 		AUTH_TECHPASS_SECRET: process.env.AUTH_TECHPASS_SECRET,
+		AUTH_WOG_DIRECTORY_ID: process.env.AUTH_WOG_DIRECTORY_ID,
+		AUTH_WOG_APPLICATION_ID: process.env.AUTH_WOG_APPLICATION_ID,
+		AUTH_WOG_SECRET: process.env.AUTH_WOG_SECRET,
 		FEATURE_FLAG_MOCKPASS: process.env.FEATURE_FLAG_MOCKPASS,
 	},
 	/**

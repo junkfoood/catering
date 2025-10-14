@@ -29,8 +29,19 @@ const NavbarLoginButton = React.forwardRef<
 							<Button>Login</Button>
 						</PopoverTrigger>
 						<PopoverContent className="flex flex-col items-stretch gap-4 bg-white">
-							<Button disabled className="bg-blue-500 hover:bg-blue-400">
-								WOG Entra ID (Coming Soon)
+							<Button
+								disabled={env.AUTH_WOG_APPLICATION_ID === undefined}
+								onClick={async () => {
+									"use server";
+
+									await signIn("microsoft", {
+										redirectTo: "/menu",
+									});
+								}}
+								className="bg-blue-500 hover:bg-blue-400"
+							>
+								<Key />
+								WOG Entra ID
 							</Button>
 							<Button
 								disabled={env.AUTH_TECHPASS_APPLICATION_ID === undefined}
