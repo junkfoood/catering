@@ -17,7 +17,7 @@ type PublicOfficerDetails = {
 };
 
 const REDIRECT_URI = `${env.APP_PROTOCOL}://${env.APP_URL ?? env.VERCEL_URL}/api/auth/callback/sgid`;
-const WOG_REDIRECT_URI = `${env.APP_PROTOCOL}://${env.APP_URL1 ?? env.APP_URL ?? env.VERCEL_URL}/api/auth/callback/microsoft`;
+const WOG_REDIRECT_URI = `https://catering.gov.sg/api/auth/callback/microsoft`;
 
 const SGID_CLIENT = () =>
 	new SgidClient({
