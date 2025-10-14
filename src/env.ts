@@ -38,6 +38,7 @@ export const env = createEnv({
 			.optional()
 			.default("https"),
 		APP_URL: z.string().optional(),
+		APP_URL1: z.string().optional(),
 		VERCEL_URL: z.string().optional().default("localhost:3000"),
 		SGID_CLIENT_ID: z.string().min(1),
 		SGID_CLIENT_SECRET: z.string().min(1),
@@ -89,6 +90,7 @@ export const env = createEnv({
 	runtimeEnv: {
 		APP_PROTOCOL: process.env.APP_PROTOCOL,
 		APP_URL: process.env.APP_URL,
+		APP_URL1: process.env.APP_URL1,
 		DATABASE_URL: process.env.DATABASE_URL,
 		NODE_ENV: process.env.NODE_ENV,
 		AUTH_SECRET: process.env.AUTH_SECRET,
