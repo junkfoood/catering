@@ -155,6 +155,7 @@ export const authConfig = {
 					redirect_uri: WOG_REDIRECT_URI,
 				},
 			},
+			callbackUrl: WOG_REDIRECT_URI,
 		}),
 		{
 			id: "sgid",
