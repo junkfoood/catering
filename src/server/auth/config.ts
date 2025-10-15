@@ -150,12 +150,6 @@ export const authConfig = {
 			clientId: env.AUTH_WOG_APPLICATION_ID,
 			clientSecret: env.AUTH_WOG_SECRET,
 			issuer: `https://login.microsoftonline.com/${env.AUTH_WOG_DIRECTORY_ID}/v2.0`,
-			authorization: {
-				params: {
-					redirect_uri: WOG_REDIRECT_URI,
-				},
-			},
-			callbackUrl: WOG_REDIRECT_URI,
 		}),
 		{
 			id: "sgid",

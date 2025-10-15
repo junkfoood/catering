@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "www.catering.gov.sg/(.*)",
+      "destination": "https://catering.gov.sg/$1",
+      "permanent": true
+    }
+  ]
+}
