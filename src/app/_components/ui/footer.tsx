@@ -6,7 +6,7 @@ const Footer = () => {
 		<div className="flex flex-col gap-8 bg-neutral-800 px-4 py-10 text-white lg:px-32">
 			<p className="text-3xl font-bold">Where's the Food</p>
 			<div className="flex flex-col">
-				<p>Built by...</p>
+				<p>Bringing Bytes to Bites</p>
 			</div>
 			<div className="flex gap-4 text-sm">
 				<Link href="https://www.tech.gov.sg/contact-us/">Contact Us</Link>
