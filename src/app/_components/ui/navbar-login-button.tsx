@@ -57,7 +57,7 @@ const NavbarLoginButton = React.forwardRef<
 								<Key />
 								Login with TechPass
 							</Button>
-							{env.FEATURE_FLAG_MOCKPASS && (
+							{/* {env.FEATURE_FLAG_MOCKPASS && (
 								<Button
 									className="hover: cursor-pointer bg-red-500 hover:bg-red-400"
 									onClick={async () => {
@@ -83,7 +83,7 @@ const NavbarLoginButton = React.forwardRef<
 									</svg>
 									Login with sgID
 								</Button>
-							)}
+							)} */}
 							<p className="text-muted-foreground text-center text-sm font-medium">
 								Not on TechPass?{" "}
 								<Link
