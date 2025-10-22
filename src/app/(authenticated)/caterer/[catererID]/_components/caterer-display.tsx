@@ -53,6 +53,7 @@ export default function CatererDisplay({
 	}>({});
 	const [deliveryCharges, setDeliveryCharges] = useState<string[]>([]);
 	const [floors, setFloors] = useState(1);
+	const [includeAdminFee, setIncludeAdminFee] = useState(false);
 	
 	// Background information for approval
 	const [backgroundInfo, setBackgroundInfo] = useState({
@@ -177,7 +178,7 @@ export default function CatererDisplay({
 		// Calculate admin fee on the total after discounts (subtotal + delivery - discount)
 		const discountedSubtotal = subtotal * (1 - discountRate);
 		const discountedDelivery = totalDelivery * (1 - discountRate);
-		const adminFee = (discountedSubtotal + discountedDelivery) * 0.015; // 1.5% admin fee
+		const adminFee = includeAdminFee ? (discountedSubtotal + discountedDelivery) * 0.015 : 0; // 1.5% admin fee
 		
 		const total = discountedSubtotal + discountedDelivery + adminFee;
 
@@ -808,9 +809,21 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 												</div>
 											))}
 											
-											<div className="flex justify-between">
-												<span>Admin Fee 1.5%</span>
-												<span>${pricing.adminFee.toFixed(2)}</span>
+											{/* Admin Fee Toggle */}
+											<div className="flex items-center justify-between py-2">
+												<div className="flex items-center space-x-2">
+													<input
+														type="checkbox"
+														id="includeAdminFee"
+														checked={includeAdminFee}
+														onChange={(e) => setIncludeAdminFee(e.target.checked)}
+														className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+													/>
+													<label htmlFor="includeAdminFee" className="text-sm text-gray-700">
+														Include Admin Fee (1.5%)
+													</label>
+												</div>
+												<span className="text-sm font-medium">${pricing.adminFee.toFixed(2)}</span>
 											</div>
 										</div>
 
@@ -840,7 +853,15 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 
 										{/* Background Information Form */}
 										<div className="space-y-3 p-3 bg-gray-50 rounded-lg">
-											<h4 className="font-medium text-sm text-gray-700">Background Information for AOR</h4>
+											<div className="flex items-center gap-2">
+												<h4 className="font-medium text-sm text-gray-700">Background Information for AOR</h4>
+												<div className="group relative">
+													<span className="text-gray-700 cursor-help text-sm">ⓘ</span>
+													<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 max-w-sm">
+														For reference only. Agencies are still required to follow their own agency's AOR template
+													</div>
+												</div>
+											</div>
 											<div className="grid grid-cols-1 gap-2">
 												<div>
 													<Label htmlFor="eventType" className="text-xs">Aim and Brief Background</Label>

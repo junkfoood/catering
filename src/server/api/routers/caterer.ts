@@ -6,6 +6,9 @@ export const catererRouter = createTRPCRouter({
 	getCaterers: activeUserProcedure.query(async ({ ctx }) => {
 		return await ctx.db.caterer.findMany({
 			include: includeCatererData,
+			orderBy: {
+				name: 'asc',
+			},
 		});
 	}),
 	getCaterersPaginated: activeUserProcedure
@@ -21,6 +24,9 @@ export const catererRouter = createTRPCRouter({
 					skip: input.skip,
 					take: input.take,
 					include: includeCatererData,
+					orderBy: {
+						name: 'asc',
+					},
 				}),
 				ctx.db.caterer.count(),
 			]);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, MapPin, Star, Filter, Loader2 } from "lucide-react";
+import { Search, MapPin, Star, Filter, Loader2, ChevronDown, Type, List } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
@@ -10,6 +10,7 @@ import { Slider } from "@components/ui/slider";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { Separator } from "@components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import type { CatererListData } from "~/server/api/routers/caterer";
 import { PageShell } from "~/app/_components/ui/page-shell";
 import { CatererMenuType } from "@prisma/client";
@@ -35,6 +36,8 @@ export default function CaterersDisplay({
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+	const [searchMode, setSearchMode] = useState<"text" | "dropdown">("text");
+	const [selectedCaterer, setSelectedCaterer] = useState<string>("all");
 
 
 
@@ -102,9 +105,9 @@ export default function CaterersDisplay({
 			//Filtering for Budget
 			const matchesBudget = menu.pricePerPerson >= budget[0] && menu.pricePerPerson <= budget[1];
 
-			const matchesSearch =
-				searchQuery.trim() === "" ||
-				vendor.name.toLowerCase().includes(searchQuery.toLowerCase());
+			const matchesSearch = searchMode === "text" 
+				? (searchQuery.trim() === "" || vendor.name.toLowerCase().includes(searchQuery.toLowerCase()))
+				: (selectedCaterer === "all" || vendor.name === selectedCaterer);
 
 			//Filtering for Location (show only menus that can deliver to selected areas)
 			let matchesLocation = true;
@@ -168,18 +171,76 @@ export default function CaterersDisplay({
 						<h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
 							Find the Perfect Caterer for Your Event
 						</h1><br></br>
-						<div className="max-w-2xl mx-auto relative">
-							<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-							<Input
-								type="text"
-								placeholder="Search for caterer name..."
-								className="pl-12 pr-4 py-4 text-lg rounded-full border-2 border-orange-200 focus:border-orange-400"
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-							{/*<Button className="absolute right-0 top-1/2 transform -translate-y-1/2 -mt-5 rounded-full bg-orange-500 hover:bg-orange-600">
-								Search
-							</Button>*/}
+						<div className="max-w-2xl mx-auto">
+							{/* Search Mode Toggle */}
+							<div className="flex justify-center mb-4">
+								<div className="flex bg-gray-100 rounded-lg p-1">
+									<Button
+										variant={searchMode === "text" ? "default" : "ghost"}
+										size="sm"
+										onClick={() => {
+											setSearchMode("text");
+											setSelectedCaterer("all");
+										}}
+										className="flex items-center gap-2"
+									>
+										<Type className="w-4 h-4" />
+										Free Text
+									</Button>
+									<Button
+										variant={searchMode === "dropdown" ? "default" : "ghost"}
+										size="sm"
+										onClick={() => {
+											setSearchMode("dropdown");
+											setSearchQuery("");
+										}}
+										className="flex items-center gap-2"
+									>
+										<List className="w-4 h-4" />
+										Dropdown
+									</Button>
+								</div>
+							</div>
+							
+							{/* Search Input */}
+							<div className="relative">
+								{searchMode === "text" ? (
+									<>
+										<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+										<Input
+											type="text"
+											placeholder="Search for caterer name..."
+											className="pl-12 pr-4 py-4 text-lg rounded-full border-2 border-orange-200 focus:border-orange-400"
+											value={searchQuery}
+											onChange={(e) => setSearchQuery(e.target.value)}
+										/>
+									</>
+								) : (
+									<div>
+										{allCaterers && allCaterers.length > 0 ? (
+											<Select value={selectedCaterer} onValueChange={setSelectedCaterer}>
+												<SelectTrigger className="py-4 text-lg rounded-full border-2 border-orange-200 focus:border-orange-400">
+													<SelectValue placeholder="Select a caterer..." />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="all">All Caterers</SelectItem>
+													{allCaterers
+														.sort((a, b) => a.name.localeCompare(b.name))
+														.map((caterer) => (
+															<SelectItem key={caterer.id} value={caterer.name}>
+																{caterer.name}
+															</SelectItem>
+														))}
+												</SelectContent>
+											</Select>
+										) : (
+											<div className="py-4 px-4 text-lg rounded-full border-2 border-orange-200 bg-gray-50 text-gray-500 text-center">
+												Loading caterers...
+											</div>
+										)}
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
 				</section>
@@ -300,10 +361,9 @@ export default function CaterersDisplay({
 									const imageSrc = vendor.imageFile
 									? `/vendor-images/${vendor.imageFile}`
 									: `/vendor-images/400x400.svg`;
-								console.log(`Vendor: ${vendor.name}, Image: ${imageSrc}`);
 
 									return (
-										<Card key={vendor.id + menu.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+										<Card key={`${vendor.id}-${menu.id}`} className="overflow-hidden hover:shadow-lg transition-shadow">
 											<div className="md:flex">
 												<div className="md:w-1/3 h-45">
 													<img
