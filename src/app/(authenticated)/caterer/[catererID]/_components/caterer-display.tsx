@@ -819,8 +819,12 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 														onChange={(e) => setIncludeAdminFee(e.target.checked)}
 														className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
 													/>
-													<label htmlFor="includeAdminFee" className="text-sm text-gray-700">
-														Include Admin Fee (1.5%)
+													<label htmlFor="includeAdminFee" className="text-sm text-gray-700 group relative">
+														Include Admin Fee (1.5%) 
+													<span className="text-gray-700 cursor-help text-sm">ⓘ</span>
+													<div className="absolute top-full left-0 mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64">
+													VITAL charges a 1.5% admin fee for catering DA contract orders
+													</div> 
 													</label>
 												</div>
 												<span className="text-sm font-medium">${pricing.adminFee.toFixed(2)}</span>
@@ -857,8 +861,8 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 												<h4 className="font-medium text-sm text-gray-700">Background Information for AOR</h4>
 												<div className="group relative">
 													<span className="text-gray-700 cursor-help text-sm">ⓘ</span>
-													<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 max-w-sm">
-														For reference only. Agencies are still required to follow their own agency's AOR template
+													<div className="absolute top-full right-0 mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 max-w-sm">
+													AOR builder is for reference only. Agencies are still required to follow their own agency's AOR template
 													</div>
 												</div>
 											</div>

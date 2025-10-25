@@ -23,11 +23,11 @@ export default function CaterersDisplay({
 	totalCaterers,
 	hasMore,
 }: {
-	initialCaterers: CatererListData[];
+	initialCaterers: CatererListData[] | null;
 	totalCaterers: number;
 	hasMore: boolean;
 }) {
-	const [allCaterers, setAllCaterers] = useState<CatererListData[]>(initialCaterers);
+	const [allCaterers, setAllCaterers] = useState<CatererListData[]>(initialCaterers || []);
 
 
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -153,7 +153,15 @@ export default function CaterersDisplay({
 	// Update allCaterers when batch data is loaded
 	useEffect(() => {
 		if (batchData && batchData.caterers.length > 0) {
-			setAllCaterers(prev => [...prev, ...batchData.caterers]);
+			setAllCaterers(prev => {
+				// Create a map to track existing caterers by ID
+				const existingCaterers = new Map(prev.map(caterer => [caterer.id, caterer]));
+				
+				// Add new caterers, skipping duplicates
+				const newCaterers = batchData.caterers.filter(caterer => !existingCaterers.has(caterer.id));
+				
+				return [...prev, ...newCaterers];
+			});
 			setIsLoadingMore(false);
 		}
 	}, [batchData]);
@@ -197,7 +205,7 @@ export default function CaterersDisplay({
 										className="flex items-center gap-2"
 									>
 										<List className="w-4 h-4" />
-										Dropdown
+										Select Contractor from Dropdown List
 									</Button>
 								</div>
 							</div>
