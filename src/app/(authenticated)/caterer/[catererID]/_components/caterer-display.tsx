@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
 	Phone,
 	Mail,
@@ -40,6 +41,7 @@ export default function CatererDisplay({
 	caterer: CatererData;
 	initialMenuId?: string;
 }) {
+	const router = useRouter();
 	const [selectedMenu, setSelectedMenu] = useState<CatererMenuData | null>(() => {
 		if (initialMenuId) {
 			const menu = caterer.menus.find(m => m.id === initialMenuId);
@@ -820,11 +822,9 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 														className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
 													/>
 													<label htmlFor="includeAdminFee" className="text-sm text-gray-700 group relative">
-														Include Admin Fee (1.5%) 
-													<span className="text-gray-700 cursor-help text-sm">ⓘ</span>
-													<div className="absolute top-full left-0 mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64">
-													VITAL charges a 1.5% admin fee for catering DA contract orders
-													</div> 
+														Include Admin Fee (1.5%)
+														<br />
+														(Note: VITAL charges a 1.5% admin fee for catering DA contract orders)
 													</label>
 												</div>
 												<span className="text-sm font-medium">${pricing.adminFee.toFixed(2)}</span>
@@ -846,11 +846,14 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 										<Button
 											variant="outline"
 											className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-											asChild
+											onClick={() => {
+												// Prefetch the comparison page data
+												router.prefetch(`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`);
+												// Open in new tab
+												window.open(`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`, '_blank');
+											}}
 										>
-											<Link href={`/comparison?caterer=${caterer.id}&menu=${selectedMenu?.id}`} target="_blank">
-												Add to Compare
-											</Link>
+											Add to Compare
 										</Button>
 
 										<Separator />
@@ -858,12 +861,9 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 										{/* Background Information Form */}
 										<div className="space-y-3 p-3 bg-gray-50 rounded-lg">
 											<div className="flex items-center gap-2">
-												<h4 className="font-medium text-sm text-gray-700">Background Information for AOR</h4>
-												<div className="group relative">
-													<span className="text-gray-700 cursor-help text-sm">ⓘ</span>
-													<div className="absolute top-full right-0 mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 max-w-sm">
-													AOR builder is for reference only. Agencies are still required to follow their own agency's AOR template
-													</div>
+												<div className="text-sm text-gray-700">
+													<div className="font-medium">Background Information for AOR</div>
+													<div className="mt-1">Note: AOR builder is for reference only. as agencies are still required to follow their own agency's AOR template</div>
 												</div>
 											</div>
 											<div className="grid grid-cols-1 gap-2">

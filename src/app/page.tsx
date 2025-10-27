@@ -3,7 +3,6 @@
 export const dynamic = "force-dynamic";
 
 import { PageShell } from "@components/ui/page-shell";
-import { ClientAuthRedirect } from "./_components/client-auth-redirect";
 import SplitText from "./_components/ui/split-text";
 
 export default function LandingPage() {
@@ -11,7 +10,6 @@ export default function LandingPage() {
 		<PageShell
 			body={
 				<>
-					<ClientAuthRedirect />
 					<div className="relative flex min-h-[400px] sm:h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg px-4">
 					<SplitText
 						text="Welcome to (W)here's (t)he (F)ood!"

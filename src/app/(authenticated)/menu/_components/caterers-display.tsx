@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Search, MapPin, Star, Filter, Loader2, ChevronDown, Type, List } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
@@ -15,6 +15,7 @@ import type { CatererListData } from "~/server/api/routers/caterer";
 import { PageShell } from "~/app/_components/ui/page-shell";
 import { CatererMenuType } from "@prisma/client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { routeFormatter } from "~/utils/route";
 import { api } from "~/trpc/react";
 
@@ -27,6 +28,7 @@ export default function CaterersDisplay({
 	totalCaterers: number;
 	hasMore: boolean;
 }) {
+	const router = useRouter();
 	const [allCaterers, setAllCaterers] = useState<CatererListData[]>(initialCaterers || []);
 
 
@@ -34,11 +36,26 @@ export default function CaterersDisplay({
 	const [hasLoadedAll, setHasLoadedAll] = useState(!hasMore);
 	const [budget, setBudget] = useState<[number, number]>([3, 60]);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 	const [searchMode, setSearchMode] = useState<"text" | "dropdown">("text");
 	const [selectedCaterer, setSelectedCaterer] = useState<string>("all");
+	const dropdownRef = useRef<HTMLDivElement>(null);
 
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setIsDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
 
 
 	const handleCategoryChange = (category: string, checked: boolean) => {
@@ -150,6 +167,15 @@ export default function CaterersDisplay({
 		}
 	);
 
+	// Preload dropdown data in the background
+	const { data: dropdownData } = api.caterer.getCaterersPaginated.useQuery(
+		{ skip: 0, take: 100 },
+		{
+			staleTime: 5 * 60 * 1000, // 5 minutes
+			refetchOnWindowFocus: false,
+		}
+	);
+
 	// Update allCaterers when batch data is loaded
 	useEffect(() => {
 		if (batchData && batchData.caterers.length > 0) {
@@ -185,27 +211,25 @@ export default function CaterersDisplay({
 								<div className="flex bg-gray-100 rounded-lg p-1">
 									<Button
 										variant={searchMode === "text" ? "default" : "ghost"}
-										size="sm"
 										onClick={() => {
 											setSearchMode("text");
 											setSelectedCaterer("all");
 										}}
-										className="flex items-center gap-2"
+										className="flex items-center gap-2 py-4 px-4 text-lg h-auto"
 									>
 										<Type className="w-4 h-4" />
 										Free Text
 									</Button>
 									<Button
 										variant={searchMode === "dropdown" ? "default" : "ghost"}
-										size="sm"
 										onClick={() => {
 											setSearchMode("dropdown");
 											setSearchQuery("");
 										}}
-										className="flex items-center gap-2"
+										className="flex items-center gap-2 py-4 px-4 text-lg h-auto"
 									>
 										<List className="w-4 h-4" />
-										Select Contractor from Dropdown List
+										Select Caterer from Dropdown List
 									</Button>
 								</div>
 							</div>
@@ -224,26 +248,60 @@ export default function CaterersDisplay({
 										/>
 									</>
 								) : (
-									<div>
-										{allCaterers && allCaterers.length > 0 ? (
-											<Select value={selectedCaterer} onValueChange={setSelectedCaterer}>
-												<SelectTrigger className="py-4 text-lg rounded-full border-2 border-orange-200 focus:border-orange-400">
-													<SelectValue placeholder="Select a caterer..." />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="all">All Caterers</SelectItem>
-													{allCaterers
-														.sort((a, b) => a.name.localeCompare(b.name))
-														.map((caterer) => (
-															<SelectItem key={caterer.id} value={caterer.name}>
-																{caterer.name}
-															</SelectItem>
-														))}
-												</SelectContent>
-											</Select>
-										) : (
-											<div className="py-4 px-4 text-lg rounded-full border-2 border-orange-200 bg-gray-50 text-gray-500 text-center">
-												Loading caterers...
+									<div className="relative" ref={dropdownRef}>
+										<button
+											type="button"
+											className="w-full pl-12 pr-4 py-4 text-lg rounded-full border-2 border-orange-200 focus:border-orange-400 text-left bg-white flex items-center justify-between"
+											onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+										>
+											<div className="flex items-center">
+												<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+												<span className={selectedCaterer !== "all" ? "text-gray-900" : "text-gray-500"}>
+													{selectedCaterer === "all" ? "Select a caterer..." : selectedCaterer}
+												</span>
+											</div>
+											<svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+											</svg>
+										</button>
+										
+										{isDropdownOpen && (
+											<div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+												{/* Dropdown list */}
+												<div className="max-h-60 overflow-y-auto">
+													{/* All Caterers option */}
+													<div
+														className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 text-left"
+														onClick={() => {
+															setSelectedCaterer("all");
+															setIsDropdownOpen(false);
+														}}
+													>
+														<div className="font-medium text-sm text-left">All Caterers</div>
+													</div>
+													
+													{dropdownData?.caterers && dropdownData.caterers.length > 0 ? (
+														dropdownData.caterers
+															.sort((a, b) => a.name.localeCompare(b.name))
+															.map((caterer) => (
+																<div
+																	key={caterer.id}
+																	className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 text-left"
+																	onClick={() => {
+																		setSelectedCaterer(caterer.name);
+																		setIsDropdownOpen(false);
+																	}}
+																>
+																	<div className="font-medium text-sm text-left">{caterer.name}</div>
+																	<div className="text-xs text-gray-500 text-left">{caterer.menus.length} menu(s)</div>
+																</div>
+															))
+													) : (
+														<div className="px-3 py-2 text-sm text-gray-500 text-center">
+															No caterers available
+														</div>
+													)}
+												</div>
 											</div>
 										)}
 									</div>
@@ -413,11 +471,14 @@ export default function CaterersDisplay({
 														<Button
 															variant="outline"
 															className="flex-1 bg-transparent"
-															asChild
+															onClick={() => {
+																// Prefetch the comparison page data
+																router.prefetch(`/comparison?caterer=${vendor.id}&menu=${menu.id}`);
+																// Open in new tab
+																window.open(`/comparison?caterer=${vendor.id}&menu=${menu.id}`, '_blank');
+															}}
 														>
-															<Link href="/comparison">
-																Compare
-															</Link>
+															Compare
 														</Button>
 													</div>
 												</div>

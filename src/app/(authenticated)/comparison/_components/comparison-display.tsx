@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus, X, Trash2, Eye } from "lucide-react";
+import { Plus, X, Trash2, Eye, Search, List } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Badge } from "@components/ui/badge";
@@ -26,38 +26,103 @@ export default function ComparisonDisplay() {
 	const [comparisonItems, setComparisonItems] = useState<ComparisonItem[]>([]);
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [searchMode, setSearchMode] = useState<"text" | "dropdown">("text");
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
 	const [budget, setBudget] = useState<[number, number]>([3, 60]);
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+	const dropdownRef = useRef<HTMLDivElement>(null);
 
-	// Fetch all caterers for the add dialog
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setIsDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
+
+	// Fetch all caterers for the add dialog (preload for dropdown)
 	const { data: allCaterers, isLoading } = api.caterer.getCaterersPaginated.useQuery(
 		{ skip: 0, take: 100 }, // Get more caterers for selection
-		{ staleTime: 5 * 60 * 1000 }
+		{ 
+			staleTime: 5 * 60 * 1000,
+			refetchOnWindowFocus: false,
+		}
 	);
 
-	// Auto-populate caterer from URL parameters
+	// Get URL parameters for faster loading
+	const catererId = searchParams.get('caterer');
+	const menuId = searchParams.get('menu');
+
+	// Suppress tRPC console errors for invalid queries (optional)
 	useEffect(() => {
-		const catererId = searchParams.get('caterer');
-		const menuId = searchParams.get('menu');
+		const originalError = console.error;
+		console.error = (...args) => {
+			if (args[0]?.includes?.('caterer.getCatererById') && args[0]?.includes?.('{}')) {
+				return; // Suppress this specific error
+			}
+			originalError.apply(console, args);
+		};
 		
-		if (catererId && menuId && allCaterers?.caterers) {
-			const caterer = allCaterers.caterers.find(c => c.id === catererId);
-			if (caterer) {
-				const menu = caterer.menus.find(m => m.id === menuId);
+		return () => {
+			console.error = originalError;
+		};
+	}, []);
+
+	// Fetch specific caterer data if URL parameters exist (faster than waiting for allCaterers)
+	const { data: specificCaterer, isLoading: isLoadingSpecific } = catererId && catererId.trim().length > 0 
+		? api.caterer.getCatererById.useQuery(
+			{ id: catererId },
+			{
+				staleTime: 5 * 60 * 1000,
+				refetchOnWindowFocus: false,
+			}
+		)
+		: { data: null, isLoading: false };
+
+	// Auto-populate caterer from URL parameters (optimized for faster loading)
+	useEffect(() => {
+		if (catererId && menuId) {
+			// Try specific caterer first (faster)
+			if (specificCaterer) {
+				const menu = specificCaterer.menus.find(m => m.id === menuId);
 				if (menu) {
 					// Check if this caterer-menu combination is already in comparison
 					const exists = comparisonItems.some(
-						item => item.vendor.id === caterer.id && item.menu.id === menu.id
+						item => item.vendor.id === specificCaterer.id && item.menu.id === menu.id
 					);
 					
 					if (!exists && comparisonItems.length < 4) {
-						setComparisonItems([{ vendor: caterer, menu }]);
+						setComparisonItems([{ vendor: specificCaterer, menu }]);
+					}
+				}
+			}
+			// Fallback to allCaterers if specificCaterer not available
+			else if (allCaterers?.caterers) {
+				const caterer = allCaterers.caterers.find(c => c.id === catererId);
+				if (caterer) {
+					const menu = caterer.menus.find(m => m.id === menuId);
+					if (menu) {
+						// Check if this caterer-menu combination is already in comparison
+						const exists = comparisonItems.some(
+							item => item.vendor.id === caterer.id && item.menu.id === menu.id
+						);
+						
+						if (!exists && comparisonItems.length < 4) {
+							setComparisonItems([{ vendor: caterer, menu }]);
+						}
 					}
 				}
 			}
 		}
-	}, [searchParams, allCaterers, comparisonItems]);
+	}, [catererId, menuId, specificCaterer, allCaterers, comparisonItems]);
 
 	// Category labels
 	const categoryLabels: Record<CatererMenuType, string> = {
@@ -156,6 +221,16 @@ export default function ComparisonDisplay() {
 
 	return (
 		<div className="space-y-6">
+			{/* Loading indicator for URL parameters */}
+			{(catererId && menuId && isLoadingSpecific) && (
+				<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+					<div className="flex items-center gap-3">
+						<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+						<span className="text-blue-800 font-medium">Loading caterer details...</span>
+					</div>
+				</div>
+			)}
+
 			{/* Header with Add Comparison Button */}
 			<div className="flex justify-between items-center">
 				<div>
@@ -191,14 +266,88 @@ export default function ComparisonDisplay() {
 							<div className="space-y-4">
 								{/* Search and Filter */}
 								<div className="space-y-4">
+									{/* Search Mode Toggle */}
+									<div className="flex gap-2">
+										<Button
+											variant={searchMode === "text" ? "default" : "ghost"}
+											size="sm"
+											onClick={() => {
+												setSearchMode("text");
+												setSearchQuery("");
+											}}
+											className="flex items-center gap-2"
+										>
+											<Search className="w-4 h-4" />
+											Free Text Search
+										</Button>
+										<Button
+											variant={searchMode === "dropdown" ? "default" : "ghost"}
+											size="sm"
+											onClick={() => {
+												setSearchMode("dropdown");
+												setSearchQuery("");
+											}}
+											className="flex items-center gap-2"
+										>
+											<List className="w-4 h-4" />
+											Select Caterer from Dropdown List
+										</Button>
+									</div>
+
 									<div className="flex gap-4">
-										<input
-											type="text"
-											placeholder="Search caterer name..."
-											className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-											value={searchQuery}
-											onChange={(e) => setSearchQuery(e.target.value)}
-										/>
+										{searchMode === "text" ? (
+											<input
+												type="text"
+												placeholder="Search caterer name..."
+												className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+												value={searchQuery}
+												onChange={(e) => setSearchQuery(e.target.value)}
+											/>
+										) : (
+											<div className="flex-1 relative" ref={dropdownRef}>
+												<button
+													type="button"
+													className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-left bg-white flex items-center justify-between"
+													onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+												>
+													<span className={searchQuery ? "text-gray-900" : "text-gray-500"}>
+														{searchQuery || "Select a caterer..."}
+													</span>
+													<svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+													</svg>
+												</button>
+												
+												{isDropdownOpen && (
+													<div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+														{/* Dropdown list */}
+														<div className="max-h-60 overflow-y-auto">
+															{allCaterers?.caterers && allCaterers.caterers.length > 0 ? (
+																allCaterers.caterers
+																	.sort((a, b) => a.name.localeCompare(b.name))
+																	.map((caterer) => (
+																		<div
+																			key={caterer.id}
+																			className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+																			onClick={() => {
+																				setSearchQuery(caterer.name);
+																				setIsDropdownOpen(false);
+																			}}
+																		>
+																			<div className="font-medium text-sm">{caterer.name}</div>
+																			<div className="text-xs text-gray-500">{caterer.menus.length} menu(s)</div>
+																		</div>
+																	))
+															) : (
+																<div className="px-3 py-2 text-sm text-gray-500 text-center">
+																	No caterers available
+																</div>
+															)}
+														</div>
+													</div>
+												)}
+											</div>
+										)}
 										<select
 											className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
 											value={selectedCategory}
