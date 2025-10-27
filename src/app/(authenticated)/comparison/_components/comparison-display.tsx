@@ -78,7 +78,7 @@ export default function ComparisonDisplay() {
 
 	// Fetch specific caterer data if URL parameters exist (faster than waiting for allCaterers)
 	const { data: specificCaterer, isLoading: isLoadingSpecific } = catererId && catererId.trim().length > 0 
-		? api.caterer.getCatererById.useQuery(
+		? api.caterer.getCaterer.useQuery(
 			{ id: catererId },
 			{
 				staleTime: 5 * 60 * 1000,
