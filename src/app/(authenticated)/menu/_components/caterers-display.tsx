@@ -167,14 +167,11 @@ export default function CaterersDisplay({
 		}
 	);
 
-	// Preload dropdown data in the background
-	const { data: dropdownData } = api.caterer.getCaterersPaginated.useQuery(
-		{ skip: 0, take: 100 },
-		{
-			staleTime: 5 * 60 * 1000, // 5 minutes
-			refetchOnWindowFocus: false,
-		}
-	);
+	// Preload dropdown data in the background (lightweight query)
+	const { data: dropdownData } = api.caterer.getCaterersForDropdown.useQuery(undefined, {
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		refetchOnWindowFocus: false,
+	});
 
 	// Update allCaterers when batch data is loaded
 	useEffect(() => {
@@ -280,9 +277,8 @@ export default function CaterersDisplay({
 														<div className="font-medium text-sm text-left">All Caterers</div>
 													</div>
 													
-													{dropdownData?.caterers && dropdownData.caterers.length > 0 ? (
-														dropdownData.caterers
-															.sort((a, b) => a.name.localeCompare(b.name))
+													{dropdownData && dropdownData.length > 0 ? (
+														dropdownData
 															.map((caterer) => (
 																<div
 																	key={caterer.id}
@@ -293,7 +289,6 @@ export default function CaterersDisplay({
 																	}}
 																>
 																	<div className="font-medium text-sm text-left">{caterer.name}</div>
-																	<div className="text-xs text-gray-500 text-left">{caterer.menus.length} menu(s)</div>
 																</div>
 															))
 													) : (

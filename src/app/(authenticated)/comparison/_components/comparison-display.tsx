@@ -48,9 +48,15 @@ export default function ComparisonDisplay() {
 	}, []);
 
 
-	// Fetch all caterers for the add dialog (preload for dropdown)
+	// Fetch caterers for dropdown (lightweight)
+	const { data: dropdownCaterers } = api.caterer.getCaterersForDropdown.useQuery(undefined, {
+		staleTime: 5 * 60 * 1000,
+		refetchOnWindowFocus: false,
+	});
+
+	// Fetch caterers for add dialog (full data)
 	const { data: allCaterers, isLoading } = api.caterer.getCaterersPaginated.useQuery(
-		{ skip: 0, take: 100 }, // Get more caterers for selection
+		{ skip: 0, take: 100 },
 		{ 
 			staleTime: 5 * 60 * 1000,
 			refetchOnWindowFocus: false,
@@ -65,7 +71,7 @@ export default function ComparisonDisplay() {
 	useEffect(() => {
 		const originalError = console.error;
 		console.error = (...args) => {
-			if (args[0]?.includes?.('caterer.getCatererById') && args[0]?.includes?.('{}')) {
+			if (args[0]?.includes?.('caterer.getCaterer') && args[0]?.includes?.('{}')) {
 				return; // Suppress this specific error
 			}
 			originalError.apply(console, args);
@@ -90,7 +96,7 @@ export default function ComparisonDisplay() {
 	// Auto-populate caterer from URL parameters (optimized for faster loading)
 	useEffect(() => {
 		if (catererId && menuId) {
-			// Try specific caterer first (faster)
+			// Use specific caterer data (faster)
 			if (specificCaterer) {
 				const menu = specificCaterer.menus.find(m => m.id === menuId);
 				if (menu) {
@@ -104,25 +110,8 @@ export default function ComparisonDisplay() {
 					}
 				}
 			}
-			// Fallback to allCaterers if specificCaterer not available
-			else if (allCaterers?.caterers) {
-				const caterer = allCaterers.caterers.find(c => c.id === catererId);
-				if (caterer) {
-					const menu = caterer.menus.find(m => m.id === menuId);
-					if (menu) {
-						// Check if this caterer-menu combination is already in comparison
-						const exists = comparisonItems.some(
-							item => item.vendor.id === caterer.id && item.menu.id === menu.id
-						);
-						
-						if (!exists && comparisonItems.length < 4) {
-							setComparisonItems([{ vendor: caterer, menu }]);
-						}
-					}
-				}
-			}
 		}
-	}, [catererId, menuId, specificCaterer, allCaterers, comparisonItems]);
+	}, [catererId, menuId, specificCaterer, comparisonItems]);
 
 	// Category labels
 	const categoryLabels: Record<CatererMenuType, string> = {
@@ -322,9 +311,8 @@ export default function ComparisonDisplay() {
 													<div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
 														{/* Dropdown list */}
 														<div className="max-h-60 overflow-y-auto">
-															{allCaterers?.caterers && allCaterers.caterers.length > 0 ? (
-																allCaterers.caterers
-																	.sort((a, b) => a.name.localeCompare(b.name))
+															{dropdownCaterers && dropdownCaterers.length > 0 ? (
+																dropdownCaterers
 																	.map((caterer) => (
 																		<div
 																			key={caterer.id}
@@ -335,7 +323,6 @@ export default function ComparisonDisplay() {
 																			}}
 																		>
 																			<div className="font-medium text-sm">{caterer.name}</div>
-																			<div className="text-xs text-gray-500">{caterer.menus.length} menu(s)</div>
 																		</div>
 																	))
 															) : (
