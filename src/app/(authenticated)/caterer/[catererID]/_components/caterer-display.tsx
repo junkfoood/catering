@@ -405,7 +405,12 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 											<SelectContent>
 												{caterer.menus.map((menu) => (
 													<SelectItem key={menu.id} value={menu.id}>
-														{`${menu.code}`}
+														<div className="flex justify-between items-center w-full">
+															<span>{menu.code}</span>
+															<span className="text-sm text-gray-500 ml-2">
+																Min Order: {menu.minimumOrder}
+															</span>
+														</div>
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -416,9 +421,6 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 										<Label>Minumum Order for Free Delivery</Label>
 										<div className="text-2xl font-bold text-black-600 text-center">
 											{selectedMenu?.minimumOrderForFreeDelivery} pax
-										</div>
-										<div className="text-sm text-gray-600 text-center mt-1">
-											Min Order: {selectedMenu?.minimumOrder} pax
 										</div>
 									</div>
 
