@@ -23,7 +23,7 @@ export const catererRouter = createTRPCRouter({
 				ctx.db.caterer.findMany({
 					skip: input.skip,
 					take: input.take,
-					include: includeCatererData,
+					include: includeCatererDataLightweight, // Use lightweight version without sections/items
 					orderBy: {
 						name: 'asc',
 					},
@@ -79,10 +79,37 @@ export const catererRouter = createTRPCRouter({
 			},
 		});
 	}),
+	getCaterersPaginatedWithSections: activeUserProcedure
+		.input(
+			z.object({
+				skip: z.number().default(0),
+				take: z.number().default(5),
+			}),
+		)
+		.query(async ({ ctx, input }) => {
+			// Full data with sections for comparison page
+			const [caterers, total] = await Promise.all([
+				ctx.db.caterer.findMany({
+					skip: input.skip,
+					take: input.take,
+					include: includeCatererData, // Full include with sections/items
+					orderBy: {
+						name: 'asc',
+					},
+				}),
+				ctx.db.caterer.count(),
+			]);
+			
+			return {
+				caterers,
+				total,
+				hasMore: input.skip + input.take < total,
+			};
+		}),
 });
 
 export type CatererListData = Prisma.CatererGetPayload<{
-	include: typeof includeCatererData;
+	include: typeof includeCatererDataLightweight;
 }>;
 
 export const includeCatererMenuData = {
@@ -96,6 +123,11 @@ export const includeCatererMenuData = {
 export type CatererMenuData = Prisma.CatererMenuGetPayload<{
 	include: typeof includeCatererMenuData;
 }>;
+
+// Lightweight include for menu listings - excludes sections and items for faster loading
+export const includeCatererDataLightweight = {
+	menus: true, // Only include menus without nested sections/items
+} satisfies Prisma.CatererInclude;
 
 export const includeCatererData = {
 	menus: {

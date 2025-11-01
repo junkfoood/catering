@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus, X, Trash2, Eye, Search, List } from "lucide-react";
+import { Plus, X, Trash2, Eye, Search, List, Loader2 } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Badge } from "@components/ui/badge";
@@ -10,15 +10,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@components/ui/dialog";
 import { Slider } from "@components/ui/slider";
 import { Label } from "@components/ui/label";
-import type { CatererListData } from "~/server/api/routers/caterer";
+import type { CatererListData, CatererData } from "~/server/api/routers/caterer";
 import { CatererMenuType } from "@prisma/client";
 import { api } from "~/trpc/react";
 import Link from "next/link";
 import { routeFormatter } from "~/utils/route";
 
 interface ComparisonItem {
-	vendor: CatererListData;
-	menu: CatererListData['menus'][0];
+	vendor: CatererData; // Use full type with sections for comparison
+	menu: CatererData['menus'][0];
 }
 
 export default function ComparisonDisplay() {
@@ -54,7 +54,7 @@ export default function ComparisonDisplay() {
 		refetchOnWindowFocus: false,
 	});
 
-	// Fetch caterers for add dialog (full data)
+	// Fetch caterers for add dialog (lightweight - no sections for faster loading)
 	const { data: allCaterers, isLoading } = api.caterer.getCaterersPaginated.useQuery(
 		{ skip: 0, take: 100 },
 		{ 
@@ -155,16 +155,38 @@ export default function ComparisonDisplay() {
 			}))
 	);
 
-	const addToComparison = (vendor: CatererListData, menu: CatererListData['menus'][0]) => {
-		const newItem: ComparisonItem = { vendor, menu };
-		
+	const utils = api.useUtils();
+	const [loadingMenuId, setLoadingMenuId] = useState<string | null>(null);
+
+	const addToComparison = async (vendor: CatererListData, menu: CatererListData['menus'][0]) => {
 		// Check if this exact vendor-menu combination is already in comparison
 		const exists = comparisonItems.some(
 			item => item.vendor.id === vendor.id && item.menu.id === menu.id
 		);
 		
-		if (!exists && comparisonItems.length < 4) { // Limit to 4 items
-			setComparisonItems([...comparisonItems, newItem]);
+		if (exists || comparisonItems.length >= 4) {
+			return; // Limit to 4 items
+		}
+
+		setLoadingMenuId(menu.id);
+		
+		// Fetch full caterer data with sections only when adding to comparison
+		try {
+			const fullCatererData = await utils.caterer.getCaterer.fetch({ id: vendor.id });
+			if (fullCatererData) {
+				const fullMenu = fullCatererData.menus.find(m => m.id === menu.id);
+				if (fullMenu) {
+					const newItem: ComparisonItem = { 
+						vendor: fullCatererData, 
+						menu: fullMenu 
+					};
+					setComparisonItems([...comparisonItems, newItem]);
+				}
+			}
+		} catch (error) {
+			console.error("Error fetching full menu data:", error);
+		} finally {
+			setLoadingMenuId(null);
 		}
 	};
 
@@ -192,7 +214,8 @@ export default function ComparisonDisplay() {
 	const getUniqueFeatures = () => {
 		const features = new Set<string>();
 		comparisonItems.forEach(item => {
-			item.menu.sections.forEach(section => {
+			// Sections are included in CatererData type
+			item.menu.sections?.forEach((section: { title: string }) => {
 				features.add(section.title);
 			});
 		});
@@ -411,9 +434,18 @@ export default function ComparisonDisplay() {
 																size="sm"
 																className="mt-2 w-full"
 																onClick={() => addToComparison(vendor, menu)}
-																disabled={isAlreadyAdded || comparisonItems.length >= 4}
+																disabled={isAlreadyAdded || comparisonItems.length >= 4 || loadingMenuId === menu.id}
 															>
-																{isAlreadyAdded ? "Added" : "Add to Compare"}
+																{loadingMenuId === menu.id ? (
+																	<>
+																		<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+																		Loading...
+																	</>
+																) : isAlreadyAdded ? (
+																	"Added"
+																) : (
+																	"Add to Compare"
+																)}
 															</Button>
 														</div>
 													</div>

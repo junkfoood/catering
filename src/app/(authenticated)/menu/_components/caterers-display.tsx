@@ -173,6 +173,45 @@ export default function CaterersDisplay({
 		refetchOnWindowFocus: false,
 	});
 
+	// Load all caterers when a specific caterer is selected from dropdown
+	const shouldLoadAll = !!(selectedCaterer && selectedCaterer !== "all" && searchMode === "dropdown" && 
+		!allCaterers.some(c => c.name === selectedCaterer) && !hasLoadedAll);
+	
+	const { data: allCaterersData } = api.caterer.getCaterersPaginated.useQuery(
+		{ skip: 0, take: 100 }, // Load all caterers at once
+		{
+			enabled: shouldLoadAll,
+			staleTime: 5 * 60 * 1000,
+			refetchOnWindowFocus: false,
+		}
+	);
+
+	// Merge all caterers data when loaded
+	useEffect(() => {
+		if (allCaterersData && allCaterersData.caterers.length > 0) {
+			setAllCaterers(prev => {
+				const existingCaterers = new Map(prev.map(caterer => [caterer.id, caterer]));
+				const newCaterers = allCaterersData.caterers.filter(caterer => !existingCaterers.has(caterer.id));
+				return [...prev, ...newCaterers];
+			});
+			setHasLoadedAll(true);
+			
+			// Scroll to selected caterer after data is merged
+			if (selectedCaterer && selectedCaterer !== "all" && searchMode === "dropdown") {
+				setTimeout(() => {
+					const catererCard = document.querySelector(`[data-caterer-card="${selectedCaterer}"]`);
+					if (catererCard) {
+						catererCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+						catererCard.classList.add('ring-2', 'ring-orange-500');
+						setTimeout(() => {
+							catererCard.classList.remove('ring-2', 'ring-orange-500');
+						}, 2000);
+					}
+				}, 500);
+			}
+		}
+	}, [allCaterersData, selectedCaterer, searchMode]);
+
 	// Update allCaterers when batch data is loaded
 	useEffect(() => {
 		if (batchData && batchData.caterers.length > 0) {
@@ -193,6 +232,27 @@ export default function CaterersDisplay({
 	useEffect(() => {
 		setIsLoadingMore(isLoadingBatch);
 	}, [isLoadingBatch]);
+
+	// Scroll to results when caterer already exists (not loading new data)
+	useEffect(() => {
+		if (selectedCaterer && selectedCaterer !== "all" && searchMode === "dropdown") {
+			const catererExists = allCaterers.some(c => c.name === selectedCaterer);
+			
+			// Only scroll if caterer exists and we're not currently loading all caterers data
+			if (catererExists && !shouldLoadAll && !isLoadingBatch) {
+				setTimeout(() => {
+					const catererCard = document.querySelector(`[data-caterer-card="${selectedCaterer}"]`);
+					if (catererCard) {
+						catererCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+						catererCard.classList.add('ring-2', 'ring-orange-500');
+						setTimeout(() => {
+							catererCard.classList.remove('ring-2', 'ring-orange-500');
+						}, 2000);
+					}
+				}, 300);
+			}
+		}
+	}, [selectedCaterer, allCaterers, isLoadingBatch, shouldLoadAll, searchMode]);
 
 	return (
 		<PageShell
@@ -424,7 +484,11 @@ export default function CaterersDisplay({
 									: `/vendor-images/400x400.svg`;
 
 									return (
-										<Card key={`${vendor.id}-${menu.id}`} className="overflow-hidden hover:shadow-lg transition-shadow">
+										<Card 
+											key={`${vendor.id}-${menu.id}`} 
+											className="overflow-hidden hover:shadow-lg transition-shadow"
+											data-caterer-card={vendor.name}
+										>
 											<div className="md:flex">
 												<div className="md:w-1/3 h-45">
 													<img
