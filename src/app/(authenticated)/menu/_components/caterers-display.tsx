@@ -265,7 +265,7 @@ export default function CaterersDisplay({
 						<div className="max-w-2xl mx-auto">
 							{/* Search Mode Toggle */}
 							<div className="flex justify-center mb-4">
-								<div className="flex bg-gray-100 rounded-lg p-1">
+								<div className="flex flex-col sm:flex-row bg-gray-100 rounded-lg p-1 gap-1 sm:gap-0">
 									<Button
 										variant={searchMode === "text" ? "default" : "ghost"}
 										onClick={() => {
