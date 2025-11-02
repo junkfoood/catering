@@ -25,7 +25,7 @@ export async function generateMetadata({
 	}
 
 	return {
-		title: `${caterer.name} (${caterer.id})`,
+		title: `${caterer.name}`,
 		description: `View caterer ${caterer.name} with ${caterer.id}. Manage menus, track caterer status, and oversee caterer allocations.`,
 	};
 }
