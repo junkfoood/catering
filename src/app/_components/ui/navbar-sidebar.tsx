@@ -21,6 +21,7 @@ export async function NavbarSidebar({
 	navbarRoutes: (Route | NestedRoute)[];
 }) {
 	const session = await auth();
+	const isActiveUser = session?.user.activated;
 
 	return (
 		<Sheet>
@@ -39,31 +40,49 @@ export async function NavbarSidebar({
 					<Image src={logo} alt="Logo" className="h-12 w-auto" />
 				</MobileLink>
 				<div className="flex flex-col space-y-3 pt-6">
-					{(session ? navbarRoutes : publicNavbarRoutes).map((route) =>
-						"routes" in route ? (
-							<Collapsible key={`group-${route.label}`}>
-								<CollapsibleTrigger className="text-foreground/70 hover:text-foreground flex w-full items-center gap-2 transition-colors">
+					{(isActiveUser ? navbarRoutes : publicNavbarRoutes)
+						.filter((route) => {
+							if ("routes" in route) {
+								if (route.auth && route.auth(session?.user!) === false) {
+									return false;
+								}
+								return true;
+							}
+							if (route.auth && route.auth(session?.user!) === false) {
+								return false;
+							}
+							return true;
+						})
+						.map((route) =>
+							"routes" in route ? (
+								<Collapsible key={`group-${route.label}`}>
+									<CollapsibleTrigger className="text-foreground/70 hover:text-foreground flex w-full items-center gap-2 transition-colors">
+										{route.label}
+										<ChevronDown className="h-4 w-4" />
+									</CollapsibleTrigger>
+									<CollapsibleContent className="mt-2 flex flex-col gap-2 pl-4">
+										{route.routes
+											.filter(
+												(child) =>
+													!child.auth || child.auth(session?.user!) !== false,
+											)
+											.map((child) => (
+												<MobileLink
+													className="border-l-2 pl-2"
+													key={child.link}
+													href={child.link}
+												>
+													{child.label}
+												</MobileLink>
+											))}
+									</CollapsibleContent>
+								</Collapsible>
+							) : (
+								<MobileLink key={route.link} href={route.link}>
 									{route.label}
-									<ChevronDown className="h-4 w-4" />
-								</CollapsibleTrigger>
-								<CollapsibleContent className="mt-2 flex flex-col gap-2 pl-4">
-									{route.routes.map((child) => (
-										<MobileLink
-											className="border-l-2 pl-2"
-											key={child.link}
-											href={child.link}
-										>
-											{child.label}
-										</MobileLink>
-									))}
-								</CollapsibleContent>
-							</Collapsible>
-						) : (
-							<MobileLink key={route.link} href={route.link}>
-								{route.label}
-							</MobileLink>
-						),
-					)}
+								</MobileLink>
+							),
+						)}
 				</div>
 			</SheetContent>
 		</Sheet>
