@@ -353,10 +353,10 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 											</div>
 										</div>*/}
 
-										<p className="text-gray-600 mb-4">
+										{/* <p className="text-gray-600 mb-4">
 											Lorem ipsum dolor sit amet consectetur adipisicing elit.
 											Quisquam, quos.
-										</p>
+										</p> */}
 
 										<div className="flex flex-col sm:flex-row gap-4 text-sm text-gray-600">
 											{caterer.telephone && (
