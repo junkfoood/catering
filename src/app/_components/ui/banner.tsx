@@ -20,13 +20,7 @@ export const Banner = () => {
                         ⚠️ 
 							<div>
 								<strong>Disclaimer:</strong>{" "}
-								This site provides price and menu comparison only and information may not reflect the latest updates. Please submit feedback through this{" "} 
-								<a
-									href="https://go.gov.sg/cateringfeedback"
-									className="text-blue-600 underline hover:text-blue-800 font-semibold"
-								>
-								form
-								</a>
+								This site provides price and menu comparison only. Menu classifications for <span className="text-green-600">vegetarian</span> or <span className="text-orange-900">deep fried</span> may not always be accurate, so please refer to{" "} 
 								{" "}and refer to{" "}
 								<a
 									href="https://sgdcs.sgnet.gov.sg/sites/VITAL-pts/SitePages/CateringServices(2024-2027).aspx"
@@ -34,7 +28,16 @@ export const Banner = () => {
 								>
 									VITAL infosite
 								</a>
-								{" "}for the most current details.
+								{" "}for the most current and verified details.
+								<br></br>
+								If you have feedback about the site itself (not the VITAL infosite and/or VITAL Catering DA contract), please share it through this{" "} 
+								<a
+									href="https://go.gov.sg/cateringfeedback"
+									className="text-blue-600 underline hover:text-blue-800 font-semibold"
+								>
+								form
+								</a>
+								.
 							</div>
 						</div>
 					</div>

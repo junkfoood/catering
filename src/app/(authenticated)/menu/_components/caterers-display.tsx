@@ -35,6 +35,10 @@ export default function CaterersDisplay({
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const [hasLoadedAll, setHasLoadedAll] = useState(!hasMore);
 	const [budget, setBudget] = useState<[number, number]>([3, 60]);
+	const [minBudget, setMinBudget] = useState(3);
+	const [maxBudget, setMaxBudget] = useState(60);
+	const [minBudgetInput, setMinBudgetInput] = useState("3");
+	const [maxBudgetInput, setMaxBudgetInput] = useState("60");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -382,11 +386,114 @@ export default function CaterersDisplay({
 									{/* Budget Filter */}
 									<div>
 										<Label className="text-sm font-medium mb-2 block">
-											Budget per Pax: ${budget[0]} - ${budget[1]}
+											Budget per Pax:
 										</Label>
+										<div className="flex gap-2 mb-2">
+											<div className="flex-1">
+												<Label htmlFor="min-budget" className="text-xs text-gray-600 mb-1 block">
+													Min
+												</Label>
+												<Input
+													id="min-budget"
+													type="number"
+													value={minBudgetInput}
+													onChange={(e) => {
+														const value = e.target.value;
+														setMinBudgetInput(value);
+														// Auto-update slider if valid number
+														if (value !== "" && !isNaN(Number(value))) {
+															const newValue = Number.parseInt(value);
+															if (!isNaN(newValue)) {
+																const validMin = Math.max(3, Math.min(newValue, 60));
+																// Update slider selection directly - fluid movement
+																const newBudget: [number, number] = [
+																	validMin,
+																	Math.max(validMin, budget[1])
+																];
+																setBudget(newBudget);
+																// Update the max input if it needs to adjust
+																if (budget[1] < validMin) {
+																	setMaxBudgetInput(validMin.toString());
+																}
+															}
+														}
+													}}
+													onBlur={(e) => {
+														const newValue = Number.parseInt(e.target.value) || 3;
+														const validMin = Math.max(3, Math.min(newValue, maxBudget - 1, 60));
+														setMinBudget(validMin);
+														setMinBudgetInput(validMin.toString());
+														// Constrain budget selection to new min
+														const constrainedBudget: [number, number] = [
+															Math.max(validMin, budget[0]),
+															Math.max(validMin, budget[1])
+														];
+														setBudget(constrainedBudget);
+													}}
+													min={3}
+													className="text-center"
+												/>
+											</div>
+											<div className="flex-1">
+												<Label htmlFor="max-budget" className="text-xs text-gray-600 mb-1 block">
+													Max
+												</Label>
+												<Input
+													id="max-budget"
+													type="number"
+													value={maxBudgetInput}
+													onChange={(e) => {
+														const value = e.target.value;
+														setMaxBudgetInput(value);
+														// Auto-update slider if valid number
+														if (value !== "" && !isNaN(Number(value))) {
+															const newValue = Number.parseInt(value);
+															if (!isNaN(newValue)) {
+																const validMax = Math.max(3, Math.min(newValue, 60));
+																// Update slider selection directly - fluid movement
+																const newBudget: [number, number] = [
+																	Math.min(validMax, budget[0]),
+																	validMax
+																];
+																setBudget(newBudget);
+																// Update the min input if it needs to adjust
+																if (budget[0] > validMax) {
+																	setMinBudgetInput(validMax.toString());
+																}
+															}
+														}
+													}}
+													onBlur={(e) => {
+														const newValue = Number.parseInt(e.target.value) || 60;
+														const validMax = Math.min(60, Math.max(minBudget + 1, newValue));
+														setMaxBudget(validMax);
+														setMaxBudgetInput(validMax.toString());
+														// Constrain budget selection to new max
+														const constrainedBudget: [number, number] = [
+															Math.min(validMax, budget[0]),
+															Math.min(validMax, budget[1])
+														];
+														setBudget(constrainedBudget);
+													}}
+													min={minBudget + 1}
+													max={60}
+													className="text-center"
+												/>
+											</div>
+										</div>
 										<Slider
 											value={budget}
-											onValueChange={value => setBudget([value[0], value[1]] as [number, number])}
+											onValueChange={value => {
+												// Directly set the budget selection (only constrained by 3-60 range)
+												const constrainedValue: [number, number] = [
+													Math.max(3, Math.min(value[0] ?? 3, 60)),
+													Math.max(3, Math.min(value[1] ?? 60, 60))
+												];
+												setBudget(constrainedValue);
+												// Update the input fields to show the selected range
+												setMinBudgetInput(constrainedValue[0].toString());
+												setMaxBudgetInput(constrainedValue[1].toString());
+											}}
 											max={60}
 											min={3}
 											step={1}

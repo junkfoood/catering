@@ -42,11 +42,11 @@ export default function ErrorPage() {
 			case "Configuration":
 				return {
 					title: "Authentication Configuration Error",
-					message: "Authentication service is still initializing. Please try again in a moment.",
+					message: "There is a problem with the authentication configuration. Please contact your administrator or try again later.",
 					icon: <AlertCircle className="h-6 w-6 text-orange-600" />,
 					showRetry: true,
 					showHome: true,
-					tip: "This error often occurs on first login when the authentication service is still initializing."
+					tip: "This error typically indicates missing or incorrect authentication settings. If the problem persists, please contact support."
 				};
 			case "AccessDenied":
 				return {
