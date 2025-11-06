@@ -20,8 +20,8 @@ export const Banner = () => {
                         ⚠️ 
 							<div>
 								<strong>Disclaimer:</strong>{" "}
-								This site provides price and menu comparison only. Menu classifications for <span className="text-green-600">vegetarian</span> or <span className="text-orange-900">deep fried</span> may not always be accurate, so please refer to{" "} 
-								{" "}and refer to{" "}
+								This site provides price and menu comparison only. Menu classifications for <span className="text-green-600">vegetarian</span> or <span className="text-orange-900">deep fried</span> may not always be accurate so please refer to{" "} 
+								{" "}
 								<a
 									href="https://sgdcs.sgnet.gov.sg/sites/VITAL-pts/SitePages/CateringServices(2024-2027).aspx"
 									className="text-blue-600 underline hover:text-blue-800 font-semibold"
