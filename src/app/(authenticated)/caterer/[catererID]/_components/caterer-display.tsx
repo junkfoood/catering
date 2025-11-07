@@ -865,7 +865,7 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 											<div className="flex items-center gap-2">
 												<div className="text-sm text-gray-700">
 													<div className="font-medium">Background Information for AOR</div>
-													<div className="mt-1">Note: AOR builder is for reference only. as agencies are still required to follow their own agency's AOR template</div>
+													<div className="mt-1">Note: AOR builder is for reference only, as agencies are still required to follow their own agency's AOR template</div>
 												</div>
 											</div>
 											<div className="grid grid-cols-1 gap-2">
