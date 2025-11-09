@@ -121,11 +121,16 @@ Pricing Breakdown (format as a proper table):
 			let errorMessage = "Failed to generate AOR. Please try again.";
 			try {
 				const errorData = await response.json();
-				console.error("Gemini API error:", errorData);
+				// Log error without sensitive data
+				console.error("Gemini API error:", {
+					status: response.status,
+					message: errorData.error?.message || errorData.error || "Unknown error",
+				});
 				errorMessage = errorData.error?.message || errorData.error || errorMessage;
 			} catch {
 				const errorText = await response.text();
-				console.error("Gemini API error (text):", errorText);
+				// Log error without potentially sensitive text
+				console.error("Gemini API error (text):", response.status);
 				errorMessage = errorText || errorMessage;
 			}
 			return NextResponse.json(
@@ -135,14 +140,16 @@ Pricing Breakdown (format as a proper table):
 		}
 
 		const data = await response.json();
-		console.log("Gemini API response:", JSON.stringify(data, null, 2));
+		// Only log success status, not the full response which may contain sensitive data
+		console.log("Gemini API response received successfully");
 
 		// Extract the generated text from Gemini response
 		const generatedText =
 			data.candidates?.[0]?.content?.parts?.[0]?.text;
 
 		if (!generatedText) {
-			console.error("No text in Gemini response:", data);
+			// Log error without full response data
+			console.error("No text in Gemini response");
 			return NextResponse.json(
 				{ error: "Gemini API did not return any text. Please try again." },
 				{ status: 500 },

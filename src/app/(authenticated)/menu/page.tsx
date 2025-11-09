@@ -22,11 +22,16 @@ export default async function LandingPage() {
       />
     );
   } catch (error: any) {
-    console.error("Dashboard error:", error);
+    // Log error without exposing sensitive data
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Dashboard error:", errorMessage);
     return (
       <div style={{ color: "red", padding: 32 }}>
         <h1>Dashboard Error</h1>
-        <pre>{error?.message || JSON.stringify(error)}</pre>
+        <p>An error occurred while loading the page. Please try again later.</p>
+        {errorMessage !== "Unknown error" && (
+          <p className="text-sm mt-2">Error: {errorMessage}</p>
+        )}
       </div>
     );
   }
