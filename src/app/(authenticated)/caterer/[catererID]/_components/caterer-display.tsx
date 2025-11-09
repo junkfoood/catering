@@ -6,9 +6,12 @@ import { useRouter } from "next/navigation";
 import {
 	Phone,
 	Mail,
+	Sparkles,
 	Calculator,
 	Check,
 	Calendar,
+	Copy,
+	Loader2,
 } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
@@ -16,6 +19,7 @@ import { Badge } from "@components/ui/badge";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { Checkbox } from "@components/ui/checkbox";
+import { Textarea } from "@components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -65,6 +69,11 @@ export default function CatererDisplay({
 		fundingSource: "",
 		approver: ""
 	});
+	
+	// State for Gemini AOR generation
+	const [isGeneratingAOR, setIsGeneratingAOR] = useState(false);
+	const [generatedAOR, setGeneratedAOR] = useState("");
+	const [aorError, setAorError] = useState<string | null>(null);
 
 	// Update pax count to respect minimum order when selected menu changes
 	useEffect(() => {
@@ -252,55 +261,110 @@ export default function CatererDisplay({
 		return true;
 	};
 
-	// Export function for ChatGPT approval
-	const exportForApproval = () => {
+	// Export function for Gemini AOR generation
+	const exportForApproval = async () => {
 		if (!selectedMenu) return;
+
+		setIsGeneratingAOR(true);
+		setAorError(null);
+		setGeneratedAOR("");
 
 		const pricing = calculateTotal();
 		
 		// Get selected items with names
-		const selectedItemsWithNames: { [sectionId: string]: string[] } = {};
+		const selectedItemsList: string[] = [];
 		selectedMenu.sections.forEach(section => {
 			const selectedSectionItems = selectedItems[section.id] || [];
-			selectedItemsWithNames[section.id] = selectedSectionItems.map(itemId => {
+			selectedSectionItems.forEach(itemId => {
 				const item = section.items.find(i => i.id === itemId);
-				return item?.name || itemId;
+				if (item) {
+					selectedItemsList.push(item.name);
+				}
 			});
 		});
 
-		// Create prompt
-		const exportPrompt = `**PLEASE DRAFT THE FOLLOWING CATERING REQUEST AOR**
+		// Build structured JSON payload
+		const payload = {
+			background: {
+				eventType: backgroundInfo.eventType || "",
+				eventDate: backgroundInfo.eventDate || "",
+				fundingSource: backgroundInfo.fundingSource || "",
+				approver: backgroundInfo.approver || "",
+			},
+			order: {
+				caterer: caterer.name,
+				menu: selectedMenu.code,
+				paxCount: paxCount,
+				selectedItems: selectedItemsList,
+			},
+			pricing: {
+				subtotal: pricing.subtotal,
+				discount: pricing.discount,
+				delivery: pricing.delivery,
+				adminFee: pricing.adminFee,
+				total: pricing.total,
+				totalWithContingency: pricing.total * 1.1,
+			},
+		};
 
-**Background:**
-Aim and Brief Background: ${backgroundInfo.eventType || "[Not specified]"}
-Event Date/Timeline: ${backgroundInfo.eventDate || "[Not specified]"}
-Funding Source: ${backgroundInfo.fundingSource || "[Not specified]"}
-Approver: ${backgroundInfo.approver || "[Not specified]"}
+		try {
+			const response = await fetch("/api/gemini/generate-aor", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
 
-**Order Summary:**
-Caterer: ${caterer.name}
-Menu: ${selectedMenu.code}
-Pax Count: ${paxCount}
-Selected Items:
-${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).join(", ") || "None selected"}
+			if (!response.ok) {
+				let errorMessage = "Failed to generate AOR. Please try again.";
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.error || errorMessage;
+				} catch {
+					// If response is not JSON, try to get text
+					try {
+						const errorText = await response.text();
+						errorMessage = errorText || errorMessage;
+					} catch {
+						// Use default error message
+					}
+				}
+				throw new Error(errorMessage);
+			}
 
-**Cost:**
-**TOTAL without GST (+10% Contingency): $${(pricing.total * 1.1).toFixed(2)}**`;
+			const data = await response.json();
+			if (!data.text) {
+				throw new Error("No text generated. Please try again.");
+			}
+			
+			setGeneratedAOR(data.text);
+			
+			// Auto-scroll to textarea
+			setTimeout(() => {
+				const textarea = document.getElementById("generated-aor-textarea");
+				textarea?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+			}, 100);
+		} catch (error) {
+			console.error("Error generating AOR:", error);
+			setAorError(error instanceof Error ? error.message : "An error occurred while generating the AOR.");
+		} finally {
+			setIsGeneratingAOR(false);
+		}
+	};
 
-		// Copy to clipboard
-		navigator.clipboard.writeText(exportPrompt).then(() => {
-			alert("Catering request copied to clipboard!");
+	// Copy generated AOR to clipboard
+	const copyAORToClipboard = () => {
+		if (!generatedAOR) return;
+		
+		navigator.clipboard.writeText(generatedAOR).then(() => {
+			// You could add a toast notification here if available
+			alert("AOR copied to clipboard!");
 		}).catch(() => {
-			// Fallback: show in console
-			console.log("Catering Request for Approval:", exportPrompt);
-			alert("Catering request logged to console. Check browser console for details.");
+			alert("Failed to copy to clipboard. Please select and copy manually.");
 		});
 	};
 
-	// Open AOR link function
-	const openAORLink = () => {
-		window.open("https://aibots.gov.sg/chats/aor-buddy", "_blank");
-	};
 
 	const pricing = calculateTotal();
 
@@ -403,16 +467,25 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
-												{caterer.menus.map((menu) => (
-													<SelectItem key={menu.id} value={menu.id}>
-														<div className="flex justify-between items-center w-full">
-															<span>{menu.code}</span>
-															<span className="text-sm text-gray-500 ml-2">
-																Min Order: {menu.minimumOrder}
-															</span>
-														</div>
-													</SelectItem>
-												))}
+												{[...caterer.menus]
+													.sort((a, b) => {
+														// Extract numeric part from menu code (e.g., "402" from "Bayfront Food Catering Catering 402")
+														const getNumericCode = (code: string) => {
+															const match = code.match(/(\d+)$/);
+															return match && match[1] ? parseInt(match[1], 10) : 0;
+														};
+														return getNumericCode(a.code) - getNumericCode(b.code);
+													})
+													.map((menu) => (
+														<SelectItem key={menu.id} value={menu.id}>
+															<div className="flex justify-between items-center w-full">
+																<span>{menu.code}</span>
+																<span className="text-sm text-gray-500 ml-2">
+																	Min Order: {menu.minimumOrder}
+																</span>
+															</div>
+														</SelectItem>
+													))}
 											</SelectContent>
 										</Select>
 									</div>
@@ -920,23 +993,59 @@ ${Object.entries(selectedItemsWithNames).flatMap(([sectionId, items]) => items).
 											</div>
 										</div>
 
-										<div className="space-y-2 pt-4">
-											<div className="grid grid-cols-2 gap-2">
-												<Button 
-													onClick={exportForApproval}
-													className="bg-orange-500 hover:bg-orange-600"
-													disabled={!isSelectionComplete()}
-												>
-													<Calculator className="w-4 h-4 mr-2" />
-													Copy for AOR
-												</Button>
-												<Button 
-													onClick={openAORLink}
-													className="bg-blue-500 hover:bg-blue-600"
-												>
-													Open AOR Builder
-												</Button>
-											</div>
+										<div className="space-y-2">
+											<Button 
+												onClick={exportForApproval}
+												className="w-full bg-orange-500 hover:bg-orange-600"
+												disabled={!isSelectionComplete() || isGeneratingAOR}
+											>
+												{isGeneratingAOR ? (
+													<>
+														<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+														Generating...
+													</>
+												) : (
+													<>
+														<Sparkles className="w-4 h-4 mr-2" />
+														Generate AOR with Gemini
+													</>
+												)}
+											</Button>
+											
+											{/* Generated AOR Textarea */}
+											{(generatedAOR || aorError) && (
+												<div className="space-y-2 pt-2">
+													<div className="flex items-center justify-between">
+														<Label htmlFor="generated-aor-textarea" className="text-sm font-medium">
+															Generated AOR:
+														</Label>
+														{generatedAOR && (
+															<Button
+																variant="outline"
+																size="sm"
+																onClick={copyAORToClipboard}
+																className="h-8"
+															>
+																<Copy className="w-3 h-3 mr-1" />
+																Copy
+															</Button>
+														)}
+													</div>
+													{aorError ? (
+														<div className="p-3 rounded-md bg-red-50 border border-red-200">
+															<p className="text-sm text-red-600">{aorError}</p>
+														</div>
+													) : (
+														<Textarea
+															id="generated-aor-textarea"
+															value={generatedAOR}
+															readOnly
+															className="min-h-[200px] font-mono text-sm"
+															placeholder="Generated AOR will appear here..."
+														/>
+													)}
+												</div>
+											)}
 										</div>
 
 										{!isSelectionComplete() && (
