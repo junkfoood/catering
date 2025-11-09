@@ -24,25 +24,50 @@ interface AORPayload {
 	};
 }
 
+// Update Event Date to DD MMM YYYY without comma
+function formatDate(dateString: string): string {
+	if (!dateString) return "[Not specified]";
+	const date = new Date(dateString);
+	return date.toLocaleDateString("en-GB", {
+		day: "2-digit",
+		month: "short",
+		year: "numeric",
+	}).replace(/ /g, " "); // e.g. "14 Nov 2025"
+}
+
 export async function POST(req: NextRequest) {
 	try {
 		const payload: AORPayload = await req.json();
 
-		// Construct the prompt for Gemini
-		const prompt = `You are generating an Approval of Request (AOR) email for a catering order. Please create a professional, clear email that looks natural and human-written (not robotic or overly formal).
+		// Format the event date
+		const eventDate = formatDate(payload.background.eventDate);
 
-IMPORTANT FORMATTING REQUIREMENTS:
-- Write it as a normal email (not markdown with # or * symbols)
-- Use plain text formatting, no markdown symbols
-- Format the pricing in a proper table with clear columns
-- Do NOT include any approval checkboxes, signature lines, or "point 5" sections
-- End with a simple "Thank you" or "Thanks"
+		// Construct the prompt for Gemini
+		const prompt = `You are generating an Approval of Request (AOR) email for a catering order.
+
+Write this as a natural, professional email that an approver would receive. 
+Keep it conversational but polished.
+
+Use round bullet points (•) for all list items instead of asterisks.  
+Do not use markdown syntax (#, *, **).
+
+For the pricing section, list each cost item clearly as bullet points using this format:
+• Subtotal: $175.00   
+• Delivery Charges: $45.00
+• Less Discounts: ($4.40) 
+• Admin Fee: $0.00 (if $0.00, do not include this line)  
+• Total: $215.60  
+• Total with 10% Contingency: $237.16
+
+At the end of the email, include this closing line:  
+"If there are no further queries, please proceed to approve this request."  
+End with a simple thank-you message.
 
 The email should include:
 
 Background Information:
-- Event Type/Purpose: ${payload.background.eventType || "[Not specified]"}
-- Event Date/Timeline: ${payload.background.eventDate || "[Not specified]"}
+- Event: ${payload.background.eventType || "[Not specified]"}
+- Event Date: ${eventDate} 
 - Funding Source: ${payload.background.fundingSource || "[Not specified]"}
 - Approver: ${payload.background.approver || "[Not specified]"}
 
@@ -54,13 +79,11 @@ Order Details:
 
 Pricing Breakdown (format as a proper table):
 - Subtotal: $${payload.pricing.subtotal.toFixed(2)}
-- Discount: $${payload.pricing.discount.toFixed(2)}
 - Delivery Charges: $${payload.pricing.delivery.toFixed(2)}
+- Less Discounts: ($${payload.pricing.discount.toFixed(2)})
 - Admin Fee: $${payload.pricing.adminFee.toFixed(2)}
 - Total: $${payload.pricing.total.toFixed(2)}
-- Total with 10% Contingency: $${payload.pricing.totalWithContingency.toFixed(2)}
-
-Write this as a natural, professional email that an approver would receive. Make it conversational but professional. Do not use markdown formatting symbols (#, *, **). Format the pricing in a clear table format. End with a simple thank you message.`;
+- Total with 10% Contingency: $${payload.pricing.totalWithContingency.toFixed(2)}`;
 
 		// Verify API key is available
 		if (!env.GEMINI_API_KEY) {
