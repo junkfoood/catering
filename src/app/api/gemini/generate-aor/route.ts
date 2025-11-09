@@ -97,6 +97,30 @@ Pricing Breakdown (format as a proper table):
 		// Call Gemini API - using gemini-2.0-flash-001 (stable version available with free-tier key)
 		const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-001:generateContent?key=${env.GEMINI_API_KEY}`;
 
+		// Safety settings - block low and above for all harm categories
+		const safetySettings = [
+			{
+				category: "HARM_CATEGORY_HARASSMENT",
+				threshold: "BLOCK_LOW_AND_ABOVE",
+			},
+			{
+				category: "HARM_CATEGORY_HATE_SPEECH",
+				threshold: "BLOCK_LOW_AND_ABOVE",
+			},
+			{
+				category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+				threshold: "BLOCK_LOW_AND_ABOVE",
+			},
+			{
+				category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+				threshold: "BLOCK_LOW_AND_ABOVE",
+			},
+			{
+				category: "HARM_CATEGORY_CIVIC_INTEGRITY",
+				threshold: "BLOCK_LOW_AND_ABOVE",
+			},
+		];
+
 		const requestBody = {
 			contents: [
 				{
@@ -107,6 +131,7 @@ Pricing Breakdown (format as a proper table):
 					],
 				},
 			],
+			safetySettings: safetySettings,
 		};
 
 		const response = await fetch(geminiUrl, {
