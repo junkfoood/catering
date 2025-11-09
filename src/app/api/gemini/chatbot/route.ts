@@ -3,6 +3,20 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import { CatererMenuType } from "@prisma/client";
 
+// Labels for Categories (matching the frontend)
+const categoryLabels: Record<CatererMenuType, string> = {
+	SMALL_QTY_REFRESHMENT: "Small Quantity Refreshments",
+	SMALL_QTY_BUFFET: "Small Quantity Buffet",
+	PACKED_MEALS: "Packed Meals",
+	TEA_RECEPTION: "Tea Reception",
+	BUFFET_1: "Buffet 1",
+	BUFFET_2: "Buffet 2",
+	BBQ_BUFFET: "BBQ Buffet",
+	THEME_BUFFET: "Theme Buffet",
+	ETHNIC_FOOD_MALAY: "Ethnic Food Malay",
+	ETHNIC_FOOD_INDIAN: "Ethnic Food Indian",
+};
+
 interface ChatbotPayload {
 	message: string;
 	criteria: {
@@ -157,11 +171,12 @@ export async function POST(req: NextRequest) {
 		const menuContext = filteredMenus
 			.map((menu) => {
 				const totalCost = menu.pricePerPerson * paxCount;
+				const menuTypeLabel = categoryLabels[menu.menuType as CatererMenuType] || menu.menuType;
 				return `- ${menu.catererName} - ${menu.menuCode}:
   • Price per person: $${menu.pricePerPerson.toFixed(2)}
   • Estimated total for ${paxCount} pax: $${totalCost.toFixed(2)}
   • Minimum order: ${menu.minimumOrder} pax
-  • Menu type: ${menu.menuType}
+  • Menu type: ${menuTypeLabel}
   ${menu.notes ? `• Notes: ${menu.notes}` : ""}
   • Has vegetarian options: ${menu.hasVegetarian ? "Yes" : "No"}
   • Menu ID: ${menu.menuId}
@@ -207,6 +222,7 @@ Instructions:
 5. If no menus match perfectly, suggest the closest alternatives and explain why
 6. Be helpful and friendly in your tone
 7. Do not use markdown formatting - use plain text with bullet points (•)
+8. When referring to menu types, use the human-readable labels (e.g., "Small Quantity Refreshments" instead of "SMALL_QTY_REFRESHMENT")
 
 When mentioning menus, use this format:
 • [Caterer Name] - [Menu Code]: [Brief description] (Price: $X.XX per person, Total: $X.XX for ${paxCount} pax)`;
