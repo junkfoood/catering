@@ -27,7 +27,7 @@ export const routes = {
 		link: "/comparison",
 	},
 	chatbot: {
-		label: "Chatbot",
+		label: "Menu Advisor",
 		link: "/chatbot",
 	},
 	api: {

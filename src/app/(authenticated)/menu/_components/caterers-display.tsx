@@ -640,8 +640,11 @@ export default function CaterersDisplay({
 															onClick={() => {
 																// Prefetch the comparison page data
 																router.prefetch(`/comparison?caterer=${vendor.id}&menu=${menu.id}`);
-																// Open in new tab
-																window.open(`/comparison?caterer=${vendor.id}&menu=${menu.id}`, '_blank');
+																// Open in new tab with noopener for security
+																const newWindow = window.open(`/comparison?caterer=${vendor.id}&menu=${menu.id}`, '_blank');
+																if (newWindow) {
+																	newWindow.opener = null;
+																}
 															}}
 														>
 															Compare

@@ -102,7 +102,7 @@ export const Masthead = ({ isStaging }: { isStaging: boolean }) => {
 								<a
 									href="https://www.gov.sg/trusted-sites#govsites"
 									className="inline-flex items-center text-[#2f5fd0] hover:text-[#4371d6]"
-									rel="noreferrer"
+									rel="noopener noreferrer"
 									target="_blank"
 								>
 									Trusted websites

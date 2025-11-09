@@ -170,7 +170,7 @@ Can you suggest some suitable menus?`;
 		<div className="container mx-auto p-4 max-w-6xl">
 			<Card className="h-[calc(100vh-8rem)] flex flex-col">
 				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle>Menu Recommendation Chatbot (Take suggestions with a grain of salt<SprayCan className="w-4 h-4 inline-block ml-2" />)</CardTitle>
+					<CardTitle>Menu Advisor (Take suggestions with a grain of salt<SprayCan className="w-4 h-4 inline-block ml-2" />)</CardTitle>
 					{!showForm && (
 						<Button
 							variant="ghost"
@@ -392,6 +392,8 @@ Can you suggest some suitable menus?`;
 																	>
 																	<Link
 																		href={`/caterer/${menu.catererId}?menu=${menu.menuId}`}
+																		target="_blank"
+																		rel="noopener noreferrer"
 																	>
 																			View Menu
 																		</Link>
