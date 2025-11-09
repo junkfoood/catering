@@ -74,6 +74,7 @@ export const env = createEnv({
 				: z.string().min(1).optional(),
 		FEATURE_FLAG_MOCKPASS: booleanStringSchema.optional().default(false),
 		GEMINI_API_KEY: z.string().min(1),
+		GEMINI_API_KEY_CHAT: z.string().min(1),
 	},
 
 	/**
@@ -109,6 +110,7 @@ export const env = createEnv({
 		AUTH_WOG_SECRET: process.env.AUTH_WOG_SECRET,
 		FEATURE_FLAG_MOCKPASS: process.env.FEATURE_FLAG_MOCKPASS,
 		GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+		GEMINI_API_KEY_CHAT: process.env.GEMINI_API_KEY_CHAT,
 	},
 	/**
 	 * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

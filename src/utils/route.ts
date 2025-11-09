@@ -26,6 +26,10 @@ export const routes = {
 		label: "Comparison",
 		link: "/comparison",
 	},
+	chatbot: {
+		label: "Chatbot",
+		link: "/chatbot",
+	},
 	api: {
 		reference: {
 			label: "API Reference",
