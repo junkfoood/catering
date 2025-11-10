@@ -22,13 +22,13 @@ export const routes = {
 		label: "Menus",
 		link: "/menu",
 	},
-	comparison: {
-		label: "Comparison",
-		link: "/comparison",
-	},
 	chatbot: {
 		label: "Menu Advisor",
 		link: "/chatbot",
+	},
+	comparison: {
+		label: "Comparison",
+		link: "/comparison",
 	},
 	api: {
 		reference: {

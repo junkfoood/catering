@@ -24,7 +24,7 @@ export interface NavbarProps
 	selector?: Route;
 }
 
-const navbarRoutes: () => (Route | NestedRoute)[] = () => [routes.menu, routes.comparison, routes.chatbot];
+const navbarRoutes: () => (Route | NestedRoute)[] = () => [routes.menu, routes.chatbot, routes.comparison];
 const publicNavbarRoutes: (Route | NestedRoute)[] = [];
 
 const Navbar = React.forwardRef<HTMLDivElement, NavbarProps>(
