@@ -30,6 +30,10 @@ export const routes = {
 		label: "Comparison",
 		link: "/comparison",
 	},
+	catererDirectory: {
+		label: "Caterer Directory",
+		link: "/caterer-directory",
+	},
 	api: {
 		reference: {
 			label: "API Reference",
