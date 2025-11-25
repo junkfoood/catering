@@ -31,6 +31,9 @@ import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import type { CatererData, CatererMenuData } from "~/server/api/routers/caterer";
 
+type MenuSection = CatererMenuData['sections'][number];
+type MenuItem = MenuSection['items'][number];
+
 const discountFields = [
 	{ key: "discount_below_500", label: "Below $500" },
 	{ key: "discount_500_2000", label: "$500 - $2,000" },
@@ -48,7 +51,7 @@ export default function CatererDisplay({
 	const router = useRouter();
 	const [selectedMenu, setSelectedMenu] = useState<CatererMenuData | null>(() => {
 		if (initialMenuId) {
-			const menu = caterer.menus.find(m => m.id === initialMenuId);
+			const menu = caterer.menus.find((m: CatererMenuData) => m.id === initialMenuId);
 			return menu ?? caterer.menus[0] ?? null;
 		}
 		return caterer.menus[0] ?? null;
@@ -87,7 +90,7 @@ export default function CatererDisplay({
 		itemId: string,
 		checked: boolean,
 	) => {
-		const section = selectedMenu?.sections.find((s) => s.id === sectionId);
+		const section = selectedMenu?.sections.find((s: MenuSection) => s.id === sectionId);
 		if (!section) return;
 
 		setSelectedItems((prev) => {
@@ -210,7 +213,7 @@ export default function CatererDisplay({
 	const isSelectionComplete = () => {
 		if (!selectedMenu) return false;
 
-		return selectedMenu.sections.every((section) => {
+		return selectedMenu.sections.every((section: MenuSection) => {
 			const selections = selectedItems[section.id] || [];
 			return selections.length === section.selectionLimit;
 		});
@@ -221,10 +224,10 @@ export default function CatererDisplay({
 		if (!selectedMenu) return 0;
 		
 		let deepFriedCount = 0;
-		selectedMenu.sections.forEach(section => {
+		selectedMenu.sections.forEach((section: MenuSection) => {
 			const selectedSectionItems = selectedItems[section.id] || [];
 			selectedSectionItems.forEach(itemId => {
-				const item = section.items.find(i => i.id === itemId);
+				const item = section.items.find((i: MenuItem) => i.id === itemId);
 				if (item?.fried) {
 					deepFriedCount++;
 				}
@@ -236,10 +239,10 @@ export default function CatererDisplay({
 	const canSelectItem = (sectionId: string, itemId: string) => {
 		if (!selectedMenu) return false;
 		
-		const section = selectedMenu.sections.find(s => s.id === sectionId);
+		const section = selectedMenu.sections.find((s: MenuSection) => s.id === sectionId);
 		if (!section) return false;
 		
-		const item = section.items.find(i => i.id === itemId);
+		const item = section.items.find((i: MenuItem) => i.id === itemId);
 		if (!item) return false;
 		
 		// Check if item is already selected
@@ -273,10 +276,10 @@ export default function CatererDisplay({
 		
 		// Get selected items with names
 		const selectedItemsList: string[] = [];
-		selectedMenu.sections.forEach(section => {
+		selectedMenu.sections.forEach((section: MenuSection) => {
 			const selectedSectionItems = selectedItems[section.id] || [];
 			selectedSectionItems.forEach(itemId => {
-				const item = section.items.find(i => i.id === itemId);
+				const item = section.items.find((i: MenuItem) => i.id === itemId);
 				if (item) {
 					selectedItemsList.push(item.name);
 				}
@@ -455,7 +458,7 @@ export default function CatererDisplay({
 										<Select
 											value={selectedMenu?.id.toString()}
 											onValueChange={(value) => {
-												const menu = caterer.menus.find((m) => m.id === value);
+												const menu = caterer.menus.find((m: CatererMenuData) => m.id === value);
 												setSelectedMenu(menu || null);
 												// Update pax count to respect minimum order
 												if (menu) {
@@ -667,7 +670,7 @@ export default function CatererDisplay({
 								<CardContent>
 									<Tabs defaultValue="0" className="w-full">
 										<TabsList className="grid grid-cols-4 gap-1 gap-y-3 p-1 auto-rows-fr">
-											{selectedMenu.sections.map((section, index) => (
+											{selectedMenu.sections.map((section: MenuSection, index: number) => (
 												<TabsTrigger 
 													key={section.id} 
 													value={index.toString()}
@@ -681,7 +684,7 @@ export default function CatererDisplay({
 											))}
 										</TabsList>
 
-										{selectedMenu.sections.map((section, index) => (
+										{selectedMenu.sections.map((section: MenuSection, index: number) => (
 											<TabsContent
 												key={section.id}
 												value={index.toString()}
@@ -705,7 +708,7 @@ export default function CatererDisplay({
 												</div>
 
 												<div className="grid gap-3">
-													{section.items.map((item) => {
+													{section.items.map((item: MenuItem) => {
 														const isSelected =
 															selectedItems[section.id]?.includes(item.id) ||
 															false;
@@ -810,10 +813,10 @@ export default function CatererDisplay({
 													</span>
 												</div>
 												<div className="mt-1 space-y-1">
-													{selectedMenu.sections.map((section) => {
+													{selectedMenu.sections.map((section: MenuSection) => {
 														const selectedSectionItems = selectedItems[section.id] || [];
 														return selectedSectionItems.map((itemId) => {
-															const item = section.items.find(i => i.id === itemId);
+															const item = section.items.find((i: MenuItem) => i.id === itemId);
 															return item ? (
 																<div key={itemId} className="text-xs text-gray-600 ml-2">
 																	• {item.name}
