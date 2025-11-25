@@ -21,7 +21,7 @@ importers:
         version: 2.3.30
       '@auth/prisma-adapter':
         specifier: ^2.7.4
-        version: 2.7.4(@prisma/client@6.14.0(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3))
+        version: 2.7.4(@prisma/client@7.0.1(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3))
       '@aws-sdk/client-s3':
         specifier: ^3.744.0
         version: 3.744.0
@@ -38,8 +38,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       '@prisma/client':
-        specifier: ^6.14.0
-        version: 6.14.0(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3)
+        specifier: ^7.0.0
+        version: 7.0.1(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3)
       '@radix-ui/react-accordion':
         specifier: ^1.2.3
         version: 1.2.3(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -976,12 +976,15 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@prisma/client@6.14.0':
-    resolution: {integrity: sha512-8E/Nk3eL5g7RQIg/LUj1ICyDmhD053STjxrPxUtCRybs2s/2sOEcx9NpITuAOPn07HEpWBfhAVe1T/HYWXUPOw==}
-    engines: {node: '>=18.18'}
+  '@prisma/client-runtime-utils@7.0.1':
+    resolution: {integrity: sha512-R26BVX9D/iw4toUmZKZf3jniM/9pMGHHdZN5LVP2L7HNiCQKNQQx/9LuMtjepbgRqSqQO3oHN0yzojHLnKTGEw==}
+
+  '@prisma/client@7.0.1':
+    resolution: {integrity: sha512-O74T6xcfaGAq5gXwCAvfTLvI6fmC3and2g5yLRMkNjri1K8mSpEgclDNuUWs9xj5AwNEMQ88NeD3asI+sovm1g==}
+    engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
-      typescript: '>=5.1.0'
+      typescript: '>=5.4.0'
     peerDependenciesMeta:
       prisma:
         optional: true
@@ -3213,10 +3216,10 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
 
-  '@auth/prisma-adapter@2.7.4(@prisma/client@6.14.0(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3))':
+  '@auth/prisma-adapter@2.7.4(@prisma/client@7.0.1(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3))':
     dependencies:
       '@auth/core': 0.37.4
-      '@prisma/client': 6.14.0(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3)
+      '@prisma/client': 7.0.1(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
@@ -3990,7 +3993,11 @@ snapshots:
     dependencies:
       playwright: 1.50.1
 
-  '@prisma/client@6.14.0(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3)':
+  '@prisma/client-runtime-utils@7.0.1': {}
+
+  '@prisma/client@7.0.1(prisma@6.14.0(typescript@5.7.3))(typescript@5.7.3)':
+    dependencies:
+      '@prisma/client-runtime-utils': 7.0.1
     optionalDependencies:
       prisma: 6.14.0(typescript@5.7.3)
       typescript: 5.7.3
