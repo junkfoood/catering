@@ -2,7 +2,7 @@ import { chainMiddleware } from "./middlewares/chain";
 import { withCSP } from "./middlewares/with-csp";
 
 // Chain the middlewares together
-export const middleware = chainMiddleware([withCSP]);
+export const proxy = chainMiddleware([withCSP]);
 
 export const config = {
 	matcher: [
@@ -17,3 +17,4 @@ export const config = {
 		},
 	],
 };
+
