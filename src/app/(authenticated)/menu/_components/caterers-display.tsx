@@ -400,33 +400,17 @@ export default function CaterersDisplay({
 													onChange={(e) => {
 														const value = e.target.value;
 														setMinBudgetInput(value);
-														// Auto-update slider if valid number
-														if (value !== "" && !isNaN(Number(value))) {
-															const newValue = Number.parseInt(value);
-															if (!isNaN(newValue)) {
-																const validMin = Math.max(3, Math.min(newValue, 60));
-																// Update slider selection directly - fluid movement
-																const newBudget: [number, number] = [
-																	validMin,
-																	Math.max(validMin, budget[1])
-																];
-																setBudget(newBudget);
-																// Update the max input if it needs to adjust
-																if (budget[1] < validMin) {
-																	setMaxBudgetInput(validMin.toString());
-																}
-															}
-														}
+														// Don't update budget during typing - only update on blur
 													}}
 													onBlur={(e) => {
 														const newValue = Number.parseInt(e.target.value) || 3;
-														const validMin = Math.max(3, Math.min(newValue, maxBudget - 1, 60));
+														const validMin = Math.max(3, Math.min(newValue, budget[1] - 1, 60));
 														setMinBudget(validMin);
 														setMinBudgetInput(validMin.toString());
-														// Constrain budget selection to new min
+														// Update budget with new min - preserve current max
 														const constrainedBudget: [number, number] = [
-															Math.max(validMin, budget[0]),
-															Math.max(validMin, budget[1])
+															validMin, // Use the validated min value
+															budget[1] // Preserve current max value
 														];
 														setBudget(constrainedBudget);
 													}}
@@ -445,33 +429,17 @@ export default function CaterersDisplay({
 													onChange={(e) => {
 														const value = e.target.value;
 														setMaxBudgetInput(value);
-														// Auto-update slider if valid number
-														if (value !== "" && !isNaN(Number(value))) {
-															const newValue = Number.parseInt(value);
-															if (!isNaN(newValue)) {
-																const validMax = Math.max(3, Math.min(newValue, 60));
-																// Update slider selection directly - fluid movement
-																const newBudget: [number, number] = [
-																	Math.min(validMax, budget[0]),
-																	validMax
-																];
-																setBudget(newBudget);
-																// Update the min input if it needs to adjust
-																if (budget[0] > validMax) {
-																	setMinBudgetInput(validMax.toString());
-																}
-															}
-														}
+														// Don't update budget during typing - only update on blur
 													}}
 													onBlur={(e) => {
 														const newValue = Number.parseInt(e.target.value) || 60;
-														const validMax = Math.min(60, Math.max(minBudget + 1, newValue));
+														const validMax = Math.min(60, Math.max(budget[0] + 1, newValue));
 														setMaxBudget(validMax);
 														setMaxBudgetInput(validMax.toString());
-														// Constrain budget selection to new max
+														// Update budget with new max - preserve current min
 														const constrainedBudget: [number, number] = [
-															Math.min(validMax, budget[0]),
-															Math.min(validMax, budget[1])
+															budget[0], // Preserve current min value
+															validMax // Use the validated max value
 														];
 														setBudget(constrainedBudget);
 													}}
