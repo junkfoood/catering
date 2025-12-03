@@ -115,7 +115,14 @@ export type CatererListData = Prisma.CatererGetPayload<{
 export const includeCatererMenuData = {
 	sections: {
 		include: {
-			items: true,
+			items: {
+				orderBy: {
+					order: "asc",
+				},
+			},
+		},
+		orderBy: {
+			order: "asc",
 		},
 	},
 } satisfies Prisma.CatererMenuInclude;

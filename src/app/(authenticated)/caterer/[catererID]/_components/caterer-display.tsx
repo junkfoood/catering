@@ -708,7 +708,15 @@ export default function CatererDisplay({
 												</div>
 
 												<div className="grid gap-3">
-													{section.items.map((item: MenuItem) => {
+													{[...section.items]
+														.sort((a, b) => {
+															// Primary sort by order
+															const orderDiff = (a.order ?? 0) - (b.order ?? 0);
+															if (orderDiff !== 0) return orderDiff;
+															// Secondary sort by name (alphabetical) for tiebreaker
+															return (a.name ?? "").localeCompare(b.name ?? "");
+														})
+														.map((item: MenuItem) => {
 														const isSelected =
 															selectedItems[section.id]?.includes(item.id) ||
 															false;
