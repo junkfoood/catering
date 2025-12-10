@@ -20,7 +20,7 @@ export const Banner = () => {
                         ⚠️ 
 							<div>
 								<strong>Disclaimer:</strong>{" "}
-								This site provides price and menu comparison only. Menu classifications for <span className="text-green-600">vegetarian</span> or <span className="text-orange-900">deep fried</span> may not always be accurate so please refer to{" "} 
+								This site is a prototype for the Catering Demand Aggregation by GovTech for quick price and menu comparisons. We may update it regularly but the {" "} 
 								{" "}
 								<a
 									href="https://sgdcs.sgnet.gov.sg/sites/VITAL-pts/SitePages/CateringServices(2024-2027).aspx"
@@ -28,8 +28,8 @@ export const Banner = () => {
 								>
 									VITAL infosite
 								</a>
-								{" "}for the most current and verified details.
-								<br></br>
+								{" "}remains the source of truth. Please verify menu details there before issuing any Purchase Orders.
+								<br></br><br></br>
 								If you have feedback about the site itself (not the VITAL infosite and/or VITAL Catering DA contract), please share it through this{" "} 
 								<a
 									href="https://go.gov.sg/cateringfeedback"
