@@ -94,8 +94,8 @@ Pricing Breakdown (format as a proper table):
 			);
 		}
 
-		// Call Gemini API - using gemini-2.0-flash-001 (stable version available with free-tier key)
-		const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-001:generateContent?key=${env.GEMINI_API_KEY}`;
+		// Call Gemini API - using gemini-2.5-flash-lite (cost-efficient, low-latency)
+		const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent?key=${env.GEMINI_API_KEY}`;
 
 		// Safety settings - block low and above for all harm categories
 		const safetySettings = [
