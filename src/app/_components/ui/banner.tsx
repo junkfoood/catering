@@ -20,7 +20,7 @@ export const Banner = () => {
                         ⚠️ 
 							<div>
 								<strong>Disclaimer:</strong>{" "}
-								This site is a prototype for the Catering Demand Aggregation by GovTech for quick price and menu comparisons. We may update it regularly but the {" "} 
+								This site is a prototype for the Catering Demand Aggregation by GovTech for quick price and menu comparisons. The menu information may not be 100% accurate.We may update it regularly but the {" "} 
 								{" "}
 								<a
 									href="https://sgdcs.sgnet.gov.sg/sites/VITAL-pts/SitePages/CateringServices(2024-2027).aspx"
