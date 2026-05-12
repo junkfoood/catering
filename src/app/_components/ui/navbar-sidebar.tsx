@@ -4,14 +4,14 @@ import {
 	CollapsibleTrigger,
 } from "@radix-ui/react-collapsible";
 import clsx from "clsx";
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "public/logo.webp";
 import { auth } from "~/server/auth";
 import { NestedRoute, Route } from "~/utils/route";
-import { Button } from "./button";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./sheet";
+import { NavbarMobileSheet } from "./navbar-mobile-sheet";
+import { SheetTitle } from "./sheet";
 
 export async function NavbarSidebar({
 	publicNavbarRoutes,
@@ -24,68 +24,57 @@ export async function NavbarSidebar({
 	const isActiveUser = session?.user.activated;
 
 	return (
-		<Sheet>
+		<NavbarMobileSheet>
 			<SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-			<SheetTrigger asChild>
-				<Button
-					variant="ghost"
-					className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
-				>
-					<Menu className="h-5 w-5" />
-					<span className="sr-only">Toggle Menu</span>
-				</Button>
-			</SheetTrigger>
-			<SheetContent side="left" className="pr-0">
-				<MobileLink href="/" className="flex items-center">
-					<Image src={logo} alt="Logo" className="h-12 w-auto" />
-				</MobileLink>
-				<div className="flex flex-col space-y-3 pt-6">
-					{(isActiveUser ? navbarRoutes : publicNavbarRoutes)
-						.filter((route) => {
-							if ("routes" in route) {
-								if (route.auth && route.auth(session?.user!) === false) {
-									return false;
-								}
-								return true;
-							}
+			<MobileLink href="/" className="flex items-center">
+				<Image src={logo} alt="Logo" className="h-12 w-auto" />
+			</MobileLink>
+			<div className="flex flex-col space-y-3 pt-6">
+				{(isActiveUser ? navbarRoutes : publicNavbarRoutes)
+					.filter((route) => {
+						if ("routes" in route) {
 							if (route.auth && route.auth(session?.user!) === false) {
 								return false;
 							}
 							return true;
-						})
-						.map((route) =>
-							"routes" in route ? (
-								<Collapsible key={`group-${route.label}`}>
-									<CollapsibleTrigger className="text-foreground/70 hover:text-foreground flex w-full items-center gap-2 transition-colors">
-										{route.label}
-										<ChevronDown className="h-4 w-4" />
-									</CollapsibleTrigger>
-									<CollapsibleContent className="mt-2 flex flex-col gap-2 pl-4">
-										{route.routes
-											.filter(
-												(child) =>
-													!child.auth || child.auth(session?.user!) !== false,
-											)
-											.map((child) => (
-												<MobileLink
-													className="border-l-2 pl-2"
-													key={child.link}
-													href={child.link}
-												>
-													{child.label}
-												</MobileLink>
-											))}
-									</CollapsibleContent>
-								</Collapsible>
-							) : (
-								<MobileLink key={route.link} href={route.link}>
+						}
+						if (route.auth && route.auth(session?.user!) === false) {
+							return false;
+						}
+						return true;
+					})
+					.map((route) =>
+						"routes" in route ? (
+							<Collapsible key={`group-${route.label}`}>
+								<CollapsibleTrigger className="text-foreground/70 hover:text-foreground flex w-full items-center gap-2 transition-colors">
 									{route.label}
-								</MobileLink>
-							),
-						)}
-				</div>
-			</SheetContent>
-		</Sheet>
+									<ChevronDown className="h-4 w-4" />
+								</CollapsibleTrigger>
+								<CollapsibleContent className="mt-2 flex flex-col gap-2 pl-4">
+									{route.routes
+										.filter(
+											(child) =>
+												!child.auth || child.auth(session?.user!) !== false,
+										)
+										.map((child) => (
+											<MobileLink
+												className="border-l-2 pl-2"
+												key={child.link}
+												href={child.link}
+											>
+												{child.label}
+											</MobileLink>
+										))}
+								</CollapsibleContent>
+							</Collapsible>
+						) : (
+							<MobileLink key={route.link} href={route.link}>
+								{route.label}
+							</MobileLink>
+						),
+					)}
+			</div>
+		</NavbarMobileSheet>
 	);
 }
 
